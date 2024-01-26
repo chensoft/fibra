@@ -1,0 +1,20 @@
+[package]
+name = "veloce"
+version = "0.1.0"
+edition = "2021"
+authors = ["Jian Chen <admin@chensoft.com>"]
+license = "MIT"
+description = "Fast and Powerful HTTP router written in Rust"
+documentation = "https://docs.rs/veloce"
+repository = "https://github.com/chensoft/veloce"
+readme = "README.md"
+keywords = ["veloce", "http"]
+
+[dependencies]
+
+[dev-dependencies]
+criterion = "0.5.1"
+
+[[bench]]
+name = "benchmark"
+harness = false
