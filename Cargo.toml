@@ -8,13 +8,14 @@ description = "Fast and Powerful HTTP router written in Rust"
 documentation = "https://docs.rs/veloce"
 repository = "https://github.com/chensoft/veloce"
 readme = "README.md"
-keywords = ["veloce", "http"]
+keywords = ["veloce", "http", "server", "web", "framework"]
 
 [dependencies]
+hyper = { version = "0.14", features = ["full"] }
 
 [dev-dependencies]
 criterion = "0.5.1"
 
 [[bench]]
-name = "benchmark"
+name = "server"
 harness = false

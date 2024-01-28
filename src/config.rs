@@ -1,0 +1,4 @@
+// static
+pub struct Config {
+    
+}
