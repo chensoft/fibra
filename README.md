@@ -26,11 +26,13 @@ Fast and Powerful HTTP router written in Rust
 ## Features
 
 - Powerful router
+- Flex middleware
 - Regex matching
-- Subdomain support
-- Subrouter support
+- Named params
 - URL rewrite
 - URL redirect
+- Subdomain support
+- Subrouter support
 
 ## Hello World
 

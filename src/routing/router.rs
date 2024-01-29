@@ -1,3 +1,5 @@
+use super::plugin::*;
+
 pub struct Router;
 
 impl Router {
@@ -8,5 +10,10 @@ impl Router {
     pub fn reject(&mut self) {}
     pub fn rewrite(&mut self) {}
     pub fn redirect(&mut self) {}
-    pub fn subrouter(&mut self) {}
+    pub fn attach(&mut self, _plugin: impl Plugin) {}
+    pub fn detach(&mut self, _plugin: impl Plugin) {}
+}
+
+impl Plugin for Router {
+
 }
