@@ -1,4 +1,3 @@
-// static
 pub struct Config {
     
 }

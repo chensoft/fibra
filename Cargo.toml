@@ -8,7 +8,7 @@ description = "Fast and Powerful HTTP router written in Rust"
 documentation = "https://docs.rs/veloce"
 repository = "https://github.com/chensoft/veloce"
 readme = "README.md"
-keywords = ["veloce", "http", "server", "web", "framework"]
+keywords = ["veloce", "http", "router", "web", "server"]
 
 [dependencies]
 hyper = { version = "0.14", features = ["full"] }
