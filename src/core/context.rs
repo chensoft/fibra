@@ -1,8 +1,12 @@
+use crate::http;
+use super::cache::*;
+use super::define::*;
+
 pub struct Context {
-    // request
-    // response
-    // cookie
-    // storage
+    pub cache: Cache,
+    pub cookie: http::Cookie,
+    pub req: http::Request,
+    pub res: http::Response,
 }
 
 impl Drop for Context {
@@ -12,9 +16,13 @@ impl Drop for Context {
 }
 
 impl Context {
+    pub fn new(_req: http::Request) -> Self {
+        todo!()
+    }
+
     pub fn next(&mut self) {}
-    pub fn abort(&mut self) {}
-    pub fn param(&mut self) {}
-    pub fn rewrite(&mut self) {}
-    pub fn redirect(&mut self) {}
+    pub fn abort(self) {}
+    pub fn param(&mut self, _key: &str) {}
+    pub fn rewrite(self, _to: Cow<'static, str>) {}
+    pub fn redirect(self, _to: Cow<'static, str>, _code: http::StatusCode) {}
 }

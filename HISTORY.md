@@ -5,6 +5,7 @@
 - tls support
 - h1 & h2 support
 - route has a name
+- hooks for events
 
 ## [0.1.0] - 2024-01-xx
 

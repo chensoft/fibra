@@ -11,6 +11,7 @@ readme = "README.md"
 keywords = ["veloce", "http", "router", "web", "server"]
 
 [dependencies]
+mime = "0.3.17"
 hyper = { version = "0.14", features = ["full"] }
 tokio = { version = "1.35.1", features = ["full"] }
 anyhow = { version = "1.0.79", features = ["backtrace"] }

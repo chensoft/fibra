@@ -1,4 +1,4 @@
-use super::config::*;
+use super::define::*;
 use super::router::*;
 
 pub struct Veloce {
@@ -6,7 +6,7 @@ pub struct Veloce {
 }
 
 impl Veloce {
-    pub fn new(_config: Option<Config>) -> Self {
+    pub fn new(_conf: Option<Config>) -> Self {
         Self {}
     }
 
