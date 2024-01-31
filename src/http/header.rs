@@ -1,1 +1,0 @@
-pub use hyper::header as Header;

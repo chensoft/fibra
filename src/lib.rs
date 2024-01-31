@@ -1,7 +1,8 @@
 pub mod core;
 pub mod exts;
-pub mod http;
 
+pub use http;
+pub use mime;
 pub use core::*;
 
 pub async fn serve(root: Router, addr: impl tokio::net::ToSocketAddrs) -> anyhow::Result<()> {

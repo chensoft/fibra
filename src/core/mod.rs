@@ -1,3 +1,4 @@
+mod adapt;
 mod cache;
 mod context;
 mod define;

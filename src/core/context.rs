@@ -1,12 +1,10 @@
-use crate::http;
 use super::cache::*;
 use super::define::*;
 
 pub struct Context {
-    pub cache: Cache,
-    pub cookie: http::Cookie,
-    pub req: http::Request,
-    pub res: http::Response,
+    pub tmp: Cache,
+    pub req: http::Request<http::Body>,
+    pub res: http::Response<http::Body>,
 }
 
 impl Drop for Context {
@@ -16,7 +14,7 @@ impl Drop for Context {
 }
 
 impl Context {
-    pub fn new(_req: http::Request) -> Self {
+    pub fn new(_req: http::Request<http::Body>) -> Self {
         todo!()
     }
 

@@ -10,10 +10,13 @@ impl Veloce {
         Self {}
     }
 
-    pub async fn bind(&mut self, _addr: impl tokio::net::ToSocketAddrs) -> anyhow::Result<&mut Self> {
+    pub fn with(&mut self, _tcp: i32) -> anyhow::Result<&mut Self> {
         Ok(self)
     }
 
+    pub async fn bind(&mut self, _addr: impl tokio::net::ToSocketAddrs) -> anyhow::Result<&mut Self> {
+        Ok(self)
+    }
     pub async fn run(&mut self, _root: Router) -> anyhow::Result<()> {
         Ok(())
     }

@@ -1,5 +1,4 @@
 use crate::exts;
-use crate::http;
 use super::define::*;
 use super::context::*;
 
