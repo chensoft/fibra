@@ -1,11 +1,11 @@
 use super::types::*;
-use super::cache::*;
+use super::storage::*;
 
 pub struct Context {
     pub req: http::Request<http::Body>,
     pub res: http::Response<http::Body>,
     pub peer: SocketAddr,
-    pub temp: Cache,
+    pub temp: Storage,
 }
 
 impl Drop for Context {
@@ -19,7 +19,7 @@ impl Context {
         todo!()
     }
 
-    pub fn next(&mut self) {}
+    pub fn next(&mut self) -> Result<()> { Ok(()) }
     pub fn abort(self) {}
     pub fn param(&mut self, _key: &str) {}
     pub fn rewrite(self, _to: Cow<'static, str>) {}

@@ -5,6 +5,8 @@ pub(crate) use std::net::SocketAddr;
 
 pub(crate) use indexmap::IndexMap;
 
+pub type Result<T> = anyhow::Result<T>;
+
 #[derive(Debug, Default, Clone)]
 pub struct Config {
 

@@ -1,6 +1,7 @@
 use super::types::*;
-use super::addon::*;
 use super::route::*;
+use super::context::*;
+use super::handler::*;
 
 pub struct Veloce {
     config: Config,
@@ -17,26 +18,26 @@ impl Veloce {
 
     pub fn sub(&mut self, _pattern: &str) -> Self { todo!() }
 
-    pub fn route(&mut self, _pattern: &str, _handler: impl Addon) -> &mut Self {
-        // self.routes.push(Route {pattern: pattern.into(), handler: handler.into()});
+    pub fn route(&mut self, pattern: &str, handler: impl Handler + 'static) -> &mut Self {
+        self.routes.push(Route {pattern: pattern.into(), handler: Box::new(handler)});
         self
     }
 
-    pub fn mount(&mut self, _handler: impl Addon) {}
+    // pub fn mount(&mut self, _handler: Handler) {}
     pub fn public(&mut self, _pattern: &str, _dir: PathBuf, _conf: Option<Public>) {}
     pub fn reject(&mut self, _pattern: &str) {}
     pub fn rewrite(&mut self, _from: &str, _to: &str) {}
     pub fn redirect(&mut self, _from: &str, _to: &str, _code: http::StatusCode) {}
 
-    pub fn take(&mut self, _tcp: i32) -> anyhow::Result<&mut Self> {
+    pub fn take(&mut self, _tcp: i32) -> Result<&mut Self> {
         Ok(self)
     }
 
-    pub async fn bind(&mut self, _addr: impl tokio::net::ToSocketAddrs) -> anyhow::Result<&mut Self> {
+    pub async fn bind(&mut self, _addr: impl tokio::net::ToSocketAddrs) -> Result<&mut Self> {
         Ok(self)
     }
 
-    pub async fn run(self) -> anyhow::Result<()> {
+    pub async fn run(self) -> Result<()> {
         Ok(())
     }
 }
