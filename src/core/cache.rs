@@ -1,2 +1,1 @@
-pub struct Cache {
-}
+pub struct Cache;

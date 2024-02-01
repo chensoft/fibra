@@ -1,12 +1,13 @@
-mod adapt;
+mod addon;
 mod cache;
 mod context;
-mod define;
-mod router;
+mod route;
+mod types;
 mod veloce;
 
+pub use addon::*;
 pub use cache::*;
 pub use context::*;
-pub use define::*;
-pub use router::*;
+pub use route::*;
+pub use types::*;
 pub use veloce::*;

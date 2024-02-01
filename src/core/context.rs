@@ -1,10 +1,11 @@
+use super::types::*;
 use super::cache::*;
-use super::define::*;
 
 pub struct Context {
-    pub tmp: Cache,
     pub req: http::Request<http::Body>,
     pub res: http::Response<http::Body>,
+    pub peer: SocketAddr,
+    pub temp: Cache,
 }
 
 impl Drop for Context {

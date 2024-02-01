@@ -33,6 +33,7 @@ Fast and Powerful HTTP router written in Rust
 - URL redirect
 - Subdomain support
 - Subrouter support
+- Multiple listener
 
 ## Hello World
 
