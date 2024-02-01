@@ -10,7 +10,7 @@ impl Veloce {
         Self {}
     }
 
-    pub fn with(&mut self, _tcp: i32) -> anyhow::Result<&mut Self> {
+    pub fn take(&mut self, _tcp: i32) -> anyhow::Result<&mut Self> {
         Ok(self)
     }
 
