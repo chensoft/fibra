@@ -1,11 +1,8 @@
-use veloce::{Veloce, Result, Context};
+use veloce::{Context, Result};
 
 #[tokio::main]
-async fn main() -> anyhow::Result<()> {
-    let mut app = Veloce::new(None);
-    app.route("/", veloce::exts::func::wrap(hello));
-    app.bind(":3000").await?;
-    app.run().await
+async fn main() -> Result<()> {
+    veloce::serve!(":3000", "/" => hello)
 }
 
 async fn hello(mut ctx: Context) -> Result<()> {
