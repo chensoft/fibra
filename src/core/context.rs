@@ -20,7 +20,7 @@ impl Context {
     }
 
     pub fn next(&mut self) -> Result<()> { Ok(()) }
-    pub fn abort(self) {}
+    pub fn abort(self) -> Result<()> { Ok(()) }
     pub fn param(&mut self, _key: &str) {}
     pub fn rewrite(self, _to: Cow<'static, str>) {}
     pub fn redirect(self, _to: Cow<'static, str>, _code: http::StatusCode) {}
