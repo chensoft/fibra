@@ -3,7 +3,7 @@ use veloce::{Veloce, Result, Context};
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     let mut app = Veloce::new(None);
-    // app.route("/", veloce::exts::func::Func {func: Box::new(hello)});
+    app.route("/", veloce::exts::func::wrap(hello));
     app.bind(":3000").await?;
     app.run().await
 }

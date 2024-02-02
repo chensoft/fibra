@@ -1,13 +1,11 @@
 mod context;
 mod handler;
 mod storage;
-mod route;
-mod types;
+mod common;
 mod veloce;
 
 pub use context::*;
 pub use handler::*;
 pub use storage::*;
-pub use route::*;
-pub use types::*;
+pub use common::*;
 pub use veloce::*;

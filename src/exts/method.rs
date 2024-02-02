@@ -1,12 +1,11 @@
-use crate::core::Result;
-use crate::core::Context;
-use crate::core::Handler;
+use crate::core::*;
 
 /// Any
 struct Any;
 
+#[async_trait]
 impl Handler for Any {
-    fn handle(&mut self, mut ctx: Context) -> Result<()> {
+    async fn handle(&mut self, mut ctx: Context) -> Result<()> {
         ctx.next()
     }
 }
@@ -18,8 +17,9 @@ pub fn any() -> impl Handler {
 /// Get
 struct Get;
 
+#[async_trait]
 impl Handler for Get {
-    fn handle(&mut self, mut ctx: Context) -> Result<()> {
+    async fn handle(&mut self, mut ctx: Context) -> Result<()> {
         // todo re-route?
         match ctx.req.method() == http::Method::GET {
             true => ctx.next(),

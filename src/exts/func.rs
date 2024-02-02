@@ -1,14 +1,28 @@
-use std::future::Future;
-use crate::core::Result;
-use crate::core::Context;
-use crate::core::Handler;
+use crate::core::*;
 
-pub struct Func {
-    pub func: Box<dyn FnMut(Context) -> dyn Future<Output = Result<()>>>,
+struct Func<F, R>
+    where
+        F: Fn(Context) -> R + Sync + Send + 'static,
+        R: Future<Output = Result<()>> + Sync + Send + 'static
+{
+    f: F
 }
 
-impl Handler for Func {
-    fn handle(&mut self, mut ctx: Context) -> Result<()> {
-        ctx.next()
+#[async_trait]
+impl<F, R> Handler for Func<F, R>
+    where
+        F: Fn(Context) -> R + Sync + Send + 'static,
+        R: Future<Output = Result<()>> + Sync + Send + 'static
+{
+    async fn handle(&mut self, ctx: Context) -> Result<()> {
+        (self.f)(ctx).await
     }
+}
+
+pub fn wrap<F, R>(f: F) -> impl Handler
+    where
+        F: Fn(Context) -> R + Sync + Send + 'static,
+        R: Future<Output = Result<()>> + Sync + Send + 'static
+{
+    Func {f}
 }
