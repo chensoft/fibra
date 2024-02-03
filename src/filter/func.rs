@@ -14,7 +14,7 @@ impl<F, R> Handler for Func<F, R>
         F: Fn(Context) -> R + Sync + Send + 'static,
         R: Future<Output = Result<()>> + Sync + Send + 'static
 {
-    async fn handle(&mut self, ctx: Context) -> Result<()> {
+    async fn handle(&self, ctx: Context) -> Result<()> {
         (self.f)(ctx).await
     }
 }

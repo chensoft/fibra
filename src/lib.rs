@@ -21,16 +21,16 @@ pub use storage::*;
 
 pub struct Veloce {
     _config: Config,
-    routes: Vec<Box<dyn Handler>>,
-    sockets: Vec<StdTcpListener>,
+    handlers: Vec<Box<dyn Handler>>,
+    services: Vec<StdTcpListener>,
 }
 
 impl Veloce {
     pub fn new(config: Option<Config>) -> Self {
         Self {
             _config: config.unwrap_or_default(),
-            routes: vec![],
-            sockets: vec![],
+            handlers: vec![],
+            services: vec![],
         }
     }
 
@@ -45,7 +45,7 @@ impl Veloce {
     }
 
     pub fn mount(&mut self, handler: impl Handler) -> &mut Self {
-        self.routes.push(Box::new(handler));
+        self.handlers.push(Box::new(handler));
         self
     }
 
@@ -68,7 +68,7 @@ impl Veloce {
     pub async fn bind(&mut self, addr: &str) -> Result<&mut Self> {
         match tokio::net::lookup_host(addr).await {
             Ok(mut ret) => match ret.next() {
-                None => Err(Error::DNSFailed(Cow::Borrowed("abc")).into()),
+                None => Err(Error::DNSFailed(Cow::Borrowed("DNS resolution list is empty")).into()),
                 Some(addr) => self.take(StdTcpListener::bind(addr)?),
             },
             Err(err) => Err(Error::DNSFailed(Cow::Owned(err.to_string())).into()),
@@ -76,24 +76,37 @@ impl Veloce {
     }
 
     pub fn take(&mut self, tcp: StdTcpListener) -> Result<&mut Self> {
-        self.sockets.push(tcp);
+        self.services.push(tcp);
         Ok(self)
     }
 
     pub async fn run(mut self) -> Result<()> {
-        use http::{Body, Response, Server};
+        use http::{Response, Server};
+        use http::server::conn::AddrStream;
         use http::service::{make_service_fn, service_fn};
 
-        let mut sockets = std::mem::take(&mut self.sockets);
+        let mut sockets = std::mem::take(&mut self.services);
         let appself = Arc::new(self);
-        let service = make_service_fn(|_conn| {
-            let appself = appself.clone();
+        let service = make_service_fn(|conn: &AddrStream| {
+            let _appself = appself.clone();
+            let address = (conn.local_addr(), conn.remote_addr());
 
             async move {
-                Ok::<_, Infallible>(service_fn(move |_req| {
-                    let _appself = appself.clone();
+                Ok::<_, Infallible>(service_fn(move |req| {
+                    let context = Context {
+                        req,
+                        res: Response::default(),
+                        sock: address.0,
+                        peer: address.1,
+                        temp: Storage,
+                    };
+
+                    // for handler in &appself.handlers {
+                    //     handler.handle(context);
+                    // }
+
                     async move {
-                        Ok::<_, Infallible>(Response::new(Body::from("Hello World!")))
+                        Ok::<_, Infallible>(context.res)
                     }
                 }))
             }
