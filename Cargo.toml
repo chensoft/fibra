@@ -15,6 +15,7 @@ mime = "0.3"
 http = { package = "hyper", version = "0.14", features = ["full"] }
 tokio = { version = "1.35", features = ["full"] }
 anyhow = { version = "1.0", features = ["backtrace"] }
+futures = "0.3"
 indexmap = "2.2"
 thiserror = "1.0"
 async-trait = "0.1"

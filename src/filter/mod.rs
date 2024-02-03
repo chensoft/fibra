@@ -4,4 +4,6 @@ mod method;
 pub use func::*;
 pub use method::*;
 
-pub trait Filter {}
+use crate::Handler;
+
+pub trait Filter: Handler {}

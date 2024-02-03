@@ -1,1 +1,3 @@
-pub trait Plugin {}
+use crate::Handler;
+
+pub trait Plugin: Handler {}
