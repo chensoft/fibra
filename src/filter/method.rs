@@ -1,7 +1,7 @@
-use crate::core::*;
+use crate::*;
 
 /// Any
-struct Any;
+pub struct Any;
 
 #[async_trait]
 impl Handler for Any {
@@ -10,12 +10,8 @@ impl Handler for Any {
     }
 }
 
-pub fn any() -> impl Handler {
-    Any
-}
-
 /// Get
-struct Get;
+pub struct Get;
 
 #[async_trait]
 impl Handler for Get {
@@ -26,8 +22,4 @@ impl Handler for Get {
             false => ctx.next(),
         }
     }
-}
-
-pub fn get() -> impl Handler {
-    Get
 }

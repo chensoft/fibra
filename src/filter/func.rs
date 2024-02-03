@@ -1,6 +1,6 @@
-use crate::core::*;
+use crate::*;
 
-struct Func<F, R>
+pub struct Func<F, R>
     where
         F: Fn(Context) -> R + Sync + Send + 'static,
         R: Future<Output = Result<()>> + Sync + Send + 'static
@@ -19,10 +19,12 @@ impl<F, R> Handler for Func<F, R>
     }
 }
 
-pub fn wrap<F, R>(f: F) -> impl Handler
+impl<F, R> Func<F, R>
     where
         F: Fn(Context) -> R + Sync + Send + 'static,
         R: Future<Output = Result<()>> + Sync + Send + 'static
 {
-    Func {f}
+    pub fn new(f: F) -> Self {
+        Func {f}
+    }
 }
