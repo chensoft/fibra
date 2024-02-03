@@ -91,9 +91,8 @@ impl Veloce {
 
             async move {
                 Ok::<_, Infallible>(service_fn(move |_req| {
-                    let appself = appself.clone();
+                    let _appself = appself.clone();
                     async move {
-                        println!("{}", appself.routes.len());
                         Ok::<_, Infallible>(Response::new(Body::from("Hello World!")))
                     }
                 }))
