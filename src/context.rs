@@ -4,6 +4,7 @@ use super::storage::*;
 pub struct Context {
     pub req: http::Request<http::Body>,
     pub res: http::Response<http::Body>,
+    // pub mux: ,
     pub sock: SocketAddr,
     pub peer: SocketAddr,
     pub temp: Storage,
@@ -19,6 +20,7 @@ impl Context {
     pub fn new(_req: http::Request<http::Body>) -> Self {
         todo!()
     }
+    pub fn reset(&mut self) {}
 
     pub fn next(&mut self) -> Result<()> { Ok(()) }
     pub fn abort(self) -> Result<()> { Ok(()) }

@@ -5,7 +5,7 @@ pub struct Func<F, R>
         F: Fn(Context) -> R + Sync + Send + 'static,
         R: Future<Output = Result<()>> + Sync + Send + 'static
 {
-    f: F
+    pub f: F
 }
 
 #[async_trait]

@@ -26,7 +26,7 @@ macro_rules! route {
 }
 
 #[derive(Debug, Default, Clone)]
-pub struct Config {
+pub struct Preset {
 
 }
 

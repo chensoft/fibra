@@ -20,48 +20,50 @@ pub use pattern::*;
 pub use storage::*;
 
 pub struct Veloce {
-    _config: Config,
-    handlers: Vec<Box<dyn Handler>>,
-    services: Vec<StdTcpListener>,
+    presets: Preset,
+    filters: Vec<Box<dyn filter::Filter>>, // todo METHOD/PATTERN/OTHER radix tree key use pattern indextree, if not found method goto methodnotallowed config, if pattern goto notfound config
+    plugins: Vec<Box<dyn plugin::Plugin>>,
+    sockets: Vec<StdTcpListener>,
 }
 
 impl Veloce {
-    pub fn new(config: Option<Config>) -> Self {
+    pub fn new(presets: Option<Preset>) -> Self {
         Self {
-            _config: config.unwrap_or_default(),
-            handlers: vec![],
-            services: vec![],
+            presets: presets.unwrap_or_default(),
+            filters: vec![],
+            plugins: vec![],
+            sockets: vec![],
         }
     }
 
-    pub fn sub(&mut self, _pattern: &str) -> Self {
-        todo!()
+    pub fn mount(&mut self, plugin: impl plugin::Plugin) -> &mut Self {
+        self.plugins.push(Box::new(plugin));
+        self
     }
 
-    pub fn route(&mut self, _pattern: &str, handler: impl Handler) -> &mut Self {
+    // todo .route("/xxx", handler).method(GET, POST, CUSTOM)
+    pub fn route(&mut self, pattern: impl Into<Pattern>, handler: impl Handler) -> &mut Self {
         // todo pattern filter
-        self.mount(handler);
         self
     }
 
-    pub fn mount(&mut self, handler: impl Handler) -> &mut Self {
-        self.handlers.push(Box::new(handler));
+    pub fn group(&mut self, pattern: impl Into<Pattern>, presets: Option<Preset>) -> Self {
+        Self::new(presets)
+    }
+
+    pub fn public(&mut self, pattern: impl Into<Pattern>, directory: PathBuf, presets: Option<Public>) -> &mut Self {
         self
     }
 
-    pub fn public(&mut self, _pattern: &str, _dir: PathBuf, _conf: Option<Public>) -> &mut Self {
+    pub fn reject(&mut self, pattern: impl Into<Pattern>) -> &mut Self {
         self
     }
 
-    pub fn reject(&mut self, _pattern: &str) -> &mut Self {
+    pub fn rewrite(&mut self, from: impl Into<Pattern>, to: impl Into<Pattern>) -> &mut Self {
         self
     }
 
-    pub fn rewrite(&mut self, _from: &str, _to: &str) -> &mut Self {
-        self
-    }
-
-    pub fn redirect(&mut self, _from: &str, _to: &str, _code: http::StatusCode) -> &mut Self {
+    pub fn redirect(&mut self, from: impl Into<Pattern>, to: impl Into<Pattern>, _code: http::StatusCode) -> &mut Self {
         self
     }
 
@@ -76,7 +78,7 @@ impl Veloce {
     }
 
     pub fn take(&mut self, tcp: StdTcpListener) -> Result<&mut Self> {
-        self.services.push(tcp);
+        self.sockets.push(tcp);
         Ok(self)
     }
 
@@ -85,7 +87,7 @@ impl Veloce {
         use http::server::conn::AddrStream;
         use http::service::{make_service_fn, service_fn};
 
-        let mut sockets = std::mem::take(&mut self.services);
+        let mut sockets = std::mem::take(&mut self.sockets);
         let appself = Arc::new(self);
         let service = make_service_fn(|conn: &AddrStream| {
             let _appself = appself.clone();
