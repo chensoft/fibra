@@ -1,0 +1,15 @@
+pub(crate) use std::sync::Arc;
+pub(crate) use std::borrow::Cow;
+pub(crate) use std::path::PathBuf;
+pub(crate) use std::future::Future;
+pub(crate) use std::net::SocketAddr;
+pub(crate) use std::convert::Infallible;
+pub(crate) use std::net::TcpListener as StdTcpListener;
+
+pub type Result<T> = anyhow::Result<T>;
+
+#[derive(Debug, Clone, Error, Eq, PartialEq, Ord, PartialOrd)]
+pub enum Error {
+    #[error("{0}")]
+    DNSFailed(Cow<'static, str>),
+}

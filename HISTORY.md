@@ -8,6 +8,7 @@
 - hooks for events
 - cookie support
 - Swagger & OpenAPI
+- session keepalive
 
 ## [0.1.0] - 2024-02-xx
 
