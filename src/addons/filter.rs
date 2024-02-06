@@ -1,5 +1,8 @@
-use crate::*;
+use crate::consts::*;
+use crate::traits::*;
+use crate::kernel::*;
 
+/// Function Wrapper
 pub struct Func<F, R>
     where
         F: Fn(Context) -> R + Sync + Send + 'static,
@@ -26,5 +29,29 @@ impl<F, R> Func<F, R>
 {
     pub fn new(f: F) -> Self {
         Func {f}
+    }
+}
+
+/// Any
+pub struct Any;
+
+#[async_trait]
+impl Handler for Any {
+    async fn handle(&self, mut ctx: Context) -> Result<()> {
+        ctx.next()
+    }
+}
+
+/// Get
+pub struct Get;
+
+#[async_trait]
+impl Handler for Get {
+    async fn handle(&self, mut ctx: Context) -> Result<()> {
+        // todo re-route?
+        match ctx.req.method() == http::Method::GET {
+            true => ctx.next(),
+            false => ctx.next(),
+        }
     }
 }

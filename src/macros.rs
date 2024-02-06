@@ -11,6 +11,6 @@ macro_rules! serve {
 #[macro_export]
 macro_rules! route {
     ($handler:expr) => {{
-        $crate::filter::Func::new($handler)
+        $crate::addons::Func::new($handler)
     }};
 }

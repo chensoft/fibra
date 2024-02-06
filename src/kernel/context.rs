@@ -1,10 +1,9 @@
-use super::general::*;
-use super::storage::*;
+use crate::consts::*;
+use super::storage::Storage;
 
 pub struct Context {
     pub req: http::Request<http::Body>,
     pub res: http::Response<http::Body>,
-    // pub mux: ,
     pub sock: SocketAddr,
     pub peer: SocketAddr,
     pub temp: Storage,

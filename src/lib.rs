@@ -7,17 +7,16 @@
 pub use http;
 pub use mime;
 
-pub mod filter;
-pub mod plugin;
+mod kernel;
+mod config;
+mod consts;
+mod macros;
+mod traits;
+mod veloce;
 
-mod context;
-mod general;
-mod handler;
-mod pattern;
-mod storage;
-
-pub use context::*;
-pub use general::*;
-pub use handler::*;
-pub use pattern::*;
-pub use storage::*;
+pub mod addons;
+pub use kernel::*;
+pub use config::*;
+pub use consts::*;
+pub use traits::*;
+pub use veloce::*;
