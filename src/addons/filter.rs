@@ -2,6 +2,33 @@ use crate::consts::*;
 use crate::traits::*;
 use crate::kernel::*;
 
+pub struct Route {
+    pub pattern: Pattern,
+    pub handler: Box<dyn Handler>,
+}
+
+impl Route {
+    pub fn new(pattern: impl Into<Pattern>, handler: impl Handler) -> Self {
+        Self {pattern: pattern.into(), handler: Box::new(handler)}
+    }
+}
+
+// todo derive
+pub struct Filter {
+    pub routes: Vec<Route>
+}
+
+impl Filter {
+    pub fn new(pattern: impl Into<Pattern>, handler: impl Handler) -> Self {
+        Self {routes: vec![Route::new(pattern, handler)]}
+    }
+
+    pub fn add(&mut self, pattern: impl Into<Pattern>, handler: impl Handler) -> &mut Self {
+        self.routes.push(Route::new(pattern, handler));
+        self
+    }
+}
+
 /// Function Wrapper
 pub struct Func<F, R>
     where

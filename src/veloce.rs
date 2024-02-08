@@ -18,37 +18,37 @@ impl Veloce {
         }
     }
 
-    pub fn mount(&mut self, handler: impl Handler) -> &mut Self {
-        self
+    pub fn mount(&mut self, handler: impl Handler) {
+        self.routes.push(Box::new(handler));
     }
 
     // todo .route("/xxx", handler).method(GET, POST, CUSTOM)
-    pub fn route(&mut self, pattern: impl Into<Pattern>, handler: impl Handler) -> &mut Self {
+    pub fn route(&mut self, pattern: impl Into<Pattern>, handler: impl Handler) {
         // todo pattern filter
-        self
+        
     }
 
-    pub fn group(&mut self, pattern: impl Into<Pattern>, config: Option<Config>) -> Self {
-        Self::new(config)
+    pub fn group(&mut self, pattern: impl Into<Pattern>, config: Option<Config>) -> &mut Self {
+        todo!()
     }
 
-    pub fn public(&mut self, pattern: impl Into<Pattern>, directory: PathBuf, presets: Option<Public>) -> &mut Self {
-        self
+    pub fn public(&mut self, pattern: impl Into<Pattern>, directory: PathBuf, presets: Option<Public>) {
+
     }
 
-    pub fn reject(&mut self, pattern: impl Into<Pattern>) -> &mut Self {
-        self
+    pub fn reject(&mut self, pattern: impl Into<Pattern>) {
+
     }
 
-    pub fn rewrite(&mut self, from: impl Into<Pattern>, to: impl Into<Pattern>) -> &mut Self {
-        self
+    pub fn rewrite(&mut self, from: impl Into<Pattern>, to: impl Into<Pattern>) {
+
     }
 
-    pub fn redirect(&mut self, from: impl Into<Pattern>, to: impl Into<Pattern>, _code: http::StatusCode) -> &mut Self {
-        self
+    pub fn redirect(&mut self, from: impl Into<Pattern>, to: impl Into<Pattern>, _code: http::StatusCode) {
+
     }
 
-    pub async fn bind(&mut self, addr: &str) -> Result<&mut Self> {
+    pub async fn bind(&mut self, addr: &str) -> Result<()> {
         match tokio::net::lookup_host(addr).await {
             Ok(mut ret) => match ret.next() {
                 None => Err(Error::DNSFailed("DNS resolution list is empty".into()).into()),
@@ -58,9 +58,9 @@ impl Veloce {
         }
     }
 
-    pub fn take(&mut self, tcp: StdTcpListener) -> Result<&mut Self> {
+    pub fn take(&mut self, tcp: StdTcpListener) -> Result<()> {
         self.listen.push(tcp);
-        Ok(self)
+        Ok(())
     }
 
     pub async fn run(mut self) -> Result<()> {
@@ -104,5 +104,12 @@ impl Veloce {
         futures::future::join_all(servers).await;
 
         Ok(())
+    }
+}
+
+#[async_trait]
+impl Handler for Veloce {
+    async fn handle(&self, ctx: Context) -> Result<()> {
+        todo!()
     }
 }
