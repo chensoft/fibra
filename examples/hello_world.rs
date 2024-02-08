@@ -7,6 +7,7 @@ async fn main() -> Result<()> {
     api.mount(addons::Logger);
     api.route("/", veloce::route!(api_root)); // todo remove macros
 
+    // todo /api use subdomain filter
     let v1 = api.group("/api/v1", None);
     v1.route("/", veloce::route!(api_v1_root));
     v1.route("/user", veloce::route!(api_v1_user));

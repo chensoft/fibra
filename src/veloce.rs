@@ -32,7 +32,7 @@ impl Veloce {
         todo!()
     }
 
-    pub fn public(&mut self, pattern: impl Into<Pattern>, directory: PathBuf, presets: Option<Public>) {
+    pub fn public(&mut self, pattern: impl Into<Pattern>, directory: PathBuf, config: Option<Public>) {
 
     }
 
