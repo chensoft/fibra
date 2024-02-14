@@ -1,6 +1,5 @@
 mod codec;
 mod cors;
-mod filter;
 mod limiter;
 mod logger;
 mod public;
@@ -13,7 +12,6 @@ mod timeout;
 
 pub use codec::*;
 pub use cors::*;
-pub use filter::*;
 pub use limiter::*;
 pub use logger::*;
 pub use public::*;

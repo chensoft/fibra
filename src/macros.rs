@@ -21,11 +21,3 @@ macro_rules! serve {
         app.run().await
     }};
 }
-
-// todo delete use Into
-#[macro_export]
-macro_rules! route {
-    ($handler:expr) => {{
-        $crate::addons::Func::new($handler)
-    }};
-}

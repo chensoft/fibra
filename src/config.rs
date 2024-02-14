@@ -1,9 +1,14 @@
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Clone)]
 pub struct Config {
-
 }
 
-#[derive(Debug, Default, Clone)]
+impl Config {
+    pub fn new() -> Self {
+        Config {}
+    }
+}
+
+#[derive(Debug, Clone)]
 pub struct Public {
 
 }

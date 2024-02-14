@@ -5,14 +5,18 @@ use crate::kernel::*;
 
 pub struct Veloce {
     config: Config,
-    routes: Vec<Box<dyn Handler>>, // todo METHOD/PATTERN/OTHER radix tree key use pattern indextree, if not found method goto methodnotallowed config, if pattern goto notfound config
+    routes: Vec<Box<dyn Handler>>,
     listen: Vec<StdTcpListener>,
 }
 
 impl Veloce {
-    pub fn new(config: Option<Config>) -> Self {
+    pub fn new() -> Self {
+        Self::from_config(Config::new())
+    }
+
+    pub fn from_config(config: Config) -> Self {
         Self {
-            config: config.unwrap_or_default(),
+            config,
             routes: vec![],
             listen: vec![],
         }
@@ -22,10 +26,8 @@ impl Veloce {
         self.routes.push(Box::new(handler));
     }
 
-    // todo .route("/xxx", handler).method(GET, POST, CUSTOM)
     pub fn route(&mut self, pattern: impl Into<Pattern>, handler: impl Handler) {
-        // todo pattern filter
-        
+        self.routes.push(Box::new(handler));
     }
 
     pub fn group(&mut self, pattern: impl Into<Pattern>, config: Option<Config>) -> &mut Self {
@@ -44,7 +46,7 @@ impl Veloce {
 
     }
 
-    pub fn redirect(&mut self, from: impl Into<Pattern>, to: impl Into<Pattern>, _code: http::StatusCode) {
+    pub fn redirect(&mut self, from: impl Into<Pattern>, to: impl Into<Pattern>, status: http::StatusCode) {
 
     }
 

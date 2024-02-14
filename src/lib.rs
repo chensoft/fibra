@@ -14,7 +14,9 @@ mod macros;
 mod traits;
 mod veloce;
 
-pub mod addons;
+pub mod filter;
+pub mod plugin;
+
 pub use kernel::*;
 pub use config::*;
 pub use consts::*;
