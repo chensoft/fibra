@@ -10,6 +10,12 @@ pub struct Veloce {
     listen: Vec<StdTcpListener>,
 }
 
+impl Default for Veloce {
+    fn default() -> Self {
+        Self::new(None)
+    }
+}
+
 impl Veloce {
     pub fn new(config: Option<Config>) -> Self {
         Self {config: config.unwrap_or_default(), routes: vec![], listen: vec![]}
@@ -27,7 +33,7 @@ impl Veloce {
                 matcher.add(pattern, handler);
             }
             None => {
-                let mut matcher = Matcher::new();
+                let mut matcher = Matcher::default();
                 matcher.add(pattern, handler);
                 self.routes.push(Box::new(matcher));
             }
@@ -58,6 +64,10 @@ impl Veloce {
         self.route(from, plugin::Redirect::new(to, status));
     }
 
+    pub fn catch(&mut self, error: fn(Context, anyhow::Error) -> http::Response<http::Body>) {
+        self.config.error = error;
+    }
+
     pub async fn bind(&mut self, addr: &str) -> Result<()> {
         match tokio::net::lookup_host(addr).await {
             Ok(mut ret) => match ret.next() {
@@ -81,12 +91,13 @@ impl Veloce {
         let mut sockets = std::mem::take(&mut self.listen);
         let appself = Arc::new(self);
         let service = make_service_fn(|conn: &AddrStream| {
-            let _appself = appself.clone();
+            let appself = appself.clone();
             let address = (conn.local_addr(), conn.remote_addr());
 
             async move {
                 Ok::<_, Infallible>(service_fn(move |req| {
-                    let context = Context {
+                    let appself = appself.clone();
+                    let mut context = Context {
                         req,
                         res: Response::default(),
                         sock: address.0,
@@ -94,12 +105,22 @@ impl Veloce {
                         temp: Storage,
                     };
 
-                    // for handler in &appself.handlers {
-                    //     handler.handle(context);
-                    // }
-
                     async move {
-                        Ok::<_, Infallible>(context.res)
+                        match AssertUnwindSafe(context.next()).catch_unwind().await {
+                            Ok(ret) => match ret {
+                                Ok(_) => Ok::<_, Infallible>(context.res),
+                                Err(err) => Ok::<_, Infallible>((appself.config.error)(context, err)),
+                            }
+                            Err(err) => {
+                                if let Some(err) = err.downcast_ref::<&str>() {
+                                    Ok::<_, Infallible>((appself.config.error)(context, anyhow!(err.clone())))
+                                } else if let Some(err) = err.downcast_ref::<String>() {
+                                    Ok::<_, Infallible>((appself.config.error)(context, anyhow!(err.clone())))
+                                } else {
+                                    Ok::<_, Infallible>((appself.config.error)(context, anyhow!("unknown panic")))
+                                }
+                            }
+                        }
                     }
                 }))
             }

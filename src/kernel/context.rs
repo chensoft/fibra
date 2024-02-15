@@ -21,9 +21,9 @@ impl Context {
     }
     pub fn reset(&mut self) {}
 
-    pub fn next(&mut self) -> Result<()> { Ok(()) }
+    pub async fn next(&mut self) -> Result<()> { Ok(()) }
     pub fn abort(self) -> Result<()> { Ok(()) }
     pub fn param(&mut self, _key: &str) {}
-    pub fn rewrite(self, _to: Cow<'static, str>) {}
-    pub fn redirect(self, _to: Cow<'static, str>, _code: http::StatusCode) {}
+    pub fn rewrite(self, _to: impl Into<http::Uri>) {}
+    pub fn redirect(self, _to: impl Into<http::Uri>, _code: http::StatusCode) {}
 }
