@@ -1,3 +1,4 @@
+use crate::plugin;
 use crate::config::*;
 use crate::consts::*;
 use crate::traits::*;
@@ -5,21 +6,13 @@ use crate::kernel::*;
 
 pub struct Veloce {
     config: Config,
-    routes: Vec<Box<dyn Handler>>,
+    routes: Vec<Box<dyn AnyHandler>>,
     listen: Vec<StdTcpListener>,
 }
 
 impl Veloce {
-    pub fn new() -> Self {
-        Self::from_config(Config::new())
-    }
-
-    pub fn from_config(config: Config) -> Self {
-        Self {
-            config,
-            routes: vec![],
-            listen: vec![],
-        }
+    pub fn new(config: Option<Config>) -> Self {
+        Self {config: config.unwrap_or_default(), routes: vec![], listen: vec![]}
     }
 
     pub fn mount(&mut self, handler: impl Handler) {
@@ -27,27 +20,42 @@ impl Veloce {
     }
 
     pub fn route(&mut self, pattern: impl Into<Pattern>, handler: impl Handler) {
-        self.routes.push(Box::new(handler));
+        let last = self.routes.last_mut().map(|val| val.as_any_mut().downcast_mut::<Matcher>()).flatten();
+
+        match last {
+            Some(matcher) => {
+                matcher.add(pattern, handler);
+            }
+            None => {
+                let mut matcher = Matcher::new();
+                matcher.add(pattern, handler);
+                self.routes.push(Box::new(matcher));
+            }
+        }
     }
 
-    pub fn group(&mut self, pattern: impl Into<Pattern>, config: Option<Config>) -> &mut Self {
-        todo!()
+    pub fn group(&mut self, pattern: impl Into<Pattern>, config: Option<Config>) -> &mut Veloce {
+        self.route(pattern, Veloce::new(config));
+        match self.routes.last_mut().map(|val| val.as_any_mut().downcast_mut::<Veloce>()).flatten() {
+            Some(val) => val,
+            None => unreachable!()
+        }
     }
 
-    pub fn public(&mut self, pattern: impl Into<Pattern>, directory: PathBuf, config: Option<Public>) {
-
+    pub fn public(&mut self, pattern: impl Into<Pattern>, folder: PathBuf, config: Option<Static>) {
+        self.route(pattern, plugin::Public::new(folder, config));
     }
 
-    pub fn reject(&mut self, pattern: impl Into<Pattern>) {
-
+    pub fn reject(&mut self, pattern: impl Into<Pattern>, status: Option<http::StatusCode>) {
+        self.route(pattern, plugin::Reject::new(status));
     }
 
-    pub fn rewrite(&mut self, from: impl Into<Pattern>, to: impl Into<Pattern>) {
-
+    pub fn rewrite(&mut self, from: impl Into<Pattern>, to: impl Into<http::Uri>) {
+        self.route(from, plugin::Rewrite::new(to));
     }
 
-    pub fn redirect(&mut self, from: impl Into<Pattern>, to: impl Into<Pattern>, status: http::StatusCode) {
-
+    pub fn redirect(&mut self, from: impl Into<Pattern>, to: impl Into<http::Uri>, status: Option<http::StatusCode>) {
+        self.route(from, plugin::Redirect::new(to, status));
     }
 
     pub async fn bind(&mut self, addr: &str) -> Result<()> {

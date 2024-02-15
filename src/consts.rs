@@ -1,3 +1,4 @@
+pub(crate) use std::any::Any;
 pub(crate) use std::sync::Arc;
 pub(crate) use std::borrow::Cow;
 pub(crate) use std::path::PathBuf;

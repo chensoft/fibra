@@ -4,7 +4,7 @@ use veloce::{Veloce, Result, Context};
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    let mut api = Veloce::new();
+    let mut api = Veloce::new(None);
     api.mount(plugin::Logger);
     api.route("/", api_root); // todo remove macros
 
@@ -13,7 +13,7 @@ async fn main() -> Result<()> {
     v1.route("/", api_v1_root);
     v1.route("/user", api_v1_user);
 
-    let mut v2 = Veloce::new();
+    let mut v2 = Veloce::new(None);
     v2.route("/", api_v2_root);
     v2.route("/user", api_v2_user);
     api.route("/api/v2", v2);
