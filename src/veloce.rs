@@ -1,7 +1,6 @@
 use crate::plugin;
 use crate::config::*;
 use crate::consts::*;
-use crate::traits::*;
 use crate::kernel::*;
 
 pub struct Veloce {
@@ -10,15 +9,9 @@ pub struct Veloce {
     listen: Vec<StdTcpListener>,
 }
 
-impl Default for Veloce {
-    fn default() -> Self {
-        Self::new(None)
-    }
-}
-
 impl Veloce {
     pub fn new(config: Option<Config>) -> Self {
-        Self {config: config.unwrap_or_default(), routes: vec![], listen: vec![]}
+        Self {config: config.unwrap_or_default(), routes: vec![Box::new(plugin::Recover {})], listen: vec![]}
     }
 
     pub fn mount(&mut self, handler: impl Handler) {
@@ -33,7 +26,7 @@ impl Veloce {
                 matcher.add(pattern, handler);
             }
             None => {
-                let mut matcher = Matcher::default();
+                let mut matcher = Matcher::new();
                 matcher.add(pattern, handler);
                 self.routes.push(Box::new(matcher));
             }
@@ -64,10 +57,6 @@ impl Veloce {
         self.route(from, plugin::Redirect::new(to, status));
     }
 
-    pub fn catch(&mut self, error: fn(Context, anyhow::Error) -> http::Response<http::Body>) {
-        self.config.error = error;
-    }
-
     pub async fn bind(&mut self, addr: &str) -> Result<()> {
         match tokio::net::lookup_host(addr).await {
             Ok(mut ret) => match ret.next() {
@@ -84,7 +73,7 @@ impl Veloce {
     }
 
     pub async fn run(mut self) -> Result<()> {
-        use http::{Response, Server};
+        use http::{Response, Server, StatusCode};
         use http::server::conn::AddrStream;
         use http::service::{make_service_fn, service_fn};
 
@@ -97,7 +86,7 @@ impl Veloce {
             async move {
                 Ok::<_, Infallible>(service_fn(move |req| {
                     let appself = appself.clone();
-                    let mut context = Context {
+                    let context = Context {
                         req,
                         res: Response::default(),
                         sock: address.0,
@@ -106,20 +95,9 @@ impl Veloce {
                     };
 
                     async move {
-                        match AssertUnwindSafe(context.next()).catch_unwind().await {
-                            Ok(ret) => match ret {
-                                Ok(_) => Ok::<_, Infallible>(context.res),
-                                Err(err) => Ok::<_, Infallible>((appself.config.error)(context, err)),
-                            }
-                            Err(err) => {
-                                if let Some(err) = err.downcast_ref::<&str>() {
-                                    Ok::<_, Infallible>((appself.config.error)(context, anyhow!(err.clone())))
-                                } else if let Some(err) = err.downcast_ref::<String>() {
-                                    Ok::<_, Infallible>((appself.config.error)(context, anyhow!(err.clone())))
-                                } else {
-                                    Ok::<_, Infallible>((appself.config.error)(context, anyhow!("unknown panic")))
-                                }
-                            }
+                        match appself.handle(context).await {
+                            Ok(ctx) => Ok::<_, Infallible>(ctx.res),
+                            Err(_) => unreachable!() // use plugin::recover to catch errors
                         }
                     }
                 }))
@@ -140,7 +118,7 @@ impl Veloce {
 
 #[async_trait]
 impl Handler for Veloce {
-    async fn handle(&self, ctx: Context) -> Result<()> {
-        todo!()
+    async fn handle(&self, ctx: Context) -> Result<Context> {
+        Ok(ctx)
     }
 }

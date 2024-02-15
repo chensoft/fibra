@@ -1,5 +1,4 @@
 use crate::consts::*;
-use crate::traits::*;
 use crate::kernel::*;
 
 pub struct Reject {
@@ -14,7 +13,7 @@ impl Reject {
 
 #[async_trait]
 impl Handler for Reject {
-    async fn handle(&self, ctx: Context) -> Result<()> {
+    async fn handle(&self, ctx: Context) -> Result<Context> {
         todo!()
     }
 }

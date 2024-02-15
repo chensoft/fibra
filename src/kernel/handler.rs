@@ -4,7 +4,7 @@ use crate::kernel::*;
 // todo Handler<T>, T is body's custom type
 #[async_trait]
 pub trait Handler: Sync + Send + 'static {
-    async fn handle(&self, ctx: Context) -> Result<()>;
+    async fn handle(&self, ctx: Context) -> Result<Context>;
 }
 
 /// To store arbitrary handlers
@@ -29,9 +29,9 @@ impl<T: Handler + Any> AnyHandler for T {
 #[async_trait]
 impl<F, R> Handler for F
     where F: Fn(Context) -> R + Sync + Send + 'static,
-          R: Future<Output = Result<()>> + Sync + Send + 'static,
+          R: Future<Output = Result<Context>> + Sync + Send + 'static,
 {
-    async fn handle(&self, ctx: Context) -> Result<()> {
+    async fn handle(&self, ctx: Context) -> Result<Context> {
         self(ctx).await
     }
 }

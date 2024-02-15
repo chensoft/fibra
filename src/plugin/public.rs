@@ -1,6 +1,5 @@
 use crate::config::*;
 use crate::consts::*;
-use crate::traits::*;
 use crate::kernel::*;
 
 pub struct Public {
@@ -16,7 +15,7 @@ impl Public {
 
 #[async_trait]
 impl Handler for Public {
-    async fn handle(&self, ctx: Context) -> Result<()> {
+    async fn handle(&self, ctx: Context) -> Result<Context> {
         todo!()
     }
 }

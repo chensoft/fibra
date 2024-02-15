@@ -4,7 +4,7 @@ use veloce::{Veloce, Result, Context};
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    let mut api = Veloce::default();
+    let mut api = Veloce::new(None);
     api.mount(plugin::Logger);
     api.route("/", api_root); // todo remove macros
 
@@ -23,33 +23,33 @@ async fn main() -> Result<()> {
     api.run().await
 }
 
-async fn api_root(mut ctx: Context) -> Result<()> {
-    todo!();
+async fn api_root(mut ctx: Context) -> Result<Context> {
+    todo!()
     
-    if !ctx.is_get() {
-        return ctx.next().await;
-    }
-
-    *ctx.res.status_mut() = http::StatusCode::NOT_FOUND;
-    Ok(())
+    // if !ctx.is_get() {
+    //     return ctx.next().await;
+    // }
+    // 
+    // *ctx.res.status_mut() = http::StatusCode::NOT_FOUND;
+    // Ok(())
 }
 
-async fn api_v1_root(mut ctx: Context) -> Result<()> {
+async fn api_v1_root(mut ctx: Context) -> Result<Context> {
     *ctx.res.status_mut() = http::StatusCode::NOT_FOUND;
-    Ok(())
+    Ok(ctx)
 }
 
-async fn api_v1_user(mut ctx: Context) -> Result<()> {
+async fn api_v1_user(mut ctx: Context) -> Result<Context> {
     *ctx.res.status_mut() = http::StatusCode::NOT_FOUND;
-    Ok(())
+    Ok(ctx)
 }
 
-async fn api_v2_root(mut ctx: Context) -> Result<()> {
+async fn api_v2_root(mut ctx: Context) -> Result<Context> {
     *ctx.res.status_mut() = http::StatusCode::NOT_FOUND;
-    Ok(())
+    Ok(ctx)
 }
 
-async fn api_v2_user(mut ctx: Context) -> Result<()> {
+async fn api_v2_user(mut ctx: Context) -> Result<Context> {
     *ctx.res.status_mut() = http::StatusCode::NOT_FOUND;
-    Ok(())
+    Ok(ctx)
 }
