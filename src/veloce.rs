@@ -5,7 +5,7 @@ use crate::kernel::*;
 
 pub struct Veloce {
     config: Config,
-    routes: Vec<Box<dyn AnyHandler>>,
+    routes: Vec<Box<dyn Handler>>,
     listen: Vec<StdTcpListener>,
 }
 
@@ -19,7 +19,7 @@ impl Veloce {
     }
 
     pub fn route(&mut self, pattern: impl Into<Pattern>, handler: impl Handler) {
-        let last = self.routes.last_mut().map(|val| val.as_any_mut().downcast_mut::<Matcher>()).flatten();
+        let last = self.routes.last_mut().map(|val| (val as &mut dyn Any).downcast_mut::<Matcher>()).flatten();
 
         match last {
             Some(matcher) => {
@@ -35,7 +35,7 @@ impl Veloce {
 
     pub fn group(&mut self, pattern: impl Into<Pattern>, config: Option<Config>) -> &mut Veloce {
         self.route(pattern, Veloce::new(config));
-        match self.routes.last_mut().map(|val| val.as_any_mut().downcast_mut::<Veloce>()).flatten() {
+        match self.routes.last_mut().map(|val| (val as &mut dyn Any).downcast_mut::<Veloce>()).flatten() {
             Some(val) => val,
             None => unreachable!()
         }

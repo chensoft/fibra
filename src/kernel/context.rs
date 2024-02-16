@@ -1,6 +1,6 @@
 use crate::consts::*;
 use crate::veloce::*;
-use super::storage::Storage;
+use crate::kernel::*;
 
 pub struct Context {
     pub app: Arc<Veloce>,

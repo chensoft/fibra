@@ -9,7 +9,7 @@
 /// }
 /// 
 /// async fn hello(mut ctx: Context) -> Result<()> {
-///     Ok(ctx)
+///     Ok(())
 /// }
 /// ```
 #[macro_export]
