@@ -31,7 +31,7 @@ pub struct Recover {
 
 #[async_trait]
 impl Handler for Recover {
-    async fn handle(&self, ctx: Context) -> Result<()> {
-        todo!()
+    async fn handle(&self, ctx: Context) -> Result<Context> {
+        ctx.next().await
     }
 }

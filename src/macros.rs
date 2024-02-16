@@ -8,8 +8,8 @@
 ///     veloce::serve!("0.0.0.0:3000", "0.0.0.0:3333"; "/" => hello)
 /// }
 /// 
-/// async fn hello(mut ctx: Context) -> Result<()> {
-///     Ok(())
+/// async fn hello(mut ctx: Context) -> Result<Context> {
+///     Ok(ctx)
 /// }
 /// ```
 #[macro_export]
@@ -19,5 +19,11 @@ macro_rules! serve {
         $(app.route($pattern, $handler);)+
         $(app.bind($listen).await?;)+
         app.run().await
+    }};
+}
+
+#[macro_export]
+macro_rules! get {
+    ($func:expr) => {{
     }};
 }

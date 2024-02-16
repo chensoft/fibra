@@ -5,17 +5,17 @@ use crate::kernel::*;
 
 pub struct Veloce {
     config: Config,
-    routes: Vec<Box<dyn Handler>>,
+    routes: Vec<Arc<dyn Handler>>,
     listen: Vec<StdTcpListener>,
 }
 
 impl Veloce {
     pub fn new(config: Option<Config>) -> Self {
-        Self {config: config.unwrap_or_default(), routes: vec![Box::new(plugin::Recover {})], listen: vec![]}
+        Self {config: config.unwrap_or_default(), routes: vec![Arc::new(plugin::Recover {})], listen: vec![]}
     }
 
     pub fn mount(&mut self, handler: impl Handler) {
-        self.routes.push(Box::new(handler));
+        self.routes.push(Arc::new(handler));
     }
 
     pub fn route(&mut self, pattern: impl Into<Pattern>, handler: impl Handler) {
@@ -28,7 +28,7 @@ impl Veloce {
             None => {
                 let mut matcher = Matcher::new();
                 matcher.add(pattern, handler);
-                self.routes.push(Box::new(matcher));
+                self.routes.push(Arc::new(matcher));
             }
         }
     }
@@ -55,10 +55,6 @@ impl Veloce {
 
     pub fn redirect(&mut self, from: impl Into<Pattern>, to: impl Into<http::Uri>, status: Option<http::StatusCode>) {
         self.route(from, plugin::Redirect::new(to, status));
-    }
-
-    pub async fn boot(&self, mut ctx: Context) -> Result<Context> {
-        ctx.next().await
     }
 
     pub async fn bind(&mut self, addr: &str) -> Result<()> {
@@ -96,11 +92,12 @@ impl Veloce {
                         sock: address.0,
                         peer: address.1,
                         cache: Storage,
+                        stack: VecDeque::new(),
                     };
                     let appself = appself.clone();
 
                     async move {
-                        match appself.boot(context).await {
+                        match appself.handle(context).await {
                             Ok(ctx) => Ok::<_, Infallible>(ctx.res),
                             Err(_) => unreachable!() // use plugin::recover to catch errors
                         }
@@ -123,8 +120,11 @@ impl Veloce {
 
 #[async_trait]
 impl Handler for Veloce {
-    async fn handle(&self, ctx: Context) -> Result<()> {
-        self.boot(ctx).await?;
-        Ok(())
+    async fn handle(&self, mut ctx: Context) -> Result<Context> {
+        for handler in &self.routes {
+            ctx.stack.push_front(handler.clone());
+        }
+
+        ctx.next().await
     }
 }

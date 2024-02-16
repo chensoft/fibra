@@ -23,33 +23,31 @@ async fn main() -> Result<()> {
     api.run().await
 }
 
-async fn api_root(mut ctx: Context) -> Result<()> {
-    todo!()
+async fn api_root(mut ctx: Context) -> Result<Context> {
+    if !ctx.is_get() {
+        return ctx.next().await;
+    }
     
-    // if !ctx.is_get() {
-    //     return ctx.next().await;
-    // }
-    // 
-    // *ctx.res.status_mut() = http::StatusCode::NOT_FOUND;
-    // Ok(())
+    *ctx.res.status_mut() = http::StatusCode::NOT_FOUND;
+    Ok(ctx)
 }
 
-async fn api_v1_root(mut ctx: Context) -> Result<()> {
-    *ctx.res.status_mut() = http::StatusCode::NOT_FOUND;
-    Ok(())
-}
-
-async fn api_v1_user(mut ctx: Context) -> Result<()> {
-    *ctx.res.status_mut() = http::StatusCode::NOT_FOUND;
-    Ok(())
-}
-
-async fn api_v2_root(mut ctx: Context) -> Result<()> {
-    *ctx.res.status_mut() = http::StatusCode::NOT_FOUND;
-    Ok(())
-}
-
-async fn api_v2_user(mut ctx: Context) -> Result<()> {
-    *ctx.res.status_mut() = http::StatusCode::NOT_FOUND;
-    Ok(())
-}
+// async fn api_v1_root(mut ctx: Context) -> Result<Context> {
+//     *ctx.res.status_mut() = http::StatusCode::NOT_FOUND;
+//     Ok(ctx)
+// }
+// 
+// async fn api_v1_user(mut ctx: Context) -> Result<Context> {
+//     *ctx.res.status_mut() = http::StatusCode::NOT_FOUND;
+//     Ok(ctx)
+// }
+// 
+// async fn api_v2_root(mut ctx: Context) -> Result<Context> {
+//     *ctx.res.status_mut() = http::StatusCode::NOT_FOUND;
+//     Ok(ctx)
+// }
+// 
+// async fn api_v2_user(mut ctx: Context) -> Result<Context> {
+//     *ctx.res.status_mut() = http::StatusCode::NOT_FOUND;
+//     Ok(ctx)
+// }

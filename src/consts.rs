@@ -4,6 +4,7 @@ pub(crate) use std::path::PathBuf;
 pub(crate) use std::future::Future;
 pub(crate) use std::net::SocketAddr;
 pub(crate) use std::convert::Infallible;
+pub(crate) use std::collections::VecDeque;
 pub(crate) use std::panic::AssertUnwindSafe;
 pub(crate) use std::net::TcpListener as StdTcpListener;
 
@@ -20,4 +21,7 @@ pub enum Error {
 
     #[error("Unable to recognize {0}")]
     NotFound(String),
+
+    #[error("The connection was aborted")]
+    Aborted,
 }

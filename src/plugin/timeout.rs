@@ -5,7 +5,7 @@ pub struct Timeout;
 
 #[async_trait]
 impl Handler for Timeout {
-    async fn handle(&self, ctx: Context) -> Result<()> {
+    async fn handle(&self, ctx: Context) -> Result<Context> {
         todo!()
     }
 }

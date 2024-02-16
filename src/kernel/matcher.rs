@@ -21,13 +21,11 @@ impl Matcher {
 
 #[async_trait]
 impl Handler for Matcher {
-    async fn handle(&self, ctx: Context) -> Result<()> {
+    async fn handle(&self, ctx: Context) -> Result<Context> {
         if let Some(val) = self.preway.get(&ctx.req.uri().path()) {
             return val.handle(ctx).await;
         }
 
-        ctx.next().await?;
-        
-        Ok(())
+        ctx.next().await
     }
 }

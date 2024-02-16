@@ -9,23 +9,29 @@ pub struct Context {
     pub sock: SocketAddr,
     pub peer: SocketAddr,
     pub cache: Storage,
-    // pub stack: Vec<>,
+    pub stack: VecDeque<Arc<dyn Handler>>,
 }
 
 // impl Drop for Context {
 //     fn drop(&mut self) {
 //         todo reuse
-    // }
+// }
 // }
 
 impl Context {
     pub fn reset(&mut self) {}
 
-    pub async fn next(self) -> Result<Self> {
-        Ok(self)
+    pub async fn next(mut self) -> Result<Self> {
+        match self.stack.pop_front() {
+            Some(handler) => handler.handle(self).await,
+            None => Ok(self),
+        }
     }
 
-    pub fn abort(self) -> Result<()> { Ok(()) }
+    pub fn abort(self) -> Result<Self> {
+        Err(Error::Aborted.into()) // todo impl in recover
+    }
+
     pub fn param(&self, _key: &str) {}
     pub fn rewrite(self, _to: impl Into<http::Uri>) {}
     pub fn redirect(self, _to: impl Into<http::Uri>, _code: http::StatusCode) {}

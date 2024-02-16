@@ -14,7 +14,7 @@ impl Rewrite {
 
 #[async_trait]
 impl Handler for Rewrite {
-    async fn handle(&self, ctx: Context) -> Result<()> {
+    async fn handle(&self, ctx: Context) -> Result<Context> {
         todo!()
     }
 }
