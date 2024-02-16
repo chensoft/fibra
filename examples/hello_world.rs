@@ -23,7 +23,7 @@ async fn main() -> Result<()> {
     api.run().await
 }
 
-async fn api_root(mut ctx: Context) -> Result<Context> {
+async fn api_root(mut ctx: Context) -> Result<()> {
     todo!()
     
     // if !ctx.is_get() {
@@ -34,22 +34,22 @@ async fn api_root(mut ctx: Context) -> Result<Context> {
     // Ok(())
 }
 
-async fn api_v1_root(mut ctx: Context) -> Result<Context> {
+async fn api_v1_root(mut ctx: Context) -> Result<()> {
     *ctx.res.status_mut() = http::StatusCode::NOT_FOUND;
-    Ok(ctx)
+    Ok(())
 }
 
-async fn api_v1_user(mut ctx: Context) -> Result<Context> {
+async fn api_v1_user(mut ctx: Context) -> Result<()> {
     *ctx.res.status_mut() = http::StatusCode::NOT_FOUND;
-    Ok(ctx)
+    Ok(())
 }
 
-async fn api_v2_root(mut ctx: Context) -> Result<Context> {
+async fn api_v2_root(mut ctx: Context) -> Result<()> {
     *ctx.res.status_mut() = http::StatusCode::NOT_FOUND;
-    Ok(ctx)
+    Ok(())
 }
 
-async fn api_v2_user(mut ctx: Context) -> Result<Context> {
+async fn api_v2_user(mut ctx: Context) -> Result<()> {
     *ctx.res.status_mut() = http::StatusCode::NOT_FOUND;
-    Ok(ctx)
+    Ok(())
 }

@@ -5,7 +5,7 @@ pub struct Limiter;
 
 #[async_trait]
 impl Handler for Limiter {
-    async fn handle(&self, ctx: Context) -> Result<Context> {
+    async fn handle(&self, ctx: Context) -> Result<()> {
         todo!()
     }
 }

@@ -3,11 +3,13 @@ use crate::veloce::*;
 use super::storage::Storage;
 
 pub struct Context {
+    pub app: Arc<Veloce>,
     pub req: http::Request<http::Body>,
     pub res: http::Response<http::Body>,
     pub sock: SocketAddr,
     pub peer: SocketAddr,
-    pub temp: Storage,
+    pub cache: Storage,
+    // pub stack: Vec<>,
 }
 
 // impl Drop for Context {

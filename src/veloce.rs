@@ -57,6 +57,10 @@ impl Veloce {
         self.route(from, plugin::Redirect::new(to, status));
     }
 
+    pub async fn boot(&self, mut ctx: Context) -> Result<Context> {
+        ctx.next().await
+    }
+
     pub async fn bind(&mut self, addr: &str) -> Result<()> {
         match tokio::net::lookup_host(addr).await {
             Ok(mut ret) => match ret.next() {
@@ -73,7 +77,7 @@ impl Veloce {
     }
 
     pub async fn run(mut self) -> Result<()> {
-        use http::{Response, Server, StatusCode};
+        use http::{Response, Server};
         use http::server::conn::AddrStream;
         use http::service::{make_service_fn, service_fn};
 
@@ -85,17 +89,18 @@ impl Veloce {
 
             async move {
                 Ok::<_, Infallible>(service_fn(move |req| {
-                    let appself = appself.clone();
                     let context = Context {
+                        app: appself.clone(),
                         req,
                         res: Response::default(),
                         sock: address.0,
                         peer: address.1,
-                        temp: Storage,
+                        cache: Storage,
                     };
+                    let appself = appself.clone();
 
                     async move {
-                        match appself.handle(context).await {
+                        match appself.boot(context).await {
                             Ok(ctx) => Ok::<_, Infallible>(ctx.res),
                             Err(_) => unreachable!() // use plugin::recover to catch errors
                         }
@@ -118,7 +123,8 @@ impl Veloce {
 
 #[async_trait]
 impl Handler for Veloce {
-    async fn handle(&self, ctx: Context) -> Result<Context> {
-        Ok(ctx)
+    async fn handle(&self, ctx: Context) -> Result<()> {
+        self.boot(ctx).await?;
+        Ok(())
     }
 }

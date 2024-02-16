@@ -13,7 +13,7 @@ impl Reject {
 
 #[async_trait]
 impl Handler for Reject {
-    async fn handle(&self, ctx: Context) -> Result<Context> {
+    async fn handle(&self, ctx: Context) -> Result<()> {
         todo!()
     }
 }
