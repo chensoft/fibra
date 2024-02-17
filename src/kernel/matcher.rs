@@ -22,7 +22,7 @@ impl Matcher {
 #[async_trait]
 impl Handler for Matcher {
     async fn handle(&self, ctx: Context) -> Result<Context> {
-        if let Some(val) = self.preway.get(&ctx.req.uri().path()) {
+        if let Some(val) = self.preway.get(&Pattern::Plain(ctx.req.uri().path().to_string())) {
             return val.handle(ctx).await;
         }
 

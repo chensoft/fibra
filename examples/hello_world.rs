@@ -6,10 +6,10 @@ use veloce::{Veloce, Result, Context};
 async fn main() -> Result<()> {
     let mut api = Veloce::default();
     api.mount(plugin::Logger);
-    api.route("/", api_root); // todo remove macros
+    api.route("/", api_root);
 
     // // todo /api use subdomain filter
-    // let v1 = api.group("/api/v1", None);
+    // let v1 = api.group("/api/v1", Config::default());
     // v1.route("/", api_v1_root);
     // v1.route("/user", api_v1_user);
     // 
@@ -27,7 +27,7 @@ async fn api_root(mut ctx: Context) -> Result<Context> {
     if !ctx.is_get() {
         return ctx.next().await;
     }
-    
+
     *ctx.res.status_mut() = http::StatusCode::NOT_FOUND;
     Ok(ctx)
 }

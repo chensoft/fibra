@@ -4,13 +4,13 @@ pub(crate) use std::path::PathBuf;
 pub(crate) use std::future::Future;
 pub(crate) use std::net::SocketAddr;
 pub(crate) use std::convert::Infallible;
+pub(crate) use std::collections::HashMap;
 pub(crate) use std::collections::VecDeque;
 pub(crate) use std::panic::AssertUnwindSafe;
 pub(crate) use std::net::TcpListener as StdTcpListener;
 
 pub(crate) use futures::FutureExt;
 pub(crate) use indexmap::IndexMap;
-pub(crate) use indexmap::Equivalent;
 
 pub type Result<T> = anyhow::Result<T>;
 
@@ -42,6 +42,7 @@ impl Default for Config {
                 let mut res = http::Response::default();
                 *res.status_mut() = match err.downcast_ref::<Error>() {
                     Some(Error::Aborted) => http::StatusCode::SERVICE_UNAVAILABLE,
+                    Some(Error::RouteNotFound(_)) => http::StatusCode::NOT_FOUND,
                     _ => http::StatusCode::INTERNAL_SERVER_ERROR,
                 };
                 res

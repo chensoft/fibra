@@ -8,6 +8,7 @@ pub struct Context {
     pub res: http::Response<http::Body>,
     pub sock: SocketAddr,
     pub peer: SocketAddr,
+    pub miss: bool,
     pub cache: Storage,
     pub chain: VecDeque<Arc<dyn Handler>>,
 }
@@ -19,8 +20,6 @@ pub struct Context {
 // }
 
 impl Context {
-    pub fn reset(&mut self) {}
-
     pub async fn next(mut self) -> Result<Self> {
         match self.chain.pop_front() {
             Some(handler) => handler.handle(self).await,
@@ -28,11 +27,15 @@ impl Context {
         }
     }
 
-    pub fn abort(self) -> Result<Self> {
-        Err(Error::Aborted.into()) // todo impl in recover
+    pub fn abort(self, err: Option<Error>) -> Result<Self> {
+        match err {
+            None => Err(Error::Aborted.into()),
+            Some(val) => Err(val.into()),
+        }
     }
 
-    pub fn param(&self, _key: &str) {}
-    pub fn rewrite(self, _to: impl Into<http::Uri>) {}
-    pub fn redirect(self, _to: impl Into<http::Uri>, _code: http::StatusCode) {}
+    pub fn rewrite(self, _to: impl Into<http::Uri>) { todo!() }
+    pub fn redirect(self, _to: impl Into<http::Uri>, _code: http::StatusCode) { todo!() }
+
+    pub fn param(&self, _key: &str) { todo!() }
 }

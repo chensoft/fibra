@@ -33,8 +33,8 @@ impl Veloce {
         }
     }
 
-    pub fn group(&mut self, pattern: impl Into<Pattern>, config: Config) -> &mut Veloce {
-        self.route(pattern, Veloce::new(config));
+    pub fn group(&mut self, pattern: impl Into<Pattern>, config: Option<Config>) -> &mut Veloce {
+        self.route(pattern, Veloce::new(config.unwrap_or_default()));
         match self.routes.last_mut().map(|val| (val as &mut dyn Any).downcast_mut::<Veloce>()).flatten() {
             Some(val) => val,
             None => unreachable!()
@@ -91,7 +91,8 @@ impl Veloce {
                         res: Response::default(),
                         sock: address.0,
                         peer: address.1,
-                        cache: Storage,
+                        miss: true,
+                        cache: Storage::new(),
                         chain: VecDeque::new(),
                     };
                     let appself = appself.clone();
@@ -99,7 +100,8 @@ impl Veloce {
                     async move {
                         let res = match AssertUnwindSafe(appself.handle(context)).catch_unwind().await {
                             Ok(ret) => match ret {
-                                Ok(ctx) => ctx.res,
+                                Ok(ctx) if !ctx.miss => ctx.res,
+                                Ok(ctx) => (appself.config.catch)(Error::RouteNotFound(ctx.req.uri().to_string()).into()),
                                 Err(err) => (appself.config.catch)(err),
                             }
                             Err(err) => match err.downcast_ref::<&str>() {
@@ -129,6 +131,8 @@ impl Veloce {
 #[async_trait]
 impl Handler for Veloce {
     async fn handle(&self, mut ctx: Context) -> Result<Context> {
+        ctx.miss = true;
+
         for handler in &self.routes {
             ctx.chain.push_front(handler.clone());
         }
