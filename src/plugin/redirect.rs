@@ -14,7 +14,7 @@ impl Redirect {
 
 #[async_trait]
 impl Handler for Redirect {
-    async fn handle(&self, ctx: Context) -> Result<Context> {
+    async fn handle(&self, _ctx: Context) -> Result<Context> {
         todo!()
     }
 }

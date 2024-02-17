@@ -9,7 +9,7 @@ pub struct Context {
     pub sock: SocketAddr,
     pub peer: SocketAddr,
     pub cache: Storage,
-    pub stack: VecDeque<Arc<dyn Handler>>,
+    pub chain: VecDeque<Arc<dyn Handler>>,
 }
 
 // impl Drop for Context {
@@ -22,7 +22,7 @@ impl Context {
     pub fn reset(&mut self) {}
 
     pub async fn next(mut self) -> Result<Self> {
-        match self.stack.pop_front() {
+        match self.chain.pop_front() {
             Some(handler) => handler.handle(self).await,
             None => Ok(self),
         }

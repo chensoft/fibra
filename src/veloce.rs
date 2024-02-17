@@ -1,17 +1,17 @@
 use crate::plugin;
-use crate::config::*;
 use crate::consts::*;
 use crate::kernel::*;
 
+#[derive(Default)]
 pub struct Veloce {
-    config: Config,
+    pub config: Config,
     routes: Vec<Arc<dyn Handler>>,
     listen: Vec<StdTcpListener>,
 }
 
 impl Veloce {
-    pub fn new(config: Option<Config>) -> Self {
-        Self {config: config.unwrap_or_default(), routes: vec![Arc::new(plugin::Recover {})], listen: vec![]}
+    pub fn new(config: Config) -> Self {
+        Self {config, routes: vec![], listen: vec![]}
     }
 
     pub fn mount(&mut self, handler: impl Handler) {
@@ -33,7 +33,7 @@ impl Veloce {
         }
     }
 
-    pub fn group(&mut self, pattern: impl Into<Pattern>, config: Option<Config>) -> &mut Veloce {
+    pub fn group(&mut self, pattern: impl Into<Pattern>, config: Config) -> &mut Veloce {
         self.route(pattern, Veloce::new(config));
         match self.routes.last_mut().map(|val| (val as &mut dyn Any).downcast_mut::<Veloce>()).flatten() {
             Some(val) => val,
@@ -60,10 +60,10 @@ impl Veloce {
     pub async fn bind(&mut self, addr: &str) -> Result<()> {
         match tokio::net::lookup_host(addr).await {
             Ok(mut ret) => match ret.next() {
-                None => Err(Error::DNSFailed("DNS resolution list is empty".into()).into()),
+                None => Err(Error::HostNotFound("DNS resolution list is empty".into()).into()),
                 Some(addr) => self.take(StdTcpListener::bind(addr)?),
             },
-            Err(err) => Err(Error::DNSFailed(err.to_string()).into()),
+            Err(err) => Err(Error::HostNotFound(err.to_string()).into()),
         }
     }
 
@@ -92,15 +92,23 @@ impl Veloce {
                         sock: address.0,
                         peer: address.1,
                         cache: Storage,
-                        stack: VecDeque::new(),
+                        chain: VecDeque::new(),
                     };
                     let appself = appself.clone();
 
                     async move {
-                        match appself.handle(context).await {
-                            Ok(ctx) => Ok::<_, Infallible>(ctx.res),
-                            Err(_) => unreachable!() // use plugin::recover to catch errors
-                        }
+                        let res = match AssertUnwindSafe(appself.handle(context)).catch_unwind().await {
+                            Ok(ret) => match ret {
+                                Ok(ctx) => ctx.res,
+                                Err(err) => (appself.config.catch)(err),
+                            }
+                            Err(err) => match err.downcast_ref::<&str>() {
+                                Some(err) => (appself.config.catch)(Error::Panicked(err.to_string()).into()),
+                                None => (appself.config.catch)(Error::Panicked("Unknown error".to_string()).into()),
+                            }
+                        };
+
+                        Ok::<_, Infallible>(res)
                     }
                 }))
             }
@@ -122,7 +130,7 @@ impl Veloce {
 impl Handler for Veloce {
     async fn handle(&self, mut ctx: Context) -> Result<Context> {
         for handler in &self.routes {
-            ctx.stack.push_front(handler.clone());
+            ctx.chain.push_front(handler.clone());
         }
 
         ctx.next().await

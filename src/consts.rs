@@ -17,11 +17,46 @@ pub type Result<T> = anyhow::Result<T>;
 #[derive(Debug, Clone, Error, Eq, PartialEq, Ord, PartialOrd)]
 pub enum Error {
     #[error("{0}")]
-    DNSFailed(String),
+    Panicked(String),
+
+    #[error("The connection was aborted by user")]
+    Aborted,
+
+    #[error("{0}")]
+    HostNotFound(String),
 
     #[error("Unable to recognize {0}")]
-    NotFound(String),
+    RouteNotFound(String),
+}
 
-    #[error("The connection was aborted")]
-    Aborted,
+// todo error handler in plugin::recover
+#[derive(Debug, Clone)]
+pub struct Config {
+    pub catch: fn(anyhow::Error) -> http::Response<http::Body>,
+}
+
+impl Default for Config {
+    fn default() -> Self {
+        Self {
+            catch: |err| {
+                let mut res = http::Response::default();
+                *res.status_mut() = match err.downcast_ref::<Error>() {
+                    Some(Error::Aborted) => http::StatusCode::SERVICE_UNAVAILABLE,
+                    _ => http::StatusCode::INTERNAL_SERVER_ERROR,
+                };
+                res
+            }
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct Static {
+
+}
+
+impl Default for Static {
+    fn default() -> Self {
+        todo!()
+    }
 }

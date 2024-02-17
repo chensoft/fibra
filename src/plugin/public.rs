@@ -1,4 +1,3 @@
-use crate::config::*;
 use crate::consts::*;
 use crate::kernel::*;
 
@@ -15,7 +14,7 @@ impl Public {
 
 #[async_trait]
 impl Handler for Public {
-    async fn handle(&self, ctx: Context) -> Result<Context> {
+    async fn handle(&self, _ctx: Context) -> Result<Context> {
         todo!()
     }
 }
