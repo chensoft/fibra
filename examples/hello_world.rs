@@ -5,7 +5,7 @@ use veloce::{Veloce, Result, Context};
 #[tokio::main]
 async fn main() -> Result<()> {
     let mut api = Veloce::default();
-    api.mount(plugin::Logger);
+    api.mount(plugin::Logger::from_millis());
     api.route("/", api_root);
     api.reject("/reject", None);
     api.rewrite("/rewrite", http::Uri::from_static("/"));

@@ -5,14 +5,18 @@ use crate::kernel::*;
 #[derive(Default)]
 pub struct Veloce {
     pub config: Config,
-    router: Matcher,
     plugin: Vec<Arc<dyn Handler>>,
+    router: Matcher,
     listen: Vec<StdTcpListener>,
 }
 
 impl Veloce {
     pub fn new(config: Config) -> Self {
         Self {config, ..Default::default()}
+    }
+
+    pub fn mount(&mut self, handler: impl Handler) {
+        self.plugin.push(Arc::new(handler));
     }
 
     pub fn route(&mut self, pattern: impl Into<Pattern>, handler: impl Handler) {
@@ -39,10 +43,6 @@ impl Veloce {
 
     pub fn redirect(&mut self, from: impl Into<Pattern>, to: http::Uri, status: Option<http::StatusCode>) {
         self.route(from, plugin::Redirect::new(to, status));
-    }
-
-    pub fn mount(&mut self, handler: impl Handler) {
-        self.plugin.push(Arc::new(handler));
     }
 
     pub async fn bind(&mut self, addr: &str) -> Result<()> {
