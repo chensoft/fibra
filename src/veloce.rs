@@ -19,6 +19,12 @@ impl Veloce {
         self.router.add(pattern, handler);
     }
 
+    pub fn group(&mut self, pattern: impl Into<Pattern>, config: Option<Config>, setup: fn(&mut Veloce)) {
+        let mut veloce = Veloce::new(config.unwrap_or_default());
+        setup(&mut veloce);
+        self.route(pattern, veloce);
+    }
+
     pub fn public(&mut self, pattern: impl Into<Pattern>, folder: PathBuf, config: Option<Static>) {
         self.route(pattern, plugin::Public::new(folder, config));
     }

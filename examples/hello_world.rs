@@ -12,10 +12,10 @@ async fn main() -> Result<()> {
     api.redirect("/redirect", http::Uri::from_static("/"), None);
 
     // todo /api use subdomain filter
-    let mut v1 = Veloce::default();
-    v1.route("/", api_v1_root);
-    v1.route("/user", api_v1_user);
-    api.route("/api/v1", v1);
+    api.group("/api/v1", None, |v1| {
+        v1.route("/", api_v1_root);
+        v1.route("/user", api_v1_user);
+    });
 
     let mut v2 = Veloce::default();
     v2.route("/", api_v2_root);
