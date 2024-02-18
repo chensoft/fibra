@@ -3,7 +3,7 @@ use crate::kernel::*;
 
 #[derive(Default)]
 pub struct Matcher {
-    pub preway: IndexMap<Pattern, Arc<dyn Handler>> // todo multiple handler
+    pub preway: HashMap<Pattern, Arc<dyn Handler>> // todo multiple handler
 }
 
 impl Matcher {
@@ -16,6 +16,6 @@ impl Matcher {
     }
 
     pub fn get(&self, uri: &str) -> Option<Arc<dyn Handler>> {
-        self.preway.get(&Pattern::Plain(uri.to_string())).cloned()
+        self.preway.get(uri).cloned()
     }
 }

@@ -8,9 +8,6 @@ pub(crate) use std::collections::VecDeque;
 pub(crate) use std::panic::AssertUnwindSafe;
 pub(crate) use std::net::TcpListener as StdTcpListener;
 
-pub(crate) use futures::FutureExt;
-pub(crate) use indexmap::IndexMap;
-
 /// Override Result
 pub type Result<T> = anyhow::Result<T>;
 

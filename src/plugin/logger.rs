@@ -7,6 +7,7 @@ pub struct Logger {
 }
 
 impl Logger {
+    // todo also affect elapsed precision
     pub fn from_millis() -> Self {
         let mut obj = Self {
             logger: logkit::Logger::new(Some(&logkit::StderrTarget)),

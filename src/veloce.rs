@@ -61,6 +61,7 @@ impl Veloce {
     }
 
     pub async fn run(mut self) -> Result<()> {
+        use futures::FutureExt;
         use http::{Response, Server};
         use http::server::conn::AddrStream;
         use http::service::{make_service_fn, service_fn};
