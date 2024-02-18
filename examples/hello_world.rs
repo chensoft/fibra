@@ -8,6 +8,7 @@ async fn main() -> Result<()> {
     api.mount(plugin::Logger);
     api.route("/", api_root);
     api.rewrite("/rewrite", http::Uri::from_static("/"));
+    api.redirect("/redirect", http::Uri::from_static("/"), None);
 
     // // todo /api use subdomain filter
     // let v1 = api.group("/api/v1", Config::default());

@@ -3,18 +3,18 @@ use crate::kernel::*;
 
 pub struct Redirect {
     pub to: http::Uri,
-    pub status: http::StatusCode,
+    pub status: Option<http::StatusCode>,
 }
 
 impl Redirect {
     pub fn new(to: http::Uri, status: Option<http::StatusCode>) -> Self {
-        Self {to, status: status.unwrap_or(http::StatusCode::TEMPORARY_REDIRECT)}
+        Self {to, status}
     }
 }
 
 #[async_trait]
 impl Handler for Redirect {
-    async fn handle(&self, _ctx: Context) -> Result<Context> {
-        todo!()
+    async fn handle(&self, ctx: Context) -> Result<Context> {
+        ctx.redirect(self.to.clone(), self.status.clone())
     }
 }

@@ -34,7 +34,7 @@ impl Context {
         }
     }
 
-    // todo use replacement
+    // todo use replacement, preserve params
     pub async fn rewrite(mut self, to: http::Uri) -> Result<Self> {
         *self.req.uri_mut() = to;
         self.chain.clear();
@@ -43,8 +43,10 @@ impl Context {
         app.handle(self).await
     }
 
-    pub fn redirect(self, _to: &str, _code: http::StatusCode) -> Result<Self> {
-        todo!()
+    pub fn redirect(mut self, to: http::Uri, status: Option<http::StatusCode>) -> Result<Self> {
+        *self.res.status_mut() = status.unwrap_or(http::StatusCode::TEMPORARY_REDIRECT);
+        self.res.headers_mut().insert(http::header::LOCATION, http::header::HeaderValue::from_str(to.to_string().as_str())?);
+        Ok(self)
     }
 
     pub fn param(&self, _key: &str) { todo!() }
