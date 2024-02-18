@@ -19,9 +19,6 @@ pub enum Error {
     #[error("{0}")]
     Panicked(String),
 
-    #[error("The connection was aborted by user")]
-    Aborted,
-
     #[error("{0}")]
     HostNotFound(String),
 
@@ -41,7 +38,6 @@ impl Default for Config {
             catch: |err| {
                 let mut res = http::Response::default();
                 *res.status_mut() = match err.downcast_ref::<Error>() {
-                    Some(Error::Aborted) => http::StatusCode::SERVICE_UNAVAILABLE,
                     Some(Error::RouteNotFound(_)) => http::StatusCode::NOT_FOUND,
                     _ => http::StatusCode::INTERNAL_SERVER_ERROR,
                 };

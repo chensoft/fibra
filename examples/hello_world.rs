@@ -7,6 +7,7 @@ async fn main() -> Result<()> {
     let mut api = Veloce::default();
     api.mount(plugin::Logger);
     api.route("/", api_root);
+    api.reject("/reject", None);
     api.rewrite("/rewrite", http::Uri::from_static("/"));
     api.redirect("/redirect", http::Uri::from_static("/"), None);
 

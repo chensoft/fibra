@@ -27,11 +27,9 @@ impl Context {
         }
     }
 
-    pub fn abort(self, err: Option<Error>) -> Result<Self> {
-        match err {
-            None => Err(Error::Aborted.into()),
-            Some(val) => Err(val.into()),
-        }
+    pub fn reject(mut self, status: Option<http::StatusCode>) -> Result<Self> {
+        *self.res.status_mut() = status.unwrap_or(http::StatusCode::FORBIDDEN);
+        Ok(self)
     }
 
     // todo use replacement, preserve params
