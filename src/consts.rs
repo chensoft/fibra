@@ -1,4 +1,3 @@
-pub(crate) use std::any::Any;
 pub(crate) use std::sync::Arc;
 pub(crate) use std::path::PathBuf;
 pub(crate) use std::future::Future;
@@ -12,8 +11,31 @@ pub(crate) use std::net::TcpListener as StdTcpListener;
 pub(crate) use futures::FutureExt;
 pub(crate) use indexmap::IndexMap;
 
+/// Override Result
 pub type Result<T> = anyhow::Result<T>;
 
+// /// Any support
+// pub trait Any: std::any::Any {
+//     /// Treat object as any
+//     fn as_any(&self) -> &dyn std::any::Any;
+//
+//     /// Treat object as any mut
+//     fn as_any_mut(&mut self) -> &mut dyn std::any::Any;
+// }
+//
+// impl<T: std::any::Any> Any for T {
+//     #[inline]
+//     fn as_any(&self) -> &dyn std::any::Any {
+//         self
+//     }
+//
+//     #[inline]
+//     fn as_any_mut(&mut self) -> &mut dyn std::any::Any {
+//         self
+//     }
+// }
+
+/// Custom errors
 #[derive(Debug, Clone, Error, Eq, PartialEq, Ord, PartialOrd)]
 pub enum Error {
     #[error("{0}")]
@@ -26,7 +48,7 @@ pub enum Error {
     RouteNotFound(String),
 }
 
-// todo error handler in plugin::recover
+/// App config
 #[derive(Debug, Clone)]
 pub struct Config {
     pub catch: fn(anyhow::Error) -> http::Response<http::Body>,
@@ -47,6 +69,7 @@ impl Default for Config {
     }
 }
 
+/// Static file config
 #[derive(Debug, Clone)]
 pub struct Static {
 

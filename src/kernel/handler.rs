@@ -3,7 +3,7 @@ use crate::kernel::*;
 
 // todo Handler<T>, T is body's custom type
 #[async_trait]
-pub trait Handler: Any + Sync + Send + 'static {
+pub trait Handler: Sync + Send + 'static {
     async fn handle(&self, ctx: Context) -> Result<Context>;
 }
 

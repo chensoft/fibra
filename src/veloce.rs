@@ -5,40 +5,18 @@ use crate::kernel::*;
 #[derive(Default)]
 pub struct Veloce {
     pub config: Config,
-    routes: Vec<Arc<dyn Handler>>,
+    router: Matcher,
+    plugin: Vec<Arc<dyn Handler>>,
     listen: Vec<StdTcpListener>,
 }
 
 impl Veloce {
     pub fn new(config: Config) -> Self {
-        Self {config, routes: vec![], listen: vec![]}
-    }
-
-    pub fn mount(&mut self, handler: impl Handler) {
-        self.routes.push(Arc::new(handler));
+        Self {config, ..Default::default()}
     }
 
     pub fn route(&mut self, pattern: impl Into<Pattern>, handler: impl Handler) {
-        let last = self.routes.last_mut().map(|val| (val as &mut dyn Any).downcast_mut::<Matcher>()).flatten();
-
-        match last {
-            Some(matcher) => {
-                matcher.add(pattern, handler);
-            }
-            None => {
-                let mut matcher = Matcher::new();
-                matcher.add(pattern, handler);
-                self.routes.push(Arc::new(matcher));
-            }
-        }
-    }
-
-    pub fn group(&mut self, pattern: impl Into<Pattern>, config: Option<Config>) -> &mut Veloce {
-        self.route(pattern, Veloce::new(config.unwrap_or_default()));
-        match self.routes.last_mut().map(|val| (val as &mut dyn Any).downcast_mut::<Veloce>()).flatten() {
-            Some(val) => val,
-            None => unreachable!()
-        }
+        self.router.add(pattern, handler);
     }
 
     pub fn public(&mut self, pattern: impl Into<Pattern>, folder: PathBuf, config: Option<Static>) {
@@ -55,6 +33,10 @@ impl Veloce {
 
     pub fn redirect(&mut self, from: impl Into<Pattern>, to: http::Uri, status: Option<http::StatusCode>) {
         self.route(from, plugin::Redirect::new(to, status));
+    }
+
+    pub fn mount(&mut self, handler: impl Handler) {
+        self.plugin.push(Arc::new(handler));
     }
 
     pub async fn bind(&mut self, addr: &str) -> Result<()> {
@@ -85,15 +67,17 @@ impl Veloce {
 
             async move {
                 Ok::<_, Infallible>(service_fn(move |req| {
+                    let rawpath = req.uri().path().to_string();
                     let context = Context {
                         app: appself.clone(),
                         req,
                         res: Response::default(),
                         sock: address.0,
                         peer: address.1,
-                        miss: true,
-                        cache: Storage::new(),
-                        chain: VecDeque::new(),
+                        temp: Storage::default(),
+                        routes: VecDeque::new(),
+                        parent: "".to_string(),
+                        search: rawpath,
                     };
                     let appself = appself.clone();
 
@@ -101,8 +85,7 @@ impl Veloce {
                         // todo method not found
                         let res = match AssertUnwindSafe(appself.handle(context)).catch_unwind().await {
                             Ok(ret) => match ret {
-                                Ok(ctx) if !ctx.miss => ctx.res,
-                                Ok(ctx) => (appself.config.catch)(Error::RouteNotFound(ctx.req.uri().to_string()).into()),
+                                Ok(ctx) => ctx.res,
                                 Err(err) => (appself.config.catch)(err),
                             }
                             Err(err) => match err.downcast_ref::<&str>() {
@@ -132,10 +115,17 @@ impl Veloce {
 #[async_trait]
 impl Handler for Veloce {
     async fn handle(&self, mut ctx: Context) -> Result<Context> {
-        ctx.miss = true;
+        match self.router.get(ctx.search.as_str()) {
+            Some(val) => ctx.routes.push_front(val),
+            None => return Err(Error::RouteNotFound(ctx.req.uri().to_string()).into()),
+        };
 
-        for handler in &self.routes {
-            ctx.chain.push_front(handler.clone());
+        // todo subrouter
+        ctx.parent = ctx.search.clone();
+        ctx.search = "/".to_string();
+
+        for handler in self.plugin.iter().rev() {
+            ctx.routes.push_front(handler.clone());
         }
 
         ctx.next().await

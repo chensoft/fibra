@@ -6,11 +6,14 @@ pub struct Context {
     pub app: Arc<Veloce>,
     pub req: http::Request<http::Body>,
     pub res: http::Response<http::Body>,
-    pub sock: SocketAddr,
-    pub peer: SocketAddr,
-    pub miss: bool,
-    pub cache: Storage,
-    pub chain: VecDeque<Arc<dyn Handler>>,
+
+    pub sock: SocketAddr, // local address
+    pub peer: SocketAddr, // remote address
+    pub temp: Storage,    // temp storage
+
+    pub routes: VecDeque<Arc<dyn Handler>>, // routing chain
+    pub parent: String, // parent uri
+    pub search: String, // unmatched uri
 }
 
 // impl Drop for Context {
@@ -21,7 +24,7 @@ pub struct Context {
 
 impl Context {
     pub async fn next(mut self) -> Result<Self> {
-        match self.chain.pop_front() {
+        match self.routes.pop_front() {
             Some(handler) => handler.handle(self).await,
             None => Ok(self),
         }
@@ -35,7 +38,7 @@ impl Context {
     // todo use replacement, preserve params
     pub async fn rewrite(mut self, to: http::Uri) -> Result<Self> {
         *self.req.uri_mut() = to;
-        self.chain.clear();
+        self.routes.clear();
 
         let app = self.app.clone();
         app.handle(self).await
