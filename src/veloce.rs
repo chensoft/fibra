@@ -49,11 +49,11 @@ impl Veloce {
         self.route(pattern, plugin::Reject::new(status));
     }
 
-    pub fn rewrite(&mut self, from: impl Into<Pattern>, to: impl Into<http::Uri>) {
+    pub fn rewrite(&mut self, from: impl Into<Pattern>, to: http::Uri) {
         self.route(from, plugin::Rewrite::new(to));
     }
 
-    pub fn redirect(&mut self, from: impl Into<Pattern>, to: impl Into<http::Uri>, status: Option<http::StatusCode>) {
+    pub fn redirect(&mut self, from: impl Into<Pattern>, to: http::Uri, status: Option<http::StatusCode>) {
         self.route(from, plugin::Redirect::new(to, status));
     }
 
@@ -98,6 +98,7 @@ impl Veloce {
                     let appself = appself.clone();
 
                     async move {
+                        // todo method not found
                         let res = match AssertUnwindSafe(appself.handle(context)).catch_unwind().await {
                             Ok(ret) => match ret {
                                 Ok(ctx) if !ctx.miss => ctx.res,

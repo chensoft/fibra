@@ -7,14 +7,14 @@ pub struct Rewrite {
 }
 
 impl Rewrite {
-    pub fn new(to: impl Into<http::Uri>) -> Self {
-        Self {to: to.into()}
+    pub fn new(to: http::Uri) -> Self {
+        Self {to}
     }
 }
 
 #[async_trait]
 impl Handler for Rewrite {
-    async fn handle(&self, _ctx: Context) -> Result<Context> {
-        todo!()
+    async fn handle(&self, ctx: Context) -> Result<Context> {
+        ctx.rewrite(self.to.clone()).await
     }
 }

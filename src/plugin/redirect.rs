@@ -7,8 +7,8 @@ pub struct Redirect {
 }
 
 impl Redirect {
-    pub fn new(to: impl Into<http::Uri>, status: Option<http::StatusCode>) -> Self {
-        Self {to: to.into(), status: status.unwrap_or(http::StatusCode::TEMPORARY_REDIRECT)}
+    pub fn new(to: http::Uri, status: Option<http::StatusCode>) -> Self {
+        Self {to, status: status.unwrap_or(http::StatusCode::TEMPORARY_REDIRECT)}
     }
 }
 

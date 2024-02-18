@@ -34,8 +34,18 @@ impl Context {
         }
     }
 
-    pub fn rewrite(self, _to: impl Into<http::Uri>) { todo!() }
-    pub fn redirect(self, _to: impl Into<http::Uri>, _code: http::StatusCode) { todo!() }
+    // todo use replacement
+    pub async fn rewrite(mut self, to: http::Uri) -> Result<Self> {
+        *self.req.uri_mut() = to;
+        self.chain.clear();
+
+        let app = self.app.clone();
+        app.handle(self).await
+    }
+
+    pub fn redirect(self, _to: &str, _code: http::StatusCode) -> Result<Self> {
+        todo!()
+    }
 
     pub fn param(&self, _key: &str) { todo!() }
 }

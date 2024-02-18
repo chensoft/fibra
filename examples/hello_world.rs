@@ -7,6 +7,7 @@ async fn main() -> Result<()> {
     let mut api = Veloce::default();
     api.mount(plugin::Logger);
     api.route("/", api_root);
+    api.rewrite("/rewrite", http::Uri::from_static("/"));
 
     // // todo /api use subdomain filter
     // let v1 = api.group("/api/v1", Config::default());
@@ -23,12 +24,11 @@ async fn main() -> Result<()> {
     api.run().await
 }
 
-async fn api_root(mut ctx: Context) -> Result<Context> {
+async fn api_root(ctx: Context) -> Result<Context> {
     if !ctx.is_get() {
         return ctx.next().await;
     }
 
-    *ctx.res.status_mut() = http::StatusCode::NOT_FOUND;
     Ok(ctx)
 }
 
