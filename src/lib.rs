@@ -12,8 +12,6 @@ mod consts;
 mod macros;
 mod veloce;
 
-pub mod filter;
-
 pub mod addons;
 pub use kernel::*;
 pub use consts::*;

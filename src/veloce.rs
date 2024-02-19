@@ -13,14 +13,14 @@ impl Veloce {
         self.plugin.push(Arc::new(handler));
     }
 
-    pub fn route(&mut self, pattern: impl Into<Pattern>, handler: impl Handler) {
-        self.router.add(pattern, handler);
+    pub fn route(&mut self, method: impl Into<Method>, pattern: impl Into<Pattern>, handler: impl Handler) {
+        self.router.add(method, pattern, handler);
     }
 
     pub fn group(&mut self, pattern: impl Into<Pattern>, initial: fn(&mut Veloce)) {
         let mut veloce = Veloce::default();
         initial(&mut veloce);
-        self.route(pattern, veloce);
+        self.route("", pattern, veloce);
     }
 
     pub async fn bind(&mut self, addr: &str) -> Result<()> {
@@ -102,7 +102,7 @@ impl Veloce {
 #[async_trait]
 impl Handler for Veloce {
     async fn handle(&self, mut ctx: Context) -> Result<Context> {
-        match self.router.get(ctx.search.as_str()) {
+        match self.router.get(ctx.req.method().as_str(), ctx.search.as_str()) {
             Some(val) => ctx.routes.push_front(val),
             None => return Err(Error::RouteNotFound(ctx.req.uri().to_string()).into()),
         };
