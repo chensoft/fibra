@@ -3,17 +3,12 @@ use crate::kernel::*;
 
 #[derive(Default)]
 pub struct Veloce {
-    pub config: Config,
     plugin: Vec<Arc<dyn Handler>>,
     router: Matcher,
     listen: Vec<StdTcpListener>,
 }
 
 impl Veloce {
-    pub fn new(config: Config) -> Self {
-        Self {config, ..Default::default()}
-    }
-
     pub fn mount(&mut self, handler: impl Handler) {
         self.plugin.push(Arc::new(handler));
     }
@@ -22,9 +17,9 @@ impl Veloce {
         self.router.add(pattern, handler);
     }
 
-    pub fn group(&mut self, pattern: impl Into<Pattern>, config: Option<Config>, setup: fn(&mut Veloce)) {
-        let mut veloce = Veloce::new(config.unwrap_or_default());
-        setup(&mut veloce);
+    pub fn group(&mut self, pattern: impl Into<Pattern>, initial: fn(&mut Veloce)) {
+        let mut veloce = Veloce::default();
+        initial(&mut veloce);
         self.route(pattern, veloce);
     }
 
@@ -73,18 +68,20 @@ impl Veloce {
 
                     async move {
                         // todo method not found
-                        let res = match AssertUnwindSafe(appself.handle(context)).catch_unwind().await {
-                            Ok(ret) => match ret {
-                                Ok(ctx) => ctx.res,
-                                Err(err) => (appself.config.catch)(err),
-                            }
-                            Err(err) => match err.downcast_ref::<&str>() {
-                                Some(err) => (appself.config.catch)(Error::Panicked(err.to_string()).into()),
-                                None => (appself.config.catch)(Error::Panicked("Unknown error".to_string()).into()),
-                            }
-                        };
-
-                        Ok::<_, Infallible>(res)
+                        // let res = match AssertUnwindSafe(appself.handle(context)).catch_unwind().await {
+                        //     Ok(ret) => match ret {
+                        //         Ok(ctx) => ctx.res,
+                        //         Err(err) => (appself.config.catch)(err),
+                        //     }
+                        //     Err(err) => match err.downcast_ref::<&str>() {
+                        //         Some(err) => (appself.config.catch)(Error::Panicked(err.to_string()).into()),
+                        //         None => (appself.config.catch)(Error::Panicked("Unknown error".to_string()).into()),
+                        //     }
+                        // };
+                        // 
+                        // Ok::<_, Infallible>(res)
+                        // todo
+                        Ok::<_, Infallible>(context.res)
                     }
                 }))
             }

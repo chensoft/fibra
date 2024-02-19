@@ -3,12 +3,11 @@ use crate::kernel::*;
 
 pub struct Public {
     pub folder: PathBuf,
-    pub config: Static,
 }
 
 impl Public {
-    pub fn new(folder: PathBuf, config: Option<Static>) -> Self {
-        Self {folder, config: config.unwrap_or_default()}
+    pub fn new(folder: PathBuf) -> Self {
+        Self {folder}
     }
 }
 

@@ -9,7 +9,7 @@ async fn main() -> Result<()> {
     api.route("/", api_root);
 
     // todo /api use subdomain filter
-    api.group("/api/v1", None, |v1| {
+    api.group("/api/v1", |v1| {
         v1.route("/", api_v1_root);
         v1.route("/user", api_v1_user);
     });
