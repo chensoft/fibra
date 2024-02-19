@@ -1,15 +1,12 @@
-use veloce::plugin;
+use veloce::addons;
 use veloce::filter::*;
 use veloce::{Veloce, Result, Context};
 
 #[tokio::main]
 async fn main() -> Result<()> {
     let mut api = Veloce::default();
-    api.mount(plugin::Logger::from_millis());
+    api.mount(addons::Logger::from_millis());
     api.route("/", api_root);
-    api.reject("/reject", None);
-    api.rewrite("/rewrite", http::Uri::from_static("/"));
-    api.redirect("/redirect", http::Uri::from_static("/"), None);
 
     // todo /api use subdomain filter
     api.group("/api/v1", None, |v1| {

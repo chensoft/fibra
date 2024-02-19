@@ -13,8 +13,8 @@ mod macros;
 mod veloce;
 
 pub mod filter;
-pub mod plugin;
 
+pub mod addons;
 pub use kernel::*;
 pub use consts::*;
 pub use veloce::*;

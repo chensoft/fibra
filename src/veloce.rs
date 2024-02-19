@@ -1,4 +1,3 @@
-use crate::plugin;
 use crate::consts::*;
 use crate::kernel::*;
 
@@ -27,22 +26,6 @@ impl Veloce {
         let mut veloce = Veloce::new(config.unwrap_or_default());
         setup(&mut veloce);
         self.route(pattern, veloce);
-    }
-
-    pub fn public(&mut self, pattern: impl Into<Pattern>, folder: PathBuf, config: Option<Static>) {
-        self.route(pattern, plugin::Public::new(folder, config));
-    }
-
-    pub fn reject(&mut self, pattern: impl Into<Pattern>, status: Option<http::StatusCode>) {
-        self.route(pattern, plugin::Reject::new(status));
-    }
-
-    pub fn rewrite(&mut self, from: impl Into<Pattern>, to: http::Uri) {
-        self.route(from, plugin::Rewrite::new(to));
-    }
-
-    pub fn redirect(&mut self, from: impl Into<Pattern>, to: http::Uri, status: Option<http::StatusCode>) {
-        self.route(from, plugin::Redirect::new(to, status));
     }
 
     pub async fn bind(&mut self, addr: &str) -> Result<()> {
