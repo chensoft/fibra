@@ -3,14 +3,14 @@ use crate::kernel::*;
 
 #[derive(Default)]
 pub struct Veloce {
-    plugin: Vec<Arc<dyn Handler>>,
+    addons: Vec<Arc<dyn Handler>>,
     router: Matcher,
     listen: Vec<StdTcpListener>,
 }
 
 impl Veloce {
     pub fn mount(&mut self, handler: impl Handler) {
-        self.plugin.push(Arc::new(handler));
+        self.addons.push(Arc::new(handler));
     }
 
     pub fn route(&mut self, method: Method, pattern: impl Into<Pattern>, handler: impl Handler) {
@@ -112,7 +112,7 @@ impl Handler for Veloce {
         ctx.parent = ctx.search.clone();
         ctx.search = "/".to_string();
 
-        for handler in self.plugin.iter().rev() {
+        for handler in self.addons.iter().rev() {
             ctx.routes.push_front(handler.clone());
         }
 

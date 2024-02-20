@@ -29,7 +29,7 @@ pub enum Method {
 }
 
 pub use mime::{Mime, MimeIter};
-pub use hyper::{header, HeaderMap, Request, Response, StatusCode, Uri, Version, Body};
+pub use hyper::{header, HeaderMap, Request, Response, StatusCode, Uri, Version, body, Body};
 
 /// Custom Result
 pub type Result<T> = anyhow::Result<T>;
