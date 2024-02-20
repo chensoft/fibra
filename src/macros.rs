@@ -16,7 +16,7 @@
 macro_rules! serve {
     ($($listen:literal),+; $($pattern:literal => $handler:expr),+) => {{
         let mut app = $crate::Veloce::default();
-        $(app.route($crate::Method::ANY, $pattern, $handler);)+
+        $(app.route($crate::Method::Any, $pattern, $handler);)+
         $(app.bind($listen).await?;)+
         app.run().await
     }};

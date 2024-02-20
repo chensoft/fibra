@@ -20,7 +20,7 @@ impl Veloce {
     pub fn group(&mut self, pattern: impl Into<Pattern>, initial: fn(&mut Veloce)) {
         let mut veloce = Veloce::default();
         initial(&mut veloce);
-        self.route(Method::ANY, pattern, veloce);
+        self.route(Method::Any, pattern, veloce);
     }
 
     pub async fn bind(&mut self, addr: &str) -> Result<()> {

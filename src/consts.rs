@@ -12,19 +12,20 @@ pub(crate) use std::net::TcpListener as StdTcpListener;
 
 /// Export Types
 #[derive(Debug, Clone, Hash, Eq, PartialEq, Ord, PartialOrd, AsRefStr, EnumString)]
+#[strum(serialize_all = "UPPERCASE")]
 pub enum Method {
-    GET,     // RFC 7231, 4.3.1
-    HEAD,    // RFC 7231, 4.3.2
-    POST,    // RFC 7231, 4.3.3
-    PUT,     // RFC 7231, 4.3.4
-    PATCH,   // RFC 5789
-    DELETE,  // RFC 7231, 4.3.5
-    CONNECT, // RFC 7231, 4.3.6
-    OPTIONS, // RFC 7231, 4.3.7
-    TRACE,   // RFC 7231, 4.3.8
+    Get,     // RFC 7231, 4.3.1
+    Head,    // RFC 7231, 4.3.2
+    Post,    // RFC 7231, 4.3.3
+    Put,     // RFC 7231, 4.3.4
+    Patch,   // RFC 5789
+    Delete,  // RFC 7231, 4.3.5
+    Connect, // RFC 7231, 4.3.6
+    Options, // RFC 7231, 4.3.7
+    Trace,   // RFC 7231, 4.3.8
 
-    ANY,
-    CUSTOM(String)
+    Any,
+    Custom(String)
 }
 
 pub use mime::{Mime, MimeIter};
