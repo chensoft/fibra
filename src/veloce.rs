@@ -13,14 +13,14 @@ impl Veloce {
         self.plugin.push(Arc::new(handler));
     }
 
-    pub fn route(&mut self, method: impl Into<Method>, pattern: impl Into<Pattern>, handler: impl Handler) {
+    pub fn route(&mut self, method: Method, pattern: impl Into<Pattern>, handler: impl Handler) {
         self.router.add(method, pattern, handler);
     }
 
     pub fn group(&mut self, pattern: impl Into<Pattern>, initial: fn(&mut Veloce)) {
         let mut veloce = Veloce::default();
         initial(&mut veloce);
-        self.route("", pattern, veloce);
+        self.route(Method::ANY, pattern, veloce);
     }
 
     pub async fn bind(&mut self, addr: &str) -> Result<()> {
@@ -40,9 +40,9 @@ impl Veloce {
 
     pub async fn run(mut self) -> Result<()> {
         use futures::FutureExt;
-        use http::{Response, Server};
-        use http::server::conn::AddrStream;
-        use http::service::{make_service_fn, service_fn};
+        use hyper::Server;
+        use hyper::server::conn::AddrStream;
+        use hyper::service::{make_service_fn, service_fn};
 
         let mut sockets = std::mem::take(&mut self.listen);
         let appself = Arc::new(self);
@@ -102,10 +102,11 @@ impl Veloce {
 #[async_trait]
 impl Handler for Veloce {
     async fn handle(&self, mut ctx: Context) -> Result<Context> {
-        match self.router.get(ctx.req.method().as_str(), ctx.search.as_str()) {
-            Some(val) => ctx.routes.push_front(val),
-            None => return Err(Error::RouteNotFound(ctx.req.uri().to_string()).into()),
-        };
+        // todo
+        // match self.router.get(ctx.req.method(), ctx.search.as_str()) {
+        //     Some(val) => ctx.routes.push_front(val),
+        //     None => return Err(Error::RouteNotFound(ctx.req.uri().to_string()).into()),
+        // };
 
         // todo subrouter
         ctx.parent = ctx.search.clone();

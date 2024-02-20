@@ -4,8 +4,8 @@ use crate::kernel::*;
 
 pub struct Context {
     pub app: Arc<Veloce>,
-    pub req: http::Request<http::Body>,
-    pub res: http::Response<http::Body>,
+    pub req: Request<Body>,
+    pub res: Response<Body>,
 
     pub sock: SocketAddr, // local address
     pub peer: SocketAddr, // remote address
@@ -30,13 +30,13 @@ impl Context {
         }
     }
 
-    pub fn reject(mut self, status: Option<http::StatusCode>) -> Result<Self> {
-        *self.res.status_mut() = status.unwrap_or(http::StatusCode::FORBIDDEN);
+    pub fn reject(mut self, status: Option<StatusCode>) -> Result<Self> {
+        *self.res.status_mut() = status.unwrap_or(StatusCode::FORBIDDEN);
         Ok(self)
     }
 
     // todo use replacement, preserve params
-    pub async fn rewrite(mut self, to: http::Uri) -> Result<Self> {
+    pub async fn rewrite(mut self, to: Uri) -> Result<Self> {
         *self.req.uri_mut() = to;
         self.routes.clear();
 
@@ -44,9 +44,9 @@ impl Context {
         app.handle(self).await
     }
 
-    pub fn redirect(mut self, to: http::Uri, status: Option<http::StatusCode>) -> Result<Self> {
-        *self.res.status_mut() = status.unwrap_or(http::StatusCode::TEMPORARY_REDIRECT);
-        self.res.headers_mut().insert(http::header::LOCATION, http::header::HeaderValue::from_str(to.to_string().as_str())?);
+    pub fn redirect(mut self, to: Uri, status: Option<StatusCode>) -> Result<Self> {
+        *self.res.status_mut() = status.unwrap_or(StatusCode::TEMPORARY_REDIRECT);
+        self.res.headers_mut().insert(header::LOCATION, header::HeaderValue::from_str(to.to_string().as_str())?);
         Ok(self)
     }
 

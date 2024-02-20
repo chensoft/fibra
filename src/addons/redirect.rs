@@ -2,12 +2,12 @@ use crate::consts::*;
 use crate::kernel::*;
 
 pub struct Redirect {
-    pub to: http::Uri,
-    pub status: Option<http::StatusCode>,
+    pub to: Uri,
+    pub status: Option<StatusCode>,
 }
 
 impl Redirect {
-    pub fn new(to: http::Uri, status: Option<http::StatusCode>) -> Self {
+    pub fn new(to: Uri, status: Option<StatusCode>) -> Self {
         Self {to, status}
     }
 }

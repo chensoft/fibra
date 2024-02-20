@@ -3,11 +3,11 @@ use crate::kernel::*;
 
 // todo universe Derive
 pub struct Rewrite {
-    pub to: http::Uri,
+    pub to: Uri,
 }
 
 impl Rewrite {
-    pub fn new(to: http::Uri) -> Self {
+    pub fn new(to: Uri) -> Self {
         Self {to}
     }
 }

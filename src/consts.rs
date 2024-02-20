@@ -1,3 +1,4 @@
+/// Internal Use
 pub(crate) use std::sync::Arc;
 pub(crate) use std::borrow::Cow;
 pub(crate) use std::path::PathBuf;
@@ -9,11 +10,30 @@ pub(crate) use std::collections::VecDeque;
 pub(crate) use std::panic::AssertUnwindSafe;
 pub(crate) use std::net::TcpListener as StdTcpListener;
 
-/// Override types
-pub type Result<T> = anyhow::Result<T>;
-pub type Method = Cow<'static, str>;
+/// Export Types
+#[derive(Debug, Clone, Hash, Eq, PartialEq, Ord, PartialOrd, AsRefStr, EnumString)]
+pub enum Method {
+    GET,     // RFC 7231, 4.3.1
+    HEAD,    // RFC 7231, 4.3.2
+    POST,    // RFC 7231, 4.3.3
+    PUT,     // RFC 7231, 4.3.4
+    PATCH,   // RFC 5789
+    DELETE,  // RFC 7231, 4.3.5
+    CONNECT, // RFC 7231, 4.3.6
+    OPTIONS, // RFC 7231, 4.3.7
+    TRACE,   // RFC 7231, 4.3.8
 
-/// Custom errors
+    ANY,
+    CUSTOM(String)
+}
+
+pub use mime::{Mime, MimeIter};
+pub use hyper::{header, HeaderMap, Request, Response, StatusCode, Uri, Version, Body};
+
+/// Custom Result
+pub type Result<T> = anyhow::Result<T>;
+
+/// Custom Error
 #[derive(Debug, Clone, Error, Eq, PartialEq, Ord, PartialOrd)]
 pub enum Error {
     #[error("{0}")]
