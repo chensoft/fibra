@@ -67,21 +67,15 @@ impl Veloce {
                     let appself = appself.clone();
 
                     async move {
-                        // todo method not found
-                        // let res = match AssertUnwindSafe(appself.handle(context)).catch_unwind().await {
-                        //     Ok(ret) => match ret {
-                        //         Ok(ctx) => ctx.res,
-                        //         Err(err) => (appself.config.catch)(err),
-                        //     }
-                        //     Err(err) => match err.downcast_ref::<&str>() {
-                        //         Some(err) => (appself.config.catch)(Error::Panicked(err.to_string()).into()),
-                        //         None => (appself.config.catch)(Error::Panicked("Unknown error".to_string()).into()),
-                        //     }
-                        // };
-                        // 
-                        // Ok::<_, Infallible>(res)
-                        // todo
-                        Ok::<_, Infallible>(context.res)
+                        // todo method not found in custom Error and Result
+                        let res = match AssertUnwindSafe(appself.handle(context)).catch_unwind().await {
+                            Ok(ret) => match ret {
+                                Ok(ctx) => ctx.res,
+                                Err(_) => Response::builder().status(StatusCode::SERVICE_UNAVAILABLE).body(Body::default()).unwrap_or_default(),
+                            }
+                            Err(_) => Response::builder().status(StatusCode::INTERNAL_SERVER_ERROR).body(Body::default()).unwrap_or_default(),
+                        };
+                        Ok::<_, Infallible>(res)
                     }
                 }))
             }
@@ -102,7 +96,7 @@ impl Veloce {
 #[async_trait]
 impl Handler for Veloce {
     async fn handle(&self, mut ctx: Context) -> Result<Context> {
-        // todo
+        // todo cmp with our Method
         // match self.router.get(ctx.req.method(), ctx.search.as_str()) {
         //     Some(val) => ctx.routes.push_front(val),
         //     None => return Err(Error::RouteNotFound(ctx.req.uri().to_string()).into()),

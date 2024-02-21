@@ -22,17 +22,18 @@ impl Logger {
 impl Handler for Logger {
     async fn handle(&self, ctx: Context) -> Result<Context> {
         let beg = chrono::Local::now();
+        let req = ctx.req.clone();
         let ret = ctx.next().await;
         let end = chrono::Local::now();
 
         // todo still need recover to construct a valid Context with error response
         match ret {
             Ok(ctx) => {
-                logkit::info!(time = beg.to_rfc3339_opts(self.format, false), method = ctx.req.method().as_str(), path = ctx.req.uri().path(), query = ctx.req.uri().query().unwrap_or(""), status = ctx.res.status().as_u16(), elapsed = (end - beg).num_milliseconds());
+                logkit::info!(time = beg.to_rfc3339_opts(self.format, false), method = req.method().as_str(), path = req.uri().path(), query = req.uri().query().unwrap_or(""), status = ctx.res.status().as_u16(), elapsed = (end - beg).num_milliseconds());
                 Ok(ctx)
             }
             Err(err) => {
-                // logkit::info!(time = beg.to_rfc3339_opts(self.format, false), method = ctx.req.method().as_str(), path = ctx.req.uri().path(), query = ctx.req.uri().query().unwrap_or(""), status = 0, elapsed = (end - beg).num_milliseconds());
+                logkit::info!(time = beg.to_rfc3339_opts(self.format, false), method = req.method().as_str(), path = req.uri().path(), query = req.uri().query().unwrap_or(""), status = 0, elapsed = (end - beg).num_milliseconds());
                 Err(err)
             }
         }
