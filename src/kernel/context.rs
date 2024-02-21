@@ -4,7 +4,7 @@ use crate::kernel::*;
 
 pub struct Context {
     pub app: Arc<Veloce>,
-    pub req: Request<Body>,
+    pub req: Arc<Request<Body>>,
     pub res: Response<Body>,
 
     pub sock: SocketAddr, // local address
@@ -37,7 +37,7 @@ impl Context {
 
     // todo use replacement, preserve params
     pub async fn rewrite(mut self, to: Uri) -> Result<Self> {
-        *self.req.uri_mut() = to;
+        // *self.req.uri_mut() = to;
         self.routes.clear();
 
         let app = self.app.clone();

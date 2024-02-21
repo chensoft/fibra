@@ -55,7 +55,7 @@ impl Veloce {
                     let rawpath = req.uri().path().to_string();
                     let context = Context {
                         app: appself.clone(),
-                        req,
+                        req: req.into(),
                         res: Response::default(),
                         sock: address.0,
                         peer: address.1,
