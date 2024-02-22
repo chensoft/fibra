@@ -4,12 +4,11 @@ use crate::kernel::*;
 
 pub struct Context {
     pub app: Arc<Veloce>,
-    pub req: Arc<Request<Body>>,
+    pub req: Request<Body>,
     pub res: Response<Body>,
 
-    pub sock: SocketAddr, // local address
-    pub peer: SocketAddr, // remote address
-    pub temp: Storage,    // temp storage
+    pub addr: Address, // local & remote addresses
+    pub temp: Storage, // temp storage
 
     pub routes: VecDeque<Arc<dyn Handler>>, // routing chain
     pub parent: String, // parent uri
@@ -23,6 +22,20 @@ pub struct Context {
 // }
 
 impl Context {
+    pub fn new(app: Arc<Veloce>, req: Request<Body>, addr: Address) -> Self {
+        let search = req.uri().path().to_string();
+        Self {
+            app,
+            req,
+            res: Default::default(),
+            addr,
+            temp: Default::default(),
+            routes: Default::default(),
+            parent: "".to_string(),
+            search,
+        }
+    }
+
     pub async fn next(mut self) -> Result<Self> {
         match self.routes.pop_front() {
             Some(handler) => handler.handle(self).await,
@@ -36,7 +49,7 @@ impl Context {
     }
 
     // todo use replacement, preserve params
-    pub async fn rewrite(mut self, to: Uri) -> Result<Self> {
+    pub async fn rewrite(mut self, _to: Uri) -> Result<Self> {
         // *self.req.uri_mut() = to;
         self.routes.clear();
 

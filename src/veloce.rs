@@ -52,19 +52,8 @@ impl Veloce {
 
             async move {
                 Ok::<_, Infallible>(service_fn(move |req| {
-                    let rawpath = req.uri().path().to_string();
-                    let context = Context {
-                        app: appself.clone(),
-                        req: req.into(),
-                        res: Response::default(),
-                        sock: address.0,
-                        peer: address.1,
-                        temp: Storage::default(),
-                        routes: VecDeque::new(),
-                        parent: "".to_string(),
-                        search: rawpath,
-                    };
                     let appself = appself.clone();
+                    let context = Context::new(appself.clone(), req.into(), Address::new(address.0, address.1));
 
                     async move {
                         // todo method not found in custom Error and Result
