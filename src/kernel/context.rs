@@ -65,3 +65,17 @@ impl Context {
 
     pub fn param(&self, _key: &str) { todo!() }
 }
+
+impl Context {
+    pub async fn write_status(&mut self) -> Result<()> {
+        todo!()
+    }
+
+    pub async fn write_header(&mut self) -> Result<()> {
+        todo!()
+    }
+
+    pub async fn write_body(&mut self, _multi_type_impl_from: impl Into<String>) -> Result<()> {
+        todo!()
+    }
+}
