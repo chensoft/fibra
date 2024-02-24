@@ -59,7 +59,10 @@ impl Veloce {
                         let res = match AssertUnwindSafe(appself.handle(&mut context)).catch_unwind().await {
                             Ok(ret) => match ret {
                                 Ok(_) => context.res,
-                                Err(_) => StatusCode::SERVICE_UNAVAILABLE.into_response(),
+                                Err(err) => match err.downcast_ref::<Error>() {
+                                    Some(Error::HttpStatusCode(status)) => status.into_response(),
+                                    _ => StatusCode::SERVICE_UNAVAILABLE.into_response(),
+                                }
                             }
                             Err(_) => StatusCode::INTERNAL_SERVER_ERROR.into_response(),
                         };

@@ -6,21 +6,18 @@ pub struct Catcher {
 }
 
 impl Catcher {
+    /// ```
+    /// use veloce::*;
+    /// 
+    /// addons::Catcher::new(|ctx, err| {
+    ///     match err.downcast_ref::<Error>() {
+    ///         Some(Error::HttpStatusCode(status)) => ctx.res = status.into_response(),
+    ///         _ => ctx.res = StatusCode::INTERNAL_SERVER_ERROR.into_response(),
+    ///     }
+    /// });
+    /// ```
     pub fn new(catch: impl Fn(&mut Context, anyhow::Error) + Send + Sync + 'static) -> Self {
         Self {catch: Box::new(catch)}
-    }
-}
-
-impl Default for Catcher {
-    fn default() -> Self {
-        Self {
-            catch: Box::new(|ctx, err| {
-                match err.downcast_ref::<Error>() {
-                    Some(Error::HttpStatusCode(status)) => ctx.res = status.into_response(),
-                    _ => ctx.res = StatusCode::INTERNAL_SERVER_ERROR.into_response(),
-                }
-            })
-        }
     }
 }
 

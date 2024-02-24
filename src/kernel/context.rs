@@ -44,8 +44,7 @@ impl Context {
     }
 
     pub fn reject(&mut self, status: Option<StatusCode>) -> Result<()> {
-        *self.res.status_mut() = status.unwrap_or(StatusCode::FORBIDDEN);
-        Ok(())
+        Err(status.unwrap_or(StatusCode::FORBIDDEN).into_error())
     }
 
     // todo use replacement, preserve params
