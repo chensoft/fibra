@@ -39,33 +39,31 @@ impl Veloce {
     }
 
     pub async fn run(mut self) -> Result<()> {
-        // use futures::FutureExt;
+        use futures::FutureExt;
         use hyper::Server;
         use hyper::server::conn::AddrStream;
         use hyper::service::{make_service_fn, service_fn};
 
         let mut sockets = std::mem::take(&mut self.listen);
-        // let appself = Arc::new(self);
-        let service = make_service_fn(|_conn: &AddrStream| {
-            // let appself = appself.clone();
-            // let address = (conn.local_addr(), conn.remote_addr());
+        let appself = Arc::new(self);
+        let service = make_service_fn(|conn: &AddrStream| {
+            let appself = appself.clone();
+            let address = (conn.local_addr(), conn.remote_addr());
 
             async move {
-                Ok::<_, Infallible>(service_fn(move |_req| {
-                    // let appself = appself.clone();
-                    // let context = Context::new(appself.clone(), req.into(), Address::new(address.0, address.1));
+                Ok::<_, Infallible>(service_fn(move |req| {
+                    let appself = appself.clone();
+                    let mut context = Context::new(appself.clone(), req.into(), Address::new(address.0, address.1));
 
                     async move {
-                        // todo method not found in custom Error and Result
-                        // let res = match AssertUnwindSafe(appself.handle(context)).catch_unwind().await {
-                        //     Ok(ret) => match ret {
-                        //         Ok(ctx) => ctx.res,
-                        //         Err(_) => Response::builder().status(StatusCode::SERVICE_UNAVAILABLE).body(Body::default()).unwrap_or_default(),
-                        //     }
-                        //     Err(_) => Response::builder().status(StatusCode::INTERNAL_SERVER_ERROR).body(Body::default()).unwrap_or_default(),
-                        // };
-                        // Ok::<_, Infallible>(res)
-                        Ok::<_, Infallible>(Response::new(Body::default()))
+                        let res = match AssertUnwindSafe(appself.handle(&mut context)).catch_unwind().await {
+                            Ok(ret) => match ret {
+                                Ok(_) => context.res,
+                                Err(_) => StatusCode::SERVICE_UNAVAILABLE.into_response(),
+                            }
+                            Err(_) => StatusCode::INTERNAL_SERVER_ERROR.into_response(),
+                        };
+                        Ok::<_, Infallible>(res)
                     }
                 }))
             }
