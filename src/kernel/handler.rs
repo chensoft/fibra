@@ -4,16 +4,31 @@ use crate::kernel::*;
 // todo Handler<T>, T is body's custom type
 #[async_trait]
 pub trait Handler: Send + Sync + 'static {
-    async fn handle(&self, ctx: Context) -> Result<Context>;
+    async fn handle(&self, ctx: &mut Context) -> Result<()>;
+}
+
+pub struct Closure<F>
+    where
+        F: for<'a> Fn(&'a mut Context) -> Pin<Box<dyn Future<Output = Result<()>> + Send + 'a>> + Send + Sync + 'static,
+{
+    pub closure: F,
+}
+// todo impl From to Closure?
+impl<F> Closure<F>
+    where
+        F: for<'a> Fn(&'a mut Context) -> Pin<Box<dyn Future<Output = Result<()>> + Send + 'a>> + Send + Sync + 'static,
+{
+    pub fn new(closure: F) -> Self {
+        Self {closure}
+    }
 }
 
 #[async_trait]
-impl<F, R> Handler for F
+impl<F> Handler for Closure<F>
     where
-        F: Fn(Context) -> R + Sync + Send + 'static,
-        R: Future<Output = Result<Context>> + Send + 'static,
+        F: for<'a> Fn(&'a mut Context) -> Pin<Box<dyn Future<Output = Result<()>> + Send + 'a>> + Send + Sync + 'static,
 {
-    async fn handle(&self, ctx: Context) -> Result<Context> {
-        self(ctx).await
+    async fn handle(&self, ctx: &mut Context) -> Result<()> {
+        (self.closure)(ctx).await
     }
 }

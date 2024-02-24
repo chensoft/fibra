@@ -39,21 +39,21 @@ impl Veloce {
     }
 
     pub async fn run(mut self) -> Result<()> {
-        use futures::FutureExt;
+        // use futures::FutureExt;
         use hyper::Server;
         use hyper::server::conn::AddrStream;
         use hyper::service::{make_service_fn, service_fn};
 
         let mut sockets = std::mem::take(&mut self.listen);
-        let appself = Arc::new(self);
-        let service = make_service_fn(|conn: &AddrStream| {
-            let appself = appself.clone();
-            let address = (conn.local_addr(), conn.remote_addr());
+        // let appself = Arc::new(self);
+        let service = make_service_fn(|_conn: &AddrStream| {
+            // let appself = appself.clone();
+            // let address = (conn.local_addr(), conn.remote_addr());
 
             async move {
-                Ok::<_, Infallible>(service_fn(move |req| {
-                    let appself = appself.clone();
-                    let context = Context::new(appself.clone(), req.into(), Address::new(address.0, address.1));
+                Ok::<_, Infallible>(service_fn(move |_req| {
+                    // let appself = appself.clone();
+                    // let context = Context::new(appself.clone(), req.into(), Address::new(address.0, address.1));
 
                     async move {
                         // todo method not found in custom Error and Result
@@ -85,7 +85,7 @@ impl Veloce {
 
 #[async_trait]
 impl Handler for Veloce {
-    async fn handle(&self, mut ctx: Context) -> Result<Context> {
+    async fn handle(&self, ctx: &mut Context) -> Result<()> {
         // todo cmp with our Method
         // match self.router.get(ctx.req.method(), ctx.search.as_str()) {
         //     Some(val) => ctx.routes.push_front(val),

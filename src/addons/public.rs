@@ -13,7 +13,7 @@ impl Public {
 
 #[async_trait]
 impl Handler for Public {
-    async fn handle(&self, _ctx: Context) -> Result<Context> {
+    async fn handle(&self, _ctx: &mut Context) -> Result<()> {
         todo!()
     }
 }

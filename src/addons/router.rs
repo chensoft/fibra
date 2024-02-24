@@ -14,7 +14,7 @@ impl Router {
 
 #[async_trait]
 impl Handler for Router {
-    async fn handle(&self, ctx: Context) -> Result<Context> {
+    async fn handle(&self, ctx: &mut Context) -> Result<()> {
         match ctx.req.method() == self.method {
             true => self.handler.handle(ctx).await,
             false => ctx.next().await,

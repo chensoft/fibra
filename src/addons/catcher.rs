@@ -14,7 +14,7 @@ impl Catcher {
 
 #[async_trait]
 impl Handler for Catcher {
-    async fn handle(&self, _ctx: Context) -> Result<Context> {
+    async fn handle(&self, _ctx: &mut Context) -> Result<()> {
         // todo how to return ctx???
         todo!()
         // let res = match AssertUnwindSafe(ctx.next()).catch_unwind().await {

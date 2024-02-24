@@ -20,24 +20,25 @@ impl Logger {
 
 #[async_trait]
 impl Handler for Logger {
-    async fn handle(&self, ctx: Context) -> Result<Context> {
-        let beg = chrono::Local::now();
-        let method = ctx.req.method().clone();
-        let path = ctx.req.uri().path().to_string();
-        let query = ctx.req.uri().query().unwrap_or(&"").to_string();
-        let ret = ctx.next().await;
-        let end = chrono::Local::now();
-
+    async fn handle(&self, _ctx: &mut Context) -> Result<()> {
+        // let beg = chrono::Local::now();
+        // let method = ctx.req.method().clone();
+        // let path = ctx.req.uri().path().to_string();
+        // let query = ctx.req.uri().query().unwrap_or(&"").to_string();
+        // let ret = ctx.next().await;
+        // let end = chrono::Local::now();
+        // 
         // todo still need recover to construct a valid Context with error response
-        match ret {
-            Ok(ctx) => {
-                logkit::info!(time = beg.to_rfc3339_opts(self.format, false), method = method.as_str(), path = path, query = query, status = ctx.res.status().as_u16(), elapsed = (end - beg).num_milliseconds());
-                Ok(ctx)
-            }
-            Err(err) => {
-                logkit::info!(time = beg.to_rfc3339_opts(self.format, false), method = method.as_str(), path = path, query = query, status = 0, elapsed = (end - beg).num_milliseconds());
-                Err(err)
-            }
-        }
+        // match ret {
+        //     Ok(ctx) => {
+        //         logkit::info!(time = beg.to_rfc3339_opts(self.format, false), method = method.as_str(), path = path, query = query, status = ctx.res.status().as_u16(), elapsed = (end - beg).num_milliseconds());
+        //         Ok(ctx)
+        //     }
+        //     Err(err) => {
+        //         logkit::info!(time = beg.to_rfc3339_opts(self.format, false), method = method.as_str(), path = path, query = query, status = 0, elapsed = (end - beg).num_milliseconds());
+        //         Err(err)
+        //     }
+        // }
+        todo!()
     }
 }
