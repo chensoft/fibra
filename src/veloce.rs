@@ -13,14 +13,14 @@ impl Veloce {
         self.addons.push(Arc::new(handler));
     }
 
-    pub fn route(&mut self, method: Method, pattern: impl Into<Pattern>, handler: impl Handler) {
-        self.router.add(method, pattern, handler);
+    pub fn route(&mut self, pattern: impl Into<Pattern>, handler: impl Handler) {
+        self.router.add(pattern, handler);
     }
 
     pub fn group(&mut self, pattern: impl Into<Pattern>, initial: fn(&mut Veloce)) {
         let mut veloce = Veloce::default();
         initial(&mut veloce);
-        self.route(Method::Any, pattern, veloce);
+        self.route(pattern, veloce);
     }
 
     pub async fn bind(&mut self, addr: &str) -> Result<()> {
@@ -57,14 +57,15 @@ impl Veloce {
 
                     async move {
                         // todo method not found in custom Error and Result
-                        let res = match AssertUnwindSafe(appself.handle(context)).catch_unwind().await {
-                            Ok(ret) => match ret {
-                                Ok(ctx) => ctx.res,
-                                Err(_) => Response::builder().status(StatusCode::SERVICE_UNAVAILABLE).body(Body::default()).unwrap_or_default(),
-                            }
-                            Err(_) => Response::builder().status(StatusCode::INTERNAL_SERVER_ERROR).body(Body::default()).unwrap_or_default(),
-                        };
-                        Ok::<_, Infallible>(res)
+                        // let res = match AssertUnwindSafe(appself.handle(context)).catch_unwind().await {
+                        //     Ok(ret) => match ret {
+                        //         Ok(ctx) => ctx.res,
+                        //         Err(_) => Response::builder().status(StatusCode::SERVICE_UNAVAILABLE).body(Body::default()).unwrap_or_default(),
+                        //     }
+                        //     Err(_) => Response::builder().status(StatusCode::INTERNAL_SERVER_ERROR).body(Body::default()).unwrap_or_default(),
+                        // };
+                        // Ok::<_, Infallible>(res)
+                        Ok::<_, Infallible>(Response::new(Body::default()))
                     }
                 }))
             }

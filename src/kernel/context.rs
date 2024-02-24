@@ -36,20 +36,20 @@ impl Context {
         }
     }
 
-    pub async fn next(mut self) -> Result<Self> {
+    pub async fn next(mut self) -> Result<Context> {
         match self.routes.pop_front() {
             Some(handler) => handler.handle(self).await,
             None => Ok(self),
         }
     }
 
-    pub fn reject(mut self, status: Option<StatusCode>) -> Result<Self> {
+    pub fn reject(mut self, status: Option<StatusCode>) -> Result<Context> {
         *self.res.status_mut() = status.unwrap_or(StatusCode::FORBIDDEN);
         Ok(self)
     }
 
     // todo use replacement, preserve params
-    pub async fn rewrite(mut self, _to: Uri) -> Result<Self> {
+    pub async fn rewrite(mut self, _to: Uri) -> Result<Context> {
         // *self.req.uri_mut() = to;
         self.routes.clear();
 
@@ -57,7 +57,7 @@ impl Context {
         app.handle(self).await
     }
 
-    pub fn redirect(mut self, to: Uri, status: Option<StatusCode>) -> Result<Self> {
+    pub fn redirect(mut self, to: Uri, status: Option<StatusCode>) -> Result<Context> {
         *self.res.status_mut() = status.unwrap_or(StatusCode::TEMPORARY_REDIRECT);
         self.res.headers_mut().insert(header::LOCATION, header::HeaderValue::from_str(to.to_string().as_str())?);
         Ok(self)

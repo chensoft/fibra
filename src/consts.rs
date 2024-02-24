@@ -11,25 +11,8 @@ pub(crate) use std::panic::AssertUnwindSafe;
 pub(crate) use std::net::TcpListener as StdTcpListener;
 
 /// Export Types
-#[derive(Debug, Clone, Hash, Eq, PartialEq, Ord, PartialOrd, AsRefStr, EnumString)]
-#[strum(serialize_all = "UPPERCASE")]
-pub enum Method {
-    Get,     // RFC 7231, 4.3.1
-    Head,    // RFC 7231, 4.3.2
-    Post,    // RFC 7231, 4.3.3
-    Put,     // RFC 7231, 4.3.4
-    Patch,   // RFC 5789
-    Delete,  // RFC 7231, 4.3.5
-    Connect, // RFC 7231, 4.3.6
-    Options, // RFC 7231, 4.3.7
-    Trace,   // RFC 7231, 4.3.8
-
-    Any,
-    Custom(String)
-}
-
 pub use mime::{Mime, MimeIter};
-pub use hyper::{header, HeaderMap, Request, Response, StatusCode, Uri, Version, body, Body};
+pub use hyper::{header, HeaderMap, Method, Uri, Version, body, Body, Request, Response, StatusCode};
 
 /// Custom Result
 pub type Result<T> = anyhow::Result<T>;
@@ -41,13 +24,5 @@ pub enum Error {
     HostNotFound(String),
 
     #[error("Unable to recognize {0}")]
-    RouteNotFound(String),
+    PathNotFound(String),
 }
-
-// todo error use http status
-// let mut res = http::Response::default();
-// *res.status_mut() = match err.downcast_ref::<Error>() {
-// Some(Error::RouteNotFound(_)) => http::StatusCode::NOT_FOUND,
-// _ => http::StatusCode::INTERNAL_SERVER_ERROR,
-// };
-// res
