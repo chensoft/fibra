@@ -1,5 +1,17 @@
 use crate::consts::*;
 
+/// Into Error
+pub trait IntoError {
+    fn into_error(self) -> anyhow::Error;
+}
+
+impl IntoError for StatusCode {
+    fn into_error(self) -> anyhow::Error {
+        anyhow!(Error::HttpStatusCode(self))
+    }
+}
+
+/// Into Response
 pub trait IntoResponse {
     fn into_response(self) -> Response<Body>;
 }

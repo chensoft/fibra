@@ -25,4 +25,7 @@ pub enum Error {
 
     #[error("Unable to recognize {0}")]
     PathNotFound(String),
+
+    #[error("{0}")]
+    HttpStatusCode(StatusCode)
 }

@@ -24,7 +24,7 @@ macro_rules! serve {
 
 // todo multiple
 #[macro_export]
-macro_rules! any {
+macro_rules! all {
     ($func:expr) => {{
         $crate::Closure::new(|ctx: &mut Context| Box::pin(async move {
             $func(ctx).await
