@@ -17,7 +17,7 @@ impl Veloce {
         self.router.add(pattern, handler);
     }
 
-    pub fn group(&mut self, pattern: impl Into<Pattern>, initial: fn(&mut Veloce)) {
+    pub fn group(&mut self, pattern: impl Into<Pattern>, initial: impl Fn(&mut Veloce)) {
         let mut veloce = Veloce::default();
         initial(&mut veloce);
         self.route(pattern, veloce);
