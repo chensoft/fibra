@@ -1,18 +1,14 @@
+use crate::addons;
 use crate::consts::*;
 use crate::kernel::*;
 
-#[derive(Default)]
 pub struct Veloce {
-    addons: Vec<Arc<dyn Handler>>,
     router: Matcher,
+    addons: Vec<Arc<dyn Handler>>,
     listen: Vec<StdTcpListener>,
 }
 
 impl Veloce {
-    pub fn mount(&mut self, handler: impl Handler) {
-        self.addons.push(Arc::new(handler));
-    }
-
     pub fn route(&mut self, pattern: impl Into<Pattern>, handler: impl Handler) {
         self.router.add(pattern, handler);
     }
@@ -21,6 +17,10 @@ impl Veloce {
         let mut veloce = Veloce::default();
         initial(&mut veloce);
         self.route(pattern, veloce);
+    }
+
+    pub fn mount(&mut self, handler: impl Handler) {
+        self.addons.push(Arc::new(handler));
     }
 
     pub async fn bind(&mut self, addr: &str) -> Result<()> {
@@ -39,7 +39,6 @@ impl Veloce {
     }
 
     pub async fn run(mut self) -> Result<()> {
-        use futures::FutureExt;
         use hyper::Server;
         use hyper::server::conn::AddrStream;
         use hyper::service::{make_service_fn, service_fn};
@@ -56,17 +55,10 @@ impl Veloce {
                     let mut context = Context::new(appself.clone(), req.into(), Address::new(address.0, address.1));
 
                     async move {
-                        let res = match AssertUnwindSafe(appself.handle(&mut context)).catch_unwind().await {
-                            Ok(ret) => match ret {
-                                Ok(_) => context.res,
-                                Err(err) => match err.downcast_ref::<Error>() {
-                                    Some(Error::HttpStatusCode(status)) => status.into_response(),
-                                    _ => StatusCode::SERVICE_UNAVAILABLE.into_response(),
-                                }
-                            }
-                            Err(_) => StatusCode::INTERNAL_SERVER_ERROR.into_response(),
-                        };
-                        Ok::<_, Infallible>(res)
+                        match appself.handle(&mut context).await {
+                            Ok(_) => Ok::<_, Infallible>(context.res),
+                            Err(_) => unreachable!()
+                        }
                     }
                 }))
             }
@@ -84,14 +76,19 @@ impl Veloce {
     }
 }
 
+impl Default for Veloce {
+    fn default() -> Self {
+        Self {router: Default::default(), addons: vec![Arc::new(addons::Catcher::default())], listen: vec![]}
+    }
+}
+
 #[async_trait]
 impl Handler for Veloce {
     async fn handle(&self, ctx: &mut Context) -> Result<()> {
-        // todo cmp with our Method
-        // match self.router.get(ctx.req.method(), ctx.search.as_str()) {
-        //     Some(val) => ctx.routes.push_front(val),
-        //     None => return Err(Error::RouteNotFound(ctx.req.uri().to_string()).into()),
-        // };
+        match self.router.get(ctx.search.as_str()) {
+            Some(val) => ctx.routes.push_front(val),
+            None => return Err(StatusCode::NOT_FOUND.into_error()),
+        };
 
         // todo subrouter
         ctx.parent = ctx.search.clone();

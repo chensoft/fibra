@@ -2,22 +2,28 @@ use crate::consts::*;
 use crate::kernel::*;
 
 pub struct Catcher {
-    pub catch: Box<dyn Fn(&mut Context, anyhow::Error) + Send + Sync + 'static>,
+    pub handler: Box<dyn Fn(&mut Context, anyhow::Error) + Send + Sync + 'static>,
+    pub default: Box<dyn Fn(&mut Context, anyhow::Error) + Send + Sync + 'static>,
 }
 
 impl Catcher {
-    /// ```
-    /// use veloce::*;
-    /// 
-    /// addons::Catcher::new(|ctx, err| {
-    ///     match err.downcast_ref::<Error>() {
-    ///         Some(Error::HttpStatusCode(status)) => ctx.res = status.into_response(),
-    ///         _ => ctx.res = StatusCode::INTERNAL_SERVER_ERROR.into_response(),
-    ///     }
-    /// });
-    /// ```
     pub fn new(catch: impl Fn(&mut Context, anyhow::Error) + Send + Sync + 'static) -> Self {
-        Self {catch: Box::new(catch)}
+        Self {handler: Box::new(catch), ..Default::default()}
+    }
+}
+
+impl Default for Catcher {
+    fn default() -> Self {
+        let default = Box::new(|ctx: &mut Context, err: anyhow::Error| {
+            let res = match err.downcast_ref::<Error>() {
+                Some(Error::HostNotFound(_)) => unreachable!(),
+                Some(Error::HttpStatusCode(status)) => status.into_response(),
+                None => StatusCode::INTERNAL_SERVER_ERROR.into_response(),
+            };
+            ctx.res = res;
+        });
+        
+        Self {handler: default.clone(), default}
     }
 }
 
@@ -29,11 +35,11 @@ impl Handler for Catcher {
         match AssertUnwindSafe(ctx.next()).catch_unwind().await {
             Ok(ret) => match ret {
                 Ok(_) => {}
-                Err(err) => (self.catch)(ctx, err),
+                Err(err) => (self.handler)(ctx, err),
             }
             Err(err) => match err.downcast_ref::<&str>() {
-                Some(err) => (self.catch)(ctx, anyhow!(err.to_string())),
-                None => (self.catch)(ctx, anyhow!("Unknown panic")),
+                Some(err) => (self.handler)(ctx, anyhow!(err.to_string())),
+                None => (self.handler)(ctx, anyhow!("Unknown panic")),
             }
         };
 

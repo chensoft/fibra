@@ -23,9 +23,6 @@ pub enum Error {
     #[error("{0}")]
     HostNotFound(String),
 
-    #[error("Unable to recognize {0}")]
-    PathNotFound(String),
-
     #[error("{0}")]
     HttpStatusCode(StatusCode)
 }
