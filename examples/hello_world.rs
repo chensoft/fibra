@@ -3,7 +3,7 @@ use veloce::*;
 #[tokio::main]
 async fn main() -> Result<()> {
     let mut api = Veloce::default();
-    api.mount(addons::Logger::from_millis());
+    api.mount(addons::Logger::default());
     api.route("/", get!(api_root));
 
     // todo /api use subdomain filter
