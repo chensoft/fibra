@@ -85,7 +85,7 @@ impl Veloce {
             async move {
                 Ok::<_, Infallible>(service_fn(move |req| {
                     let appself = appself.clone();
-                    let mut context = Context::new(appself.clone(), req.into(), Address::new(address.0, address.1));
+                    let mut context = Context::new(appself.clone(), req.into(), address.0, address.1);
 
                     async move {
                         match appself.handle(&mut context).await {

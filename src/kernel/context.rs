@@ -8,8 +8,10 @@ pub struct Context {
     pub res: Response<Body>,
     pub nav: Vec<(Arc<Vec<Box<dyn Handler>>>, usize)>,
 
-    pub addr: Address, // local & remote addresses
-    pub temp: Storage, // temp storage
+    pub sock: SocketAddr,
+    pub peer: SocketAddr,
+
+    pub cache: Storage,
 }
 
 // impl Drop for Context {
@@ -19,15 +21,8 @@ pub struct Context {
 // }
 
 impl Context {
-    pub fn new(app: Arc<Veloce>, req: Request<Body>, addr: Address) -> Self {
-        Self {
-            app,
-            req,
-            res: Default::default(),
-            nav: vec![],
-            addr,
-            temp: Default::default(),
-        }
+    pub fn new(app: Arc<Veloce>, req: Request<Body>, sock: SocketAddr, peer: SocketAddr) -> Self {
+        Self { app, req, res: Default::default(), nav: vec![], sock, peer, cache: Default::default() }
     }
 
     pub fn push(&mut self, routes: Arc<Vec<Box<dyn Handler>>>, index: usize) {
@@ -35,8 +30,14 @@ impl Context {
     }
 
     pub async fn next(&mut self) -> Result<()> {
-        // match self.routes.pop_front() {
-        //     Some(handler) => handler.handle(self).await,
+        // match self.nav.last() {
+        //     Some((top, idx)) => match top.get(*idx) {
+        //         Some(handler) => handler.handle(self).await,
+        //         None => {
+        //             self.nav.pop();
+        //             self.next().await
+        //         }
+        //     }
         //     None => Ok(()),
         // }
         todo!()
