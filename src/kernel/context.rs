@@ -1,6 +1,6 @@
 use crate::consts::*;
-use crate::veloce::*;
 use crate::kernel::*;
+use crate::veloce::*;
 
 pub struct Context {
     pub app: Arc<Veloce>,
@@ -14,12 +14,6 @@ pub struct Context {
     pub cache: Storage,
 }
 
-// impl Drop for Context {
-//     fn drop(&mut self) {
-//         todo reuse
-// }
-// }
-
 impl Context {
     pub fn new(app: Arc<Veloce>, req: Request<Body>, sock: SocketAddr, peer: SocketAddr) -> Self {
         Self { app, req, res: Default::default(), nav: vec![], sock, peer, cache: Default::default() }
@@ -30,31 +24,33 @@ impl Context {
     }
 
     pub async fn next(&mut self) -> Result<()> {
-        // match self.nav.last() {
-        //     Some((top, idx)) => match top.get(*idx) {
-        //         Some(handler) => handler.handle(self).await,
-        //         None => {
-        //             self.nav.pop();
-        //             self.next().await
-        //         }
-        //     }
-        //     None => Ok(()),
-        // }
-        todo!()
+        while let Some((top, idx)) = self.nav.last_mut() {
+            let top = match *idx >= top.len() {
+                true => {
+                    self.nav.pop();
+                    continue;
+                }
+                false => top.clone(),
+            };
+
+            let obj = &top[*idx];
+            *idx += 1;
+            return obj.handle(self).await;
+        }
+
+        Ok(())
     }
 
     pub async fn reject(&mut self, status: Option<StatusCode>) -> Result<()> {
         Err(status.unwrap_or(StatusCode::FORBIDDEN).into_error())
     }
 
-    // todo use replacement, preserve params
-    pub async fn rewrite(&mut self, _to: Uri) -> Result<()> {
-        // // *self.req.uri_mut() = to;
-        // self.routes.clear();
-        // 
-        // let app = self.app.clone();
-        // app.handle(self).await
-        todo!()
+    pub async fn rewrite(&mut self, to: Uri) -> Result<()> {
+        *self.req.uri_mut() = to;
+
+        let app = self.app.clone();
+        let mut ctx = Context::new(app.clone(), std::mem::take(&mut self.req), self.sock, self.peer);
+        app.handle(&mut ctx).await
     }
 
     pub async fn redirect(&mut self, to: Uri, status: Option<StatusCode>) -> Result<()> {
