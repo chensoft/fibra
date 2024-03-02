@@ -7,7 +7,6 @@ pub(crate) use std::net::SocketAddr;
 pub(crate) use std::net::ToSocketAddrs;
 pub(crate) use std::convert::Infallible;
 pub(crate) use std::collections::HashMap;
-pub(crate) use std::collections::VecDeque;
 pub(crate) use std::panic::AssertUnwindSafe;
 pub(crate) use std::net::TcpListener as StdTcpListener;
 

@@ -15,6 +15,6 @@ impl Redirect {
 #[async_trait]
 impl Handler for Redirect {
     async fn handle(&self, ctx: &mut Context) -> Result<()> {
-        ctx.redirect(self.to.clone(), self.status.clone())
+        ctx.redirect(self.to.clone(), self.status.clone()).await
     }
 }

@@ -7,6 +7,12 @@ pub struct Matcher {
 }
 
 impl Matcher {
+    pub fn new(pattern: impl Into<Pattern>, handler: impl Handler) -> Self {
+        let mut obj = Self::default();
+        obj.add(pattern, handler);
+        obj
+    }
+
     pub fn add(&mut self, pattern: impl Into<Pattern>, handler: impl Handler) {
         let pattern = pattern.into();
         match self.preway.get_mut(&pattern) {
@@ -17,5 +23,12 @@ impl Matcher {
 
     pub fn get(&self, path: &str) -> Option<Arc<dyn Handler>> {
         self.preway.get(path).cloned()
+    }
+}
+
+#[async_trait]
+impl Handler for Matcher {
+    async fn handle(&self, _ctx: &mut Context) -> Result<()> {
+        todo!()
     }
 }

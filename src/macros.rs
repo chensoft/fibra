@@ -17,7 +17,7 @@ macro_rules! serve {
     ($($listen:literal),+; $($pattern:literal => $handler:expr),+) => {{
         let mut app = $crate::Veloce::default();
         $(app.route($pattern, $handler);)+
-        $(app.bind($listen).await?;)+
+        $(app.bind($listen)?;)+
         app.run().await
     }};
 }
@@ -36,7 +36,7 @@ macro_rules! all {
 #[macro_export]
 macro_rules! get {
     ($func:expr) => {{
-        $crate::addons::Router::new($crate::Method::GET, $crate::Closure::new(|ctx: &mut Context| Box::pin(async move {
+        $crate::addons::Methods::new($crate::Method::GET, $crate::Closure::new(|ctx: &mut Context| Box::pin(async move {
             $func(ctx).await
         })))
     }};

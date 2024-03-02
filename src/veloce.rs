@@ -1,4 +1,4 @@
-// use crate::addons;
+use crate::addons;
 use crate::consts::*;
 use crate::kernel::*;
 
@@ -6,6 +6,44 @@ pub struct Veloce {
     cached: Vec<Box<dyn Handler>>,
     routes: Arc<Vec<Box<dyn Handler>>>,
     listen: Vec<StdTcpListener>,
+}
+
+impl Veloce {
+    pub fn route(&mut self, pattern: impl Into<Pattern>, handler: impl Handler) {
+        self.mount(addons::Matcher::new(pattern, handler));
+    }
+
+    pub fn group(&mut self, pattern: impl Into<Pattern>, initial: impl Fn(&mut Veloce)) {
+        let mut veloce = Veloce::default();
+        initial(&mut veloce);
+        self.route(pattern, veloce);
+    }
+
+    pub fn public(&mut self, pattern: impl Into<Pattern>, folder: PathBuf) {
+        self.route(pattern, addons::Public::new(folder));
+    }
+
+    pub fn reject(&mut self, pattern: impl Into<Pattern>, status: Option<StatusCode>) {
+        self.route(pattern, addons::Reject::new(status));
+    }
+
+    pub fn rewrite(&mut self, from: impl Into<Pattern>, to: Uri) {
+        self.route(from, addons::Rewrite::new(to));
+    }
+
+    pub fn redirect(&mut self, from: impl Into<Pattern>, to: Uri, status: Option<StatusCode>) {
+        self.route(from, addons::Redirect::new(to, status));
+    }
+
+    pub fn catch(&mut self, handler: impl Fn(&mut Context, anyhow::Error) + Send + Sync + 'static) {
+        match self.cached.first_mut() {
+            Some(catcher) => match catcher.as_any_mut().downcast_mut::<addons::Catcher>() {
+                Some(catcher) => catcher.handler = Box::new(handler),
+                None => unreachable!(),
+            }
+            None => unreachable!()
+        }
+    }
 }
 
 impl Veloce {
@@ -71,58 +109,20 @@ impl Veloce {
     }
 }
 
-impl Veloce {
-    pub fn route(&mut self, pattern: impl Into<Pattern>, handler: impl Handler) {
-        // self.router.add(pattern, handler);
-    }
-
-    pub fn group(&mut self, pattern: impl Into<Pattern>, initial: impl Fn(&mut Veloce)) {
-        // let mut veloce = Veloce::default();
-        // initial(&mut veloce);
-        // self.route(pattern, veloce);
-    }
-
-    pub fn public(&mut self) {
-    }
-
-    pub fn reject(&mut self) {
-    }
-
-    pub fn rewrite(&mut self) {
-    }
-
-    pub fn redirect(&mut self) {
-    }
-
-    pub fn catch(&mut self) {
-        // todo replace default catcher if user call this fn
-    }
-}
-
 impl Default for Veloce {
     fn default() -> Self {
-        // Self {addons: vec![Arc::new(addons::Catcher::default())], listen: vec![]}
-        todo!()
+        Self {
+            cached: vec![Box::new(addons::Catcher::default())],
+            routes: Arc::new(vec![]),
+            listen: vec![],
+        }
     }
 }
 
 #[async_trait]
 impl Handler for Veloce {
     async fn handle(&self, ctx: &mut Context) -> Result<()> {
-        // match self.router.get(ctx.search.as_str()) {
-        //     Some(val) => ctx.routes.push_front(val),
-        //     None => return Err(StatusCode::NOT_FOUND.into_error()),
-        // };
-        // 
-        // // todo subrouter
-        // ctx.parent = ctx.search.clone();
-        // ctx.search = "/".to_string();
-        // 
-        // for handler in self.addons.iter().rev() {
-        //     ctx.routes.push_front(handler.clone());
-        // }
-        // 
-        // ctx.next().await
-        todo!()
+        ctx.push(self.routes.clone(), 0);
+        ctx.next().await
     }
 }
