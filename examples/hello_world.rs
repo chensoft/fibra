@@ -17,8 +17,8 @@ async fn main() -> Result<()> {
     v2.route("/user", all!(api_v2_user));
     api.route("/api/v2", v2);
 
-    api.bind("0.0.0.0:3000").await?;
-    api.bind("0.0.0.0:3333").await?;
+    api.bind("0.0.0.0:3000")?;
+    api.bind("0.0.0.0:3333")?;
     api.run().await
 }
 
