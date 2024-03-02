@@ -9,7 +9,7 @@ pub struct Methods {
 
 impl Methods {
     pub fn new(method: Method, handler: impl Handler) -> Self {
-        Self {method, handler: Box::new(handler)}
+        Self { method, handler: Box::new(handler) }
     }
 }
 

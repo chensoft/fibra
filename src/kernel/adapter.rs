@@ -7,7 +7,7 @@ pub trait IntoError {
 
 impl IntoError for StatusCode {
     fn into_error(self) -> anyhow::Error {
-        anyhow!(Error::HttpStatusCode(self))
+        anyhow!(Error::StatusCode(self))
     }
 }
 

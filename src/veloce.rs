@@ -9,6 +9,10 @@ pub struct Veloce {
 }
 
 impl Veloce {
+    pub fn mount(&mut self, handler: impl Handler) {
+        self.cached.push(Box::new(handler));
+    }
+
     pub fn route(&mut self, pattern: impl Into<Pattern>, handler: impl Handler) {
         self.mount(addons::Matcher::new(pattern, handler));
     }
@@ -47,10 +51,6 @@ impl Veloce {
 }
 
 impl Veloce {
-    pub fn mount(&mut self, handler: impl Handler) {
-        self.cached.push(Box::new(handler));
-    }
-
     pub fn freeze(&mut self) {
         for handler in &mut self.cached {
             if let Some(veloce) = handler.as_any_mut().downcast_mut::<Veloce>() {

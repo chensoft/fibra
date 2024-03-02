@@ -1,4 +1,5 @@
 mod catcher;
+mod domain;
 mod logger;
 mod matcher;
 mod methods;
@@ -7,9 +8,9 @@ mod public;
 mod redirect;
 mod reject;
 mod rewrite;
-mod subdomain;
 
 pub use catcher::*;
+pub use domain::*;
 pub use logger::*;
 pub use matcher::*;
 pub use methods::*;

@@ -33,7 +33,7 @@ impl Handler for Logger {
         let status = match &ret {
             Ok(_) => ctx.res.status().as_u16(),
             Err(err) => match err.downcast_ref::<Error>() {
-                Some(Error::HttpStatusCode(status)) => status.as_u16(),
+                Some(Error::StatusCode(status)) => status.as_u16(),
                 _ => 0,
             }
         };

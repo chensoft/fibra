@@ -21,10 +21,7 @@ pub type Result<T> = anyhow::Result<T>;
 #[derive(Debug, Clone, Error, Eq, PartialEq, Ord, PartialOrd)]
 pub enum Error {
     #[error("{0}")]
-    HostNotFound(String),
-
-    #[error("{0}")]
-    HttpStatusCode(StatusCode)
+    StatusCode(StatusCode)
 }
 
 /// Any support

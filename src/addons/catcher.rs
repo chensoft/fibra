@@ -16,8 +16,7 @@ impl Default for Catcher {
     fn default() -> Self {
         let default = Box::new(|ctx: &mut Context, err: anyhow::Error| {
             let res = match err.downcast_ref::<Error>() {
-                Some(Error::HostNotFound(_)) => unreachable!(),
-                Some(Error::HttpStatusCode(status)) => status.into_response(),
+                Some(Error::StatusCode(status)) => status.into_response(),
                 None => StatusCode::INTERNAL_SERVER_ERROR.into_response(),
             };
             ctx.res = res;
