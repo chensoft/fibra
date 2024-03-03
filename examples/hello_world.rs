@@ -2,24 +2,34 @@ use veloce::*;
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    let mut api = Veloce::default();
-    api.mount(addons::Logger::default());
-    api.route("/", get!(api_root));
+    // create an app with a logger
+    let mut app = Veloce::default();
+    app.mount(addons::Logger::default());
+    app.route("/", get!(api_root));
 
-    // todo /api use subdomain filter
-    api.group("/api/v1", |v1| {
-        v1.route("/", all!(api_v1_root));
-        v1.route("/user", all!(api_v1_user));
-    });
+    // todo create api subdomain router
+    let mut v1 = Veloce::default(); // todo use v1 = app.group()
+    // v1.mount(addons::Domain::new()) // TODO move to filter, !!!do not nest handler!!! check others like methods
+    
+    
+    // api.group("/api/v1", |v1| {
+    //     v1.route("/", all!(api_v1_root));
+    //     v1.route("/user", all!(api_v1_user));
+    // });
+    // 
+    // let mut v2 = Veloce::default();
+    // v2.route("/", get!(api_v2_root));
+    // v2.route("/user", all!(api_v2_user));
+    // api.route("/api/v2", v2);
 
-    let mut v2 = Veloce::default();
-    v2.route("/", all!(api_v2_root));
-    v2.route("/user", all!(api_v2_user));
-    api.route("/api/v2", v2);
+    app.bind("0.0.0.0:3000")?;
+    app.bind("0.0.0.0:3333")?;
+    app.run().await
+}
 
-    api.bind("0.0.0.0:3000")?;
-    api.bind("0.0.0.0:3333")?;
-    api.run().await
+async fn app_root(_ctx: &mut Context) -> Result<()> {
+    // todo render It Works!
+    Err(StatusCode::NO_CONTENT.into_error())
 }
 
 async fn api_root(_ctx: &mut Context) -> Result<()> {

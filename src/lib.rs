@@ -11,6 +11,8 @@ mod macros;
 mod veloce;
 
 pub mod addons;
+pub mod render;
+
 pub use kernel::*;
 pub use consts::*;
 pub use veloce::*;
