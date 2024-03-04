@@ -11,7 +11,7 @@ async fn main() -> Result<()> {
     let mut v1 = Veloce::default(); // todo use v1 = app.group()
     // v1.mount(addons::Domain::new()) // TODO move to filter, !!!do not nest handler!!! check others like methods
     
-    
+    // todo use this style
     // api.group("/api/v1", |v1| {
     //     v1.route("/", all!(api_v1_root));
     //     v1.route("/user", all!(api_v1_user));
