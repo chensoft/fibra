@@ -1,4 +1,5 @@
 // todo regex wildcard
+#[derive(Default)]
 pub struct Pattern;
 
 impl Pattern {

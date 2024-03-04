@@ -1,23 +1,29 @@
 use crate::consts::*;
 use crate::kernel::*;
 
-pub struct Domain {
-    pub domain: Pattern,
-    pub handler: Box<dyn Handler>,
+#[derive(Default)]
+pub struct Domains {
+    pub domains: Vec<Pattern>, // todo use preway
 }
 
-impl Domain {
-    pub fn new(domain: impl Into<Pattern>, handler: impl Handler) -> Self {
-        Self { domain: domain.into(), handler: Box::new(handler) }
+impl Domains {
+    // todo accept array ["api.*"]
+    pub fn new(domains: Vec<impl Into<Pattern>>) -> Self {
+        Self { domains: domains.into_iter().map(|d| d.into()).collect() }
+    }
+
+    pub fn add(&mut self, domain: impl Into<Pattern>) {
+        self.domains.push(domain.into());
     }
 }
 
 #[async_trait]
-impl Handler for Domain {
+impl Handler for Domains {
     async fn handle(&self, ctx: &mut Context) -> Result<()> {
-        match self.domain.matches(ctx.req.uri().host().unwrap_or(&"")) {
-            true => self.handler.handle(ctx).await,
-            false => ctx.next().await,
-        }
+        // match self.domain.matches(ctx.req.uri().host().unwrap_or(&"")) {
+        //     true => self.handler.handle(ctx).await,
+        //     false => ctx.next().await,
+        // }
+        todo!()
     }
 }
