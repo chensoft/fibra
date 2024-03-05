@@ -19,8 +19,12 @@ impl Context {
         Self { app, req, res: Default::default(), nav: vec![], sock, peer, cache: Default::default() }
     }
 
-    pub fn push(&mut self, routes: Arc<Vec<Box<dyn Handler>>>, index: usize) {
-        self.nav.push((routes, index));
+    pub fn push(&mut self, mounts: Arc<Vec<Box<dyn Handler>>>, index: usize) {
+        self.nav.push((mounts, index));
+    }
+
+    pub fn pop(&mut self) {
+        todo!()
     }
 
     pub async fn next(&mut self) -> Result<()> {

@@ -5,14 +5,16 @@
 #[macro_use] extern crate thiserror;
 #[macro_use] extern crate async_trait;
 
-mod kernel;
 mod consts;
 mod macros;
 mod veloce;
+mod kernel;
+mod routes;
 
 pub mod addons;
 pub mod render;
 
-pub use kernel::*;
 pub use consts::*;
 pub use veloce::*;
+pub use kernel::*;
+pub use routes::*;

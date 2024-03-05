@@ -5,13 +5,15 @@ async fn main() -> Result<()> {
     // create an app with a logger
     let mut app = Veloce::default();
     app.mount(addons::Logger::default());
-    app.route("/", get!(api_root));
+    // app.route("/", get!(api_root));
 
     // todo create api subdomain router
+    let api = app.group("/");
+    // api.mount(addons::Domains::new(["api.*"])); todo use routes traits
+    
     let mut v1 = Veloce::default(); // todo use v1 = app.group()
     // v1.mount(addons::Domain::new()) // TODO move to filter, !!!do not nest handler!!! check others like methods
     
-    // todo use this style
     // api.group("/api/v1", |v1| {
     //     v1.route("/", all!(api_v1_root));
     //     v1.route("/user", all!(api_v1_user));

@@ -1,21 +1,7 @@
 mod catcher;
-mod domains;
 mod logger;
-mod matcher;
-mod methods;
 mod normalize;
-mod public;
-mod redirect;
-mod reject;
-mod rewrite;
 
 pub use catcher::*;
-pub use domains::*;
 pub use logger::*;
-pub use matcher::*;
-pub use methods::*;
 pub use normalize::*;
-pub use public::*;
-pub use redirect::*;
-pub use reject::*;
-pub use rewrite::*;
