@@ -19,9 +19,8 @@ impl Default for Veloce {
 }
 
 impl Veloce {
-    pub fn mount(&mut self, handler: impl Handler) -> &mut Self {
+    pub fn mount(&mut self, handler: impl Handler) {
         self.cached.push(Box::new(handler));
-        self
     }
 
     pub fn catch(&mut self, handler: impl Fn(&mut Context, anyhow::Error) + Send + Sync + 'static) {

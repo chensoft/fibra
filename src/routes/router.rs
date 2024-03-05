@@ -3,17 +3,17 @@ use crate::veloce::*;
 use crate::kernel::*;
 
 pub trait Router {
-    fn route(&mut self, pattern: impl Into<Pattern>, handler: impl Handler) -> &mut Self;
+    fn route(&mut self, pattern: impl Into<Pattern>, handler: impl Handler);
     fn group(&mut self, pattern: impl Into<Pattern>) -> &mut Self;
 
-    fn public(&mut self, pattern: impl Into<Pattern>, folder: PathBuf) -> &mut Self;
-    fn reject(&mut self, pattern: impl Into<Pattern>, status: Option<StatusCode>) -> &mut Self;
-    fn rewrite(&mut self, from: impl Into<Pattern>, to: Uri) -> &mut Self;
-    fn redirect(&mut self, from: impl Into<Pattern>, to: Uri, status: Option<StatusCode>) -> &mut Self;
+    fn public(&mut self, pattern: impl Into<Pattern>, folder: PathBuf);
+    fn reject(&mut self, pattern: impl Into<Pattern>, status: Option<StatusCode>);
+    fn rewrite(&mut self, from: impl Into<Pattern>, to: Uri);
+    fn redirect(&mut self, from: impl Into<Pattern>, to: Uri, status: Option<StatusCode>);
 }
 
 impl Router for Veloce {
-    fn route(&mut self, pattern: impl Into<Pattern>, handler: impl Handler) -> &mut Self {
+    fn route(&mut self, pattern: impl Into<Pattern>, handler: impl Handler) {
         todo!()
     }
 
@@ -21,19 +21,19 @@ impl Router for Veloce {
         todo!()
     }
 
-    fn public(&mut self, pattern: impl Into<Pattern>, folder: PathBuf) -> &mut Self {
+    fn public(&mut self, pattern: impl Into<Pattern>, folder: PathBuf) {
         todo!()
     }
 
-    fn reject(&mut self, pattern: impl Into<Pattern>, status: Option<StatusCode>) -> &mut Self {
+    fn reject(&mut self, pattern: impl Into<Pattern>, status: Option<StatusCode>) {
         todo!()
     }
 
-    fn rewrite(&mut self, from: impl Into<Pattern>, to: Uri) -> &mut Self {
+    fn rewrite(&mut self, from: impl Into<Pattern>, to: Uri) {
         todo!()
     }
 
-    fn redirect(&mut self, from: impl Into<Pattern>, to: Uri, status: Option<StatusCode>) -> &mut Self {
+    fn redirect(&mut self, from: impl Into<Pattern>, to: Uri, status: Option<StatusCode>) {
         todo!()
     }
 }
