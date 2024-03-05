@@ -44,7 +44,7 @@ impl Veloce {
         self.mounts = Arc::new(std::mem::take(&mut self.cached));
     }
 
-    pub fn bind(&mut self, addr: impl ToSocketAddrs) -> Result<(&mut Self)> {
+    pub fn bind(&mut self, addr: impl ToSocketAddrs) -> Result<&mut Self> {
         Ok(self.take(StdTcpListener::bind(addr)?))
     }
 
@@ -69,7 +69,7 @@ impl Veloce {
             async move {
                 Ok::<_, Infallible>(service_fn(move |req| {
                     let appself = appself.clone();
-                    let mut context = Context::new(appself.clone(), req.into(), address.0, address.1);
+                    let mut context = Context::new(appself.clone(), req, address.0, address.1);
 
                     async move {
                         match appself.handle(&mut context).await {

@@ -29,6 +29,7 @@ pub trait Any: std::any::Any {
     /// Treat object as any
     fn as_any(&self) -> &dyn std::any::Any;
 
+    /// Treat object as any mut
     fn as_any_mut(&mut self) -> &mut dyn std::any::Any;
 }
 

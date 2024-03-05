@@ -6,13 +6,13 @@
 #[macro_use] extern crate async_trait;
 
 mod consts;
-mod macros;
 mod veloce;
 mod kernel;
 mod routes;
 
 pub mod addons;
 pub mod render;
+mod macros;
 
 pub use consts::*;
 pub use veloce::*;

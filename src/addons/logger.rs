@@ -52,7 +52,7 @@ impl Handler for Logger {
             time = beg.to_rfc3339_opts(self.precision, false),
             method = ctx.req.method().as_str(),
             path = ctx.req.uri().path(),
-            query = ctx.req.uri().query().unwrap_or(&""),
+            query = ctx.req.uri().query().unwrap_or(""),
             status = status,
             elapsed = offset,
         );
