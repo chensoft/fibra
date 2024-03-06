@@ -1,4 +1,3 @@
-use crate::addons;
 use crate::kernel::*;
 
 pub struct Veloce {
@@ -10,7 +9,7 @@ pub struct Veloce {
 impl Default for Veloce {
     fn default() -> Self {
         Self {
-            cached: vec![Box::new(addons::Catcher::default())],
+            cached: vec![Box::<Catcher>::default()],
             mounts: Arc::new(vec![]),
             listen: vec![],
         }
@@ -29,24 +28,28 @@ impl Veloce {
     }
 
     pub fn group(&mut self, pattern: impl Into<Pattern>) -> &mut Veloce {
-        // let mut veloce = Veloce::default();
-        // initial(&mut veloce);
-        // self.route(pattern, veloce);
+        // self.mount(Veloce::default());
+        // match self.cached.last_mut().and_then(|last| last.as_any_mut().downcast_mut::<Veloce>()) {
+        //     Some(veloce) => veloce,
+        //     None => unreachable!()
+        // }
         todo!()
     }
 
     pub fn limit(&mut self) -> &mut Limiter {
-        // todo add or new limiter
-        // self.mount(Limiter::default().add(limit))
-        todo!()
+        if self.cached.last_mut().and_then(|last| last.as_any_mut().downcast_mut::<Limiter>()).is_none() {
+            self.mount(Limiter::default());
+        }
+
+        match self.cached.last_mut().and_then(|last| last.as_any_mut().downcast_mut::<Limiter>()) {
+            Some(limiter) => limiter,
+            None => unreachable!()
+        }
     }
 
     pub fn catch(&mut self, handler: impl Fn(&mut Context, anyhow::Error) + Send + Sync + 'static) {
-        match self.cached.first_mut() {
-            Some(catcher) => match catcher.as_any_mut().downcast_mut::<addons::Catcher>() {
-                Some(catcher) => catcher.handler = Box::new(handler),
-                None => unreachable!(),
-            }
+        match self.cached.last_mut().and_then(|last| last.as_any_mut().downcast_mut::<Catcher>()) {
+            Some(catcher) => catcher.handler = Box::new(handler),
             None => unreachable!()
         }
     }

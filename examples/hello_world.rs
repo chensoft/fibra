@@ -9,10 +9,10 @@ async fn main() -> Result<()> {
     // todo app.route("/index.html").get(|ctx| ctx.rewrite("/"));
 
     // create a subrouter with a subdomain that starts with 'api'
-    // let api = app.group("/"); // todo .domain("api.*");
-    // api.limit(limits::domain("api.*"));
+    let api = app.group("/");
+    api.limit().domain("api.*");
     // api.route("/", get!(api_root));
-    // 
+    
     // let v1 = api.group("/v1");
     // v1.route("/", get!(v1_root));
     // v1.route("/user", all!(v1_user));

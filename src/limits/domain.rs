@@ -1,23 +1,17 @@
 use crate::kernel::*;
 
-// pub struct Domain {
-// 
-// }
-// 
-// impl Limit for Domain {
-//     fn allow(&self, ctx: &Context) -> Result<bool> {
-//         todo!()
-//     }
-// }
-
-pub fn domain(name: impl Into<String>) -> impl Fn(&Context) -> bool {
-    let name = name.into();
-    move |ctx| {
-        // todo
-        ctx.req.uri().host() == Some(name.as_str())
-    }
+pub trait Domain {
+    fn domain(&mut self, name: impl Into<String>);
+    fn domains(&mut self, names: Vec<impl Into<String>>);
 }
 
-pub fn domains(names: Vec<String>) -> bool {
-    todo!()
+impl Domain for Limiter {
+    fn domain(&mut self, name: impl Into<String>) {
+        let name = name.into();
+        self.add(move |ctx| ctx.req.uri().host() == Some(name.as_str())); // todo
+    }
+
+    fn domains(&mut self, names: Vec<impl Into<String>>) {
+        names.into_iter().for_each(|name| self.domain(name));
+    }
 }

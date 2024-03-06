@@ -7,7 +7,7 @@ pub struct Limiter {
 }
 
 impl Limiter {
-    pub fn add(mut self, limit: impl Fn(&Context) -> bool + Send + Sync + 'static) -> Self {
+    pub fn add(&mut self, limit: impl Fn(&Context) -> bool + Send + Sync + 'static) -> &mut Self {
         self.limits.push(Box::new(limit));
         self
     }

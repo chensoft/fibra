@@ -1,4 +1,5 @@
 mod adapter;
+mod catcher;
 mod context;
 mod general;
 mod handler;
@@ -9,6 +10,7 @@ mod storage;
 mod wrapper;
 
 pub use adapter::*;
+pub use catcher::*;
 pub use context::*;
 pub use general::*;
 pub use handler::*;
