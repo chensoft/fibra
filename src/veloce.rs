@@ -1,5 +1,4 @@
 use crate::addons;
-use crate::consts::*;
 use crate::kernel::*;
 
 pub struct Veloce {
@@ -19,8 +18,27 @@ impl Default for Veloce {
 }
 
 impl Veloce {
-    pub fn mount(&mut self, handler: impl Handler) {
+    pub fn mount(&mut self, handler: impl Handler) -> &mut Self { // todo handler change to wrapper, accept both closure and handler
         self.cached.push(Box::new(handler));
+        self
+    }
+
+    pub fn route(&mut self, pattern: impl Into<Pattern>) -> &mut Matcher { // todo get post in matcher
+        // self.mount(addons::Matcher::new(pattern, handler)); // todo add or new
+        todo!()
+    }
+
+    pub fn group(&mut self, pattern: impl Into<Pattern>) -> &mut Veloce {
+        // let mut veloce = Veloce::default();
+        // initial(&mut veloce);
+        // self.route(pattern, veloce);
+        todo!()
+    }
+
+    pub fn limit(&mut self) -> &mut Limiter {
+        // todo add or new limiter
+        // self.mount(Limiter::default().add(limit))
+        todo!()
     }
 
     pub fn catch(&mut self, handler: impl Fn(&mut Context, anyhow::Error) + Send + Sync + 'static) {

@@ -5,21 +5,21 @@ async fn main() -> Result<()> {
     // create a main router with a logger
     let mut app = Veloce::default();
     app.mount(addons::Logger::default());
-    app.route("/", get!(app_root));
-
-    // app.route("/index.html", |ctx| ctx.rewrite("/"));
+    // app.route("/", get!(app_root)); // todo change to app.route("/").get(app_root) no macros here
+    // todo app.route("/index.html").get(|ctx| ctx.rewrite("/"));
 
     // create a subrouter with a subdomain that starts with 'api'
-    let api = app.group("/").domain("api.*");
-    api.route("/", get!(api_root));
-
-    let v1 = api.group("/v1");
-    v1.route("/", get!(v1_root));
-    v1.route("/user", all!(v1_user));
-
-    let v2 = api.group("/v2");
-    v2.route("/", get!(v2_root));
-    v2.route("/user", all!(v2_user));
+    // let api = app.group("/"); // todo .domain("api.*");
+    // api.limit(limits::domain("api.*"));
+    // api.route("/", get!(api_root));
+    // 
+    // let v1 = api.group("/v1");
+    // v1.route("/", get!(v1_root));
+    // v1.route("/user", all!(v1_user));
+    // 
+    // let v2 = api.group("/v2");
+    // v2.route("/", get!(v2_root));
+    // v2.route("/user", all!(v2_user));
 
     app.bind("0.0.0.0:3000")?;
     app.bind("0.0.0.0:3333")?;

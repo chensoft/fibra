@@ -1,4 +1,3 @@
-use crate::consts::*;
 use crate::kernel::*;
 
 /// Remove duplicate slashes

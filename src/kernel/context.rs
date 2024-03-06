@@ -1,4 +1,3 @@
-use crate::consts::*;
 use crate::kernel::*;
 use crate::veloce::*;
 
@@ -23,7 +22,7 @@ impl Context {
         self.nav.push((mounts, index));
     }
 
-    pub fn pop(&mut self) {
+    pub fn skip(&mut self) {
         todo!()
     }
 

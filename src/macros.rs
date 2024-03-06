@@ -25,7 +25,7 @@ macro_rules! serve {
 #[macro_export]
 macro_rules! all {
     ($func:expr) => {{
-        $crate::addons::Closure::new(|ctx: &mut Context| Box::pin(async move {
+        $crate::Closure::new(|ctx: &mut Context| Box::pin(async move {
             $func(ctx).await
         }))
     }};
@@ -35,7 +35,7 @@ macro_rules! all {
 #[macro_export]
 macro_rules! get {
     ($func:expr) => {{
-        $crate::addons::Closure::new(|ctx: &mut Context| Box::pin(async move {
+        $crate::Closure::new(|ctx: &mut Context| Box::pin(async move {
             match ctx.req.method() == $crate::Method::GET {
                 true => $func(ctx).await,
                 false => ctx.next().await,
