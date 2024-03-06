@@ -22,13 +22,13 @@ impl Veloce {
         self
     }
 
-    pub fn route(&mut self) -> &mut Matcher {
-        if self.cached.last_mut().and_then(|last| last.as_any_mut().downcast_mut::<Matcher>()).is_none() {
-            self.mount(Matcher::default());
+    pub fn route(&mut self) -> &mut Routine {
+        if self.cached.last_mut().and_then(|last| last.as_any_mut().downcast_mut::<Routine>()).is_none() {
+            self.mount(Routine::default());
         }
 
-        match self.cached.last_mut().and_then(|last| last.as_any_mut().downcast_mut::<Matcher>()) {
-            Some(matcher) => matcher,
+        match self.cached.last_mut().and_then(|last| last.as_any_mut().downcast_mut::<Routine>()) {
+            Some(routine) => routine,
             None => unreachable!()
         }
     }

@@ -1,27 +1,13 @@
 use crate::kernel::*;
 
 pub trait Domain {
-    fn domain(&mut self, name: impl Into<String>);
-    fn domains(&mut self, names: Vec<impl Into<String>>);
+    fn domain(&mut self, value: impl Into<String>) -> &mut Self;
 }
 
 impl Domain for Limiter {
-    fn domain(&mut self, name: impl Into<String>) {
-        let name = name.into();
-        self.add(move |ctx| ctx.req.uri().host() == Some(name.as_str())); // todo
-    }
-
-    fn domains(&mut self, names: Vec<impl Into<String>>) {
-        names.into_iter().for_each(|name| self.domain(name));
-    }
-}
-
-impl Domain for Matcher {
-    fn domain(&mut self, name: impl Into<String>) {
-        todo!()
-    }
-
-    fn domains(&mut self, names: Vec<impl Into<String>>) {
-        todo!()
+    fn domain(&mut self, value: impl Into<String>) -> &mut Self {
+        let value = value.into();
+        self.add(move |ctx| ctx.req.uri().host() == Some(value.as_str()));
+        self
     }
 }
