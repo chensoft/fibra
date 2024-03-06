@@ -15,3 +15,13 @@ impl Domain for Limiter {
         names.into_iter().for_each(|name| self.domain(name));
     }
 }
+
+impl Domain for Matcher {
+    fn domain(&mut self, name: impl Into<String>) {
+        todo!()
+    }
+
+    fn domains(&mut self, names: Vec<impl Into<String>>) {
+        todo!()
+    }
+}

@@ -22,9 +22,15 @@ impl Veloce {
         self
     }
 
-    pub fn route(&mut self, pattern: impl Into<Pattern>) -> &mut Matcher { // todo get post in matcher
-        // self.mount(addons::Matcher::new(pattern, handler)); // todo add or new
-        todo!()
+    pub fn route(&mut self) -> &mut Matcher {
+        if self.cached.last_mut().and_then(|last| last.as_any_mut().downcast_mut::<Matcher>()).is_none() {
+            self.mount(Matcher::default());
+        }
+
+        match self.cached.last_mut().and_then(|last| last.as_any_mut().downcast_mut::<Matcher>()) {
+            Some(matcher) => matcher,
+            None => unreachable!()
+        }
     }
 
     pub fn group(&mut self, pattern: impl Into<Pattern>) -> &mut Veloce {
@@ -54,16 +60,6 @@ impl Veloce {
         }
     }
 
-    pub fn freeze(&mut self) {
-        for handler in &mut self.cached {
-            if let Some(veloce) = handler.as_any_mut().downcast_mut::<Veloce>() {
-                veloce.freeze();
-            }
-        }
-
-        self.mounts = Arc::new(std::mem::take(&mut self.cached));
-    }
-
     pub fn bind(&mut self, addr: impl ToSocketAddrs) -> Result<&mut Self> {
         Ok(self.take(StdTcpListener::bind(addr)?))
     }
@@ -78,7 +74,11 @@ impl Veloce {
         use hyper::server::conn::AddrStream;
         use hyper::service::{make_service_fn, service_fn};
 
-        self.freeze();
+        for handler in &mut self.cached {
+            handler.warmup().await?;
+        }
+
+        self.warmup().await?;
 
         let mut sockets = std::mem::take(&mut self.listen);
         let appself = Arc::new(self);
@@ -115,6 +115,11 @@ impl Veloce {
 
 #[async_trait]
 impl Handler for Veloce {
+    async fn warmup(&mut self) -> Result<()> {
+        self.mounts = Arc::new(std::mem::take(&mut self.cached));
+        Ok(())
+    }
+
     async fn handle(&self, ctx: &mut Context) -> Result<()> {
         ctx.push(self.mounts.clone(), 0);
         ctx.next().await

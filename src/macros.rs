@@ -5,7 +5,8 @@
 ///
 /// #[tokio::main]
 /// async fn main() -> Result<()> {
-///     serve!("0.0.0.0:3000", "0.0.0.0:3333"; "/" => get!(hello))
+///     // serve!("0.0.0.0:3000", "0.0.0.0:3333"; "/" => get!(hello))
+///     Ok(())
 /// }
 ///
 /// async fn hello(ctx: &mut Context) -> Result<()> {

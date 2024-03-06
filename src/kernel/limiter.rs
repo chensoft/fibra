@@ -15,7 +15,11 @@ impl Limiter {
 
 #[async_trait]
 impl Handler for Limiter {
-    async fn handle(&self, _ctx: &mut Context) -> Result<()> {
-        todo!()
+    async fn handle(&self, ctx: &mut Context) -> Result<()> {
+        if !self.limits.iter().all(|f| f(ctx)) {
+            ctx.skip();
+        }
+
+        ctx.next().await
     }
 }
