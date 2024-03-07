@@ -1,9 +1,9 @@
 use crate::kernel::*;
 
 pub struct Veloce {
-    pub cached: Vec<Box<dyn Handler>>,
-    pub mounts: Arc<Vec<Box<dyn Handler>>>,
-    pub listen: Vec<StdTcpListener>,
+    cached: Vec<Box<dyn Handler>>,
+    mounts: Arc<Vec<Box<dyn Handler>>>,
+    listen: Vec<StdTcpListener>,
 }
 
 impl Default for Veloce {
@@ -17,41 +17,19 @@ impl Default for Veloce {
 }
 
 impl Veloce {
-    pub fn mount(&mut self, handler: impl Handler) -> &mut Self { // todo handler change to wrapper, accept both closure and handler
-        self.cached.push(Box::new(handler));
-        self
-    }
-
-    pub fn route(&mut self) -> &mut Routine {
-        if self.cached.last_mut().and_then(|last| last.as_any_mut().downcast_mut::<Routine>()).is_none() {
-            self.mount(Routine::default());
+    pub fn mount<T: Handler>(&mut self, handler: T) -> &mut T {
+        if self.cached.last_mut().and_then(|last| last.as_any_mut().downcast_mut::<T>()).is_none() {
+            self.cached.push(Box::new(handler));
         }
 
-        match self.cached.last_mut().and_then(|last| last.as_any_mut().downcast_mut::<Routine>()) {
-            Some(routine) => routine,
+        match self.cached.last_mut().and_then(|last| last.as_any_mut().downcast_mut::<T>()) {
+            Some(handler) => handler,
             None => unreachable!()
         }
     }
 
-    pub fn group(&mut self, pattern: impl Into<Pattern>) -> &mut Veloce {
-        let routine = self.route();
-        routine.any(pattern, Veloce::default());
-        
-        match routine.handler.as_mut().and_then(|obj| obj.as_any_mut().downcast_mut::<Veloce>()) {
-            Some(veloce) => veloce,
-            None => unreachable!()
-        }
-    }
-
-    pub fn limit(&mut self) -> &mut Limiter {
-        if self.cached.last_mut().and_then(|last| last.as_any_mut().downcast_mut::<Limiter>()).is_none() {
-            self.mount(Limiter::default());
-        }
-
-        match self.cached.last_mut().and_then(|last| last.as_any_mut().downcast_mut::<Limiter>()) {
-            Some(limiter) => limiter,
-            None => unreachable!()
-        }
+    pub fn visit(&mut self) -> std::slice::IterMut<'_, Box<dyn Handler>> {
+        self.cached.iter_mut()
     }
 
     pub fn catch(&mut self, handler: impl Fn(&mut Context, anyhow::Error) + Send + Sync + 'static) {
