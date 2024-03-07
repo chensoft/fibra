@@ -1,9 +1,9 @@
 use crate::kernel::*;
 
 pub struct Veloce {
-    cached: Vec<Box<dyn Handler>>,
-    mounts: Arc<Vec<Box<dyn Handler>>>,
-    listen: Vec<StdTcpListener>,
+    pub cached: Vec<Box<dyn Handler>>,
+    pub mounts: Arc<Vec<Box<dyn Handler>>>,
+    pub listen: Vec<StdTcpListener>,
 }
 
 impl Default for Veloce {
@@ -26,10 +26,6 @@ impl Veloce {
             Some(handler) => handler,
             None => unreachable!()
         }
-    }
-
-    pub fn visit(&mut self) -> std::slice::IterMut<'_, Box<dyn Handler>> {
-        self.cached.iter_mut()
     }
 
     pub fn catch(&mut self, handler: impl Fn(&mut Context, anyhow::Error) + Send + Sync + 'static) {
