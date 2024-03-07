@@ -34,12 +34,13 @@ impl Veloce {
     }
 
     pub fn group(&mut self, pattern: impl Into<Pattern>) -> &mut Veloce {
-        // self.mount(Veloce::default());
-        // match self.cached.last_mut().and_then(|last| last.as_any_mut().downcast_mut::<Veloce>()) {
-        //     Some(veloce) => veloce,
-        //     None => unreachable!()
-        // }
-        todo!()
+        let routine = self.route();
+        routine.any(pattern, Veloce::default());
+        
+        match routine.handler.as_mut().and_then(|obj| obj.as_any_mut().downcast_mut::<Veloce>()) {
+            Some(veloce) => veloce,
+            None => unreachable!()
+        }
     }
 
     pub fn limit(&mut self) -> &mut Limiter {

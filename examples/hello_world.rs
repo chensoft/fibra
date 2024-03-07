@@ -12,12 +12,12 @@ async fn main() -> Result<()> {
     let api = app.group("/");
     api.limit().domain("api.*");
     // api.route("/", get!(api_root));
-    
-    // let v1 = api.group("/v1");
+
+    let v1 = api.group("/v1");
     // v1.route("/", get!(v1_root));
     // v1.route("/user", all!(v1_user));
-    // 
-    // let v2 = api.group("/v2");
+
+    let v2 = api.group("/v2");
     // v2.route("/", get!(v2_root));
     // v2.route("/user", all!(v2_user));
 
