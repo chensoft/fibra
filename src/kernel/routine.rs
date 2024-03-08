@@ -33,7 +33,7 @@
 //         Ok(())
 //     }
 // 
-//     async fn call(&self, ctx: Context) -> Result<()> {
+//     async fn handle(&self, ctx: Context) -> Result<Response<Body>> {
 //         ctx.push(self.finally.clone(), 0);
 //         self.limiter.call(ctx).await
 //     }

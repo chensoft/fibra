@@ -9,7 +9,7 @@
 ///     Ok(())
 /// }
 ///
-/// async fn hello(ctx: Context) -> Result<()> {
+/// async fn hello(ctx: Context) -> Result<Response<Body>> {
 ///     Ok(())
 /// }
 /// ```

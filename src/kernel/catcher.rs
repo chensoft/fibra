@@ -2,18 +2,20 @@ use crate::kernel::*;
 
 // todo to async fn
 pub struct Catcher {
-    pub handler: Box<dyn Fn(&mut Context, anyhow::Error) + Send + Sync + 'static>,
-    pub default: Box<dyn Fn(&mut Context, anyhow::Error) + Send + Sync + 'static>,
+    // pub handler: Box<dyn Fn(&mut Context, anyhow::Error) + Send + Sync + 'static>,
+    // pub default: Box<dyn Fn(&mut Context, anyhow::Error) + Send + Sync + 'static>,
 }
 
 impl Catcher {
     pub fn new(catch: impl Fn(&mut Context, anyhow::Error) + Send + Sync + 'static) -> Self {
-        Self {handler: Box::new(catch), ..Default::default()}
+        // Self {handler: Box::new(catch), ..Default::default()}
+        todo!()
     }
 }
 
 impl Default for Catcher {
     fn default() -> Self {
+        // todo
         // let default = Box::new(|mut ctx: Context, err: anyhow::Error| {
         //     let res = match err.downcast_ref::<Error>() {
         //         Some(Error::StatusCode(status)) => status.into_response(),
@@ -23,13 +25,14 @@ impl Default for Catcher {
         // });
         // 
         // Self { handler: default.clone(), default }
-        todo!()
+        Self {}
     }
 }
 
 #[async_trait]
 impl Handler for Catcher {
-    async fn call(&self, mut ctx: Context) -> Result<()> {
+    async fn handle(&self, mut ctx: Context) -> Result<Response<Body>> {
+        // todo
         // use futures::FutureExt;
         // 
         // match AssertUnwindSafe(ctx.next()).catch_unwind().await {
@@ -44,6 +47,6 @@ impl Handler for Catcher {
         // };
         // 
         // Ok(())
-        todo!()
+        ctx.next().await
     }
 }

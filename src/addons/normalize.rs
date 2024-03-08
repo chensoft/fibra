@@ -5,7 +5,7 @@ pub struct Normalize;
 
 #[async_trait]
 impl Handler for Normalize {
-    async fn call(&self, _ctx: Context) -> Result<()> {
+    async fn handle(&self, _ctx: Context) -> Result<Response<Body>> {
         todo!()
     }
 }

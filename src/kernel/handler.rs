@@ -3,9 +3,9 @@ use crate::kernel::*;
 // todo Handler<T>, T is body's custom type
 #[async_trait]
 pub trait Handler: Any + Send + Sync + 'static {
-    async fn next(&self, ctx: Context) -> Result<()> {
+    async fn warmup(&mut self) -> Result<()> {
         Ok(())
     }
 
-    async fn call(&self, ctx: Context) -> Result<()>;
+    async fn handle(&self, ctx: Context) -> Result<Response<Body>>;
 }

@@ -15,7 +15,7 @@
 // 
 // #[async_trait]
 // impl Handler for Limiter {
-//     async fn call(&self, ctx: Context) -> Result<()> {
+//     async fn handle(&self, ctx: Context) -> Result<Response<Body>> {
 //         if !self.limits.iter().all(|f| f(ctx)) {
 //             ctx.skip();
 //         }

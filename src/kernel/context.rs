@@ -5,7 +5,7 @@ pub struct Context {
     pub app: Arc<Veloce>,
     pub req: Request<Body>,
     pub res: Response<Body>,
-    pub nav: Vec<(usize, usize)>,
+    pub nav: Vec<(Arc<Vec<Box<dyn Handler>>>, usize)>,
 
     pub sock: SocketAddr,
     pub peer: SocketAddr,
@@ -40,12 +40,12 @@ impl Context {
         Err(status.unwrap_or(StatusCode::FORBIDDEN).into_error())
     }
 
-    pub async fn rewrite(mut self, to: Uri) -> Result<()> {
+    pub async fn rewrite(mut self, to: Uri) -> Result<Response<Body>> {
         *self.req.uri_mut() = to;
 
         let app = self.app.clone();
         let ctx = Context::new(app.clone(), std::mem::take(&mut self.req), self.sock, self.peer);
-        app.call(ctx).await
+        app.handle(ctx).await
     }
 
     pub async fn redirect(&mut self, to: Uri, status: Option<StatusCode>) -> Result<()> {
@@ -56,24 +56,32 @@ impl Context {
 }
 
 impl Context {
-    pub fn push(&mut self, max: usize) {
-        self.nav.push((0, max));
+    #[inline]
+    pub fn push(&mut self, mounts: Arc<Vec<Box<dyn Handler>>>, index: usize) {
+        self.nav.push((mounts, index));
     }
 
+    #[inline]
     pub fn pop(&mut self) {
         self.nav.pop();
     }
 
-    pub fn step(&mut self) -> Option<usize> {
-        match self.nav.last_mut() {
-            Some((cur, max)) => match cur >= max {
-                true => None,
-                false => {
-                    *cur += 1;
-                    Some(*cur - 1)
+    pub async fn next(mut self) -> Result<Response<Body>> {
+        while let Some((top, idx)) = self.nav.last_mut() {
+            let top = match *idx >= top.len() {
+                true => {
+                    self.pop();
+                    continue;
                 }
-            }
-            None => None
+                false => top.clone(),
+            };
+
+            let obj = &top[*idx];
+            *idx += 1;
+
+            return obj.handle(self).await;
         }
+
+        Ok(std::mem::take(&mut self.res))
     }
 }
