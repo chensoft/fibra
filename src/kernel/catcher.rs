@@ -29,7 +29,7 @@ impl Default for Catcher {
 
 #[async_trait]
 impl Handler for Catcher {
-    async fn handle(&self, mut ctx: Context) -> Result<()> {
+    async fn call(&self, mut ctx: Context) -> Result<()> {
         // use futures::FutureExt;
         // 
         // match AssertUnwindSafe(ctx.next()).catch_unwind().await {

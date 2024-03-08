@@ -33,8 +33,8 @@
 //         Ok(())
 //     }
 // 
-//     async fn handle(&self, ctx: Context) -> Result<()> {
+//     async fn call(&self, ctx: Context) -> Result<()> {
 //         ctx.push(self.finally.clone(), 0);
-//         self.limiter.handle(ctx).await
+//         self.limiter.call(ctx).await
 //     }
 // }

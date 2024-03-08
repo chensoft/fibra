@@ -12,7 +12,7 @@ impl Closure {
 
 #[async_trait]
 impl Handler for Closure {
-    async fn handle(&self, ctx: Context) -> Result<()> {
+    async fn call(&self, ctx: Context) -> Result<()> {
         (self.f)(ctx).await
     }
 }

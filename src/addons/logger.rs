@@ -24,7 +24,7 @@ impl Default for Logger {
 
 #[async_trait]
 impl Handler for Logger {
-    async fn handle(&self, ctx: Context) -> Result<()> {
+    async fn call(&self, ctx: Context) -> Result<()> {
         // let beg = chrono::Local::now();
         // let ret = ctx.next().await;
         // let end = chrono::Local::now();

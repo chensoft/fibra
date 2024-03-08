@@ -4,7 +4,7 @@ use veloce::*;
 async fn main() -> Result<()> {
     // create a main router with a logger
     let mut app = Veloce::default();
-    app.mount(addons::Logger::default());
+    // app.mount(addons::Logger::default());
     // app.route("/", get!(app_root)); // todo change to app.route("/").get(app_root) no macros here
     // todo app.route("/index.html").get(|ctx| ctx.rewrite("/"));
 

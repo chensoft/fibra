@@ -1,16 +1,14 @@
 use crate::kernel::*;
 
 pub struct Veloce {
-    pub cached: Vec<Box<dyn Handler>>,
-    pub mounts: Arc<Vec<Box<dyn Handler>>>,
+    pub mounts: Vec<Box<dyn Handler>>,
     pub listen: Vec<StdTcpListener>,
 }
 
 impl Default for Veloce {
     fn default() -> Self {
         Self {
-            cached: vec![Box::<Catcher>::default()],
-            mounts: Arc::new(vec![]),
+            mounts: vec![Box::<Catcher>::default()],
             listen: vec![],
         }
     }
@@ -18,18 +16,18 @@ impl Default for Veloce {
 
 impl Veloce {
     pub fn mount<T: Handler>(&mut self, handler: T) -> &mut T {
-        if self.cached.last_mut().and_then(|last| last.as_any_mut().downcast_mut::<T>()).is_none() {
-            self.cached.push(Box::new(handler));
+        if self.mounts.last_mut().and_then(|last| last.as_any_mut().downcast_mut::<T>()).is_none() {
+            self.mounts.push(Box::new(handler));
         }
 
-        match self.cached.last_mut().and_then(|last| last.as_any_mut().downcast_mut::<T>()) {
+        match self.mounts.last_mut().and_then(|last| last.as_any_mut().downcast_mut::<T>()) {
             Some(handler) => handler,
             None => unreachable!()
         }
     }
 
     pub fn catch(&mut self, handler: impl Fn(&mut Context, anyhow::Error) + Send + Sync + 'static) {
-        match self.cached.first_mut().and_then(|first| first.as_any_mut().downcast_mut::<Catcher>()) {
+        match self.mounts.first_mut().and_then(|first| first.as_any_mut().downcast_mut::<Catcher>()) {
             Some(catcher) => catcher.handler = Box::new(handler),
             None => unreachable!()
         }
@@ -49,12 +47,6 @@ impl Veloce {
         use hyper::server::conn::AddrStream;
         use hyper::service::{make_service_fn, service_fn};
 
-        for handler in &mut self.cached {
-            handler.warmup().await?;
-        }
-
-        self.warmup().await?;
-
         let mut sockets = std::mem::take(&mut self.listen);
         let appself = Arc::new(self);
         let service = make_service_fn(|conn: &AddrStream| {
@@ -68,7 +60,7 @@ impl Veloce {
 
                     async move {
                         // todo
-                        // match appself.handle(&mut context).await {
+                        // match appself.call(&mut context).await {
                         //     Ok(_) => Ok::<_, Infallible>(context.res),
                         //     Err(_) => unreachable!()
                         // }
@@ -92,13 +84,15 @@ impl Veloce {
 
 #[async_trait]
 impl Handler for Veloce {
-    async fn warmup(&mut self) -> Result<()> {
-        self.mounts = Arc::new(std::mem::take(&mut self.cached));
-        Ok(())
+    async fn next(&self, mut ctx: Context) -> Result<()> {
+        match ctx.step() {
+            Some(idx) => self.mounts[idx].call(ctx).await,
+            None => Ok(())
+        }
     }
 
-    async fn handle(&self, mut ctx: Context) -> Result<()> {
-        ctx.push(self.mounts.clone(), 0);
-        ctx.next().await
+    async fn call(&self, mut ctx: Context) -> Result<()> {
+        ctx.push(self.mounts.len());
+        self.next(ctx).await
     }
 }
