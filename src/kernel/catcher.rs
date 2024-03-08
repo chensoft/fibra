@@ -1,5 +1,6 @@
 use crate::kernel::*;
 
+// todo to async fn
 pub struct Catcher {
     pub handler: Box<dyn Fn(&mut Context, anyhow::Error) + Send + Sync + 'static>,
     pub default: Box<dyn Fn(&mut Context, anyhow::Error) + Send + Sync + 'static>,

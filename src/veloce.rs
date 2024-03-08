@@ -29,7 +29,7 @@ impl Veloce {
     }
 
     pub fn catch(&mut self, handler: impl Fn(&mut Context, anyhow::Error) + Send + Sync + 'static) {
-        match self.cached.last_mut().and_then(|last| last.as_any_mut().downcast_mut::<Catcher>()) {
+        match self.cached.first_mut().and_then(|first| first.as_any_mut().downcast_mut::<Catcher>()) {
             Some(catcher) => catcher.handler = Box::new(handler),
             None => unreachable!()
         }
