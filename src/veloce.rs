@@ -64,13 +64,15 @@ impl Veloce {
             async move {
                 Ok::<_, Infallible>(service_fn(move |req| {
                     let appself = appself.clone();
-                    let mut context = Context::new(appself.clone(), req, address.0, address.1);
+                    let context = Context::new(appself.clone(), req, address.0, address.1);
 
                     async move {
-                        match appself.handle(&mut context).await {
-                            Ok(_) => Ok::<_, Infallible>(context.res),
-                            Err(_) => unreachable!()
-                        }
+                        // todo
+                        // match appself.handle(&mut context).await {
+                        //     Ok(_) => Ok::<_, Infallible>(context.res),
+                        //     Err(_) => unreachable!()
+                        // }
+                        Ok::<_, Infallible>(Response::new(Body::default()))
                     }
                 }))
             }
@@ -95,7 +97,7 @@ impl Handler for Veloce {
         Ok(())
     }
 
-    async fn handle(&self, ctx: &mut Context) -> Result<()> {
+    async fn handle(&self, mut ctx: Context) -> Result<()> {
         ctx.push(self.mounts.clone(), 0);
         ctx.next().await
     }

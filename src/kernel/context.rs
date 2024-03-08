@@ -26,7 +26,7 @@ impl Context {
         todo!()
     }
 
-    pub async fn next(&mut self) -> Result<()> {
+    pub async fn next(mut self) -> Result<()> {
         while let Some((top, idx)) = self.nav.last_mut() {
             let top = match *idx >= top.len() {
                 true => {
@@ -48,12 +48,12 @@ impl Context {
         Err(status.unwrap_or(StatusCode::FORBIDDEN).into_error())
     }
 
-    pub async fn rewrite(&mut self, to: Uri) -> Result<()> {
+    pub async fn rewrite(mut self, to: Uri) -> Result<()> {
         *self.req.uri_mut() = to;
 
         let app = self.app.clone();
-        let mut ctx = Context::new(app.clone(), std::mem::take(&mut self.req), self.sock, self.peer);
-        app.handle(&mut ctx).await
+        let ctx = Context::new(app.clone(), std::mem::take(&mut self.req), self.sock, self.peer);
+        app.handle(ctx).await
     }
 
     pub async fn redirect(&mut self, to: Uri, status: Option<StatusCode>) -> Result<()> {

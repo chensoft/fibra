@@ -5,5 +5,5 @@ use crate::kernel::*;
 pub trait Handler: Any + Send + Sync + 'static {
     async fn warmup(&mut self) -> Result<()> { Ok(()) }
 
-    async fn handle(&self, ctx: &mut Context) -> Result<()>;
+    async fn handle(&self, ctx: Context) -> Result<()>;
 }

@@ -8,11 +8,11 @@
 mod macros;
 mod veloce;
 mod kernel;
-mod limits;
+// mod limits;
 
 pub use veloce::*;
 pub use kernel::*;
-pub use limits::*;
+// pub use limits::*;
 
 pub mod render;
 pub mod addons;
