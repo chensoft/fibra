@@ -9,3 +9,15 @@ pub trait Handler: Any + Send + Sync + 'static {
 
     async fn handle(&self, ctx: Context) -> Result<Response<Body>>;
 }
+
+// todo give example like `move |ctx| { MOVE async { Ok(Response) } }`
+#[async_trait]
+impl<F, R> Handler for F
+    where
+        F: Fn(Context) -> R + Send + Sync + 'static,
+        R: Future<Output = Result<Response<Body>>> + Send + 'static
+{
+    async fn handle(&self, ctx: Context) -> Result<Response<Body>> {
+        self(ctx).await
+    }
+}
