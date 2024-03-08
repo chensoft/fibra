@@ -82,6 +82,10 @@ impl Context {
             return obj.handle(self).await;
         }
 
+        self.done()
+    }
+
+    pub fn done(mut self) -> Result<Response<Body>> {
         Ok(std::mem::take(&mut self.res))
     }
 }

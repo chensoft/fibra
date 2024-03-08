@@ -10,7 +10,7 @@
 /// }
 ///
 /// async fn hello(ctx: Context) -> Result<Response<Body>> {
-///     Ok(())
+///     todo!()
 /// }
 /// ```
 #[macro_export]
