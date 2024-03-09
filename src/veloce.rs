@@ -28,12 +28,11 @@ impl Veloce {
         }
     }
 
-    pub fn catch(&mut self, handler: impl Fn(&mut Context, anyhow::Error) + Send + Sync + 'static) {
-        // todo
-        // match self.cached.first_mut().and_then(|first| first.as_any_mut().downcast_mut::<Catcher>()) {
-        //     Some(catcher) => catcher.handler = Box::new(handler),
-        //     None => unreachable!()
-        // }
+    pub fn catch(&mut self, handler: impl Fn(anyhow::Error) -> Response<Body> + Send + Sync + 'static) {
+        match self.cached.first_mut().and_then(|first| first.as_mut().as_any_mut().downcast_mut::<Catcher>()) {
+            Some(catcher) => catcher.handler = Box::new(handler),
+            None => unreachable!()
+        }
     }
 
     pub fn bind(&mut self, addr: impl ToSocketAddrs) -> Result<&mut Self> {
