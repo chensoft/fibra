@@ -18,14 +18,20 @@ impl Default for Veloce {
 
 impl Veloce {
     pub fn mount<T: Handler>(&mut self, handler: T) -> &mut T {
-        if self.cached.last_mut().and_then(|last| last.as_mut().as_any_mut().downcast_mut::<T>()).is_none() {
-            self.cached.push(Box::new(handler));
-        }
+        self.cached.push(Box::new(handler));
 
         match self.cached.last_mut().and_then(|last| last.as_mut().as_any_mut().downcast_mut::<T>()) {
             Some(handler) => handler,
             None => unreachable!()
         }
+    }
+
+    pub fn route(&mut self, pattern: impl Into<Pattern>) -> &mut Routine {
+        todo!()
+    }
+
+    pub fn group(&mut self, pattern: impl Into<Pattern>) -> &mut Veloce {
+        todo!()
     }
 
     pub fn catch(&mut self, handler: impl Fn(anyhow::Error) -> Response<Body> + Send + Sync + 'static) {
