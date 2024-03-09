@@ -17,6 +17,17 @@ impl Default for Veloce {
 }
 
 impl Veloce {
+    pub fn ensure<T: Default + Handler>(&mut self) -> &mut T {
+        if self.cached.last_mut().and_then(|last| last.as_mut().as_any_mut().downcast_mut::<T>()).is_none() {
+            self.cached.push(Box::<T>::default());
+        }
+
+        match self.cached.last_mut().and_then(|last| last.as_mut().as_any_mut().downcast_mut::<T>()) {
+            Some(obj) => obj,
+            None => unreachable!()
+        }
+    }
+
     pub fn mount<T: Handler>(&mut self, handler: T) -> &mut T {
         self.cached.push(Box::new(handler));
 
@@ -26,12 +37,12 @@ impl Veloce {
         }
     }
 
-    pub fn route(&mut self, pattern: impl Into<Pattern>) -> &mut Routine {
-        todo!()
+    pub fn limit(&mut self) -> &mut Limiter {
+        self.ensure()
     }
 
-    pub fn group(&mut self, pattern: impl Into<Pattern>) -> &mut Veloce {
-        todo!()
+    pub fn route(&mut self, pattern: impl Into<Pattern>) -> &mut Routine {
+        self.ensure::<Matcher>().add(pattern)
     }
 
     pub fn catch(&mut self, handler: impl Fn(anyhow::Error) -> Response<Body> + Send + Sync + 'static) {

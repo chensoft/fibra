@@ -1,4 +1,4 @@
-// use crate::kernel::*;
+use crate::kernel::*;
 // use crate::limits::*;
 
 #[derive(Default)]
@@ -8,21 +8,26 @@ pub struct Routine {
 //     pub finally: Arc<Vec<Box<dyn Handler>>>,
 }
 
-// impl Routine {
-//     pub fn any(&mut self, pattern: impl Into<Pattern>, handler: impl Handler) -> &mut Limiter {
+impl Routine {
+    pub fn last<T>(&mut self) -> Option<&mut T> {
+        todo!()
+    }
+
+    pub fn any(&mut self, _handler: impl Handler) -> &mut Self {
 //         self.handler = Some(Box::new(handler));
 //         self.limiter.get().post(); // todo more
 //         self.limiter.path(pattern.into());
 //         &mut self.limiter
-//     }
-// 
+        self
+    }
+
 //     pub fn get(&mut self, pattern: impl Into<Pattern>, handler: impl Handler) -> &mut Limiter {
 //         self.handler = Some(Box::new(handler));
 //         self.limiter.get().path(pattern.into());
 //         &mut self.limiter
 //     }
-// }
-// 
+}
+
 // #[async_trait]
 // impl Handler for Routine {
 //     async fn warmup(&mut self) -> Result<()> {
