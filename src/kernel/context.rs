@@ -40,8 +40,8 @@ impl Context {
         Err(status.unwrap_or(StatusCode::FORBIDDEN).into_error())
     }
 
-    pub async fn rewrite(mut self, to: Uri) -> Result<Response<Body>> {
-        *self.req.uri_mut() = to;
+    pub async fn rewrite(mut self, to: &'static str) -> Result<Response<Body>> {
+        *self.req.uri_mut() = Uri::from_static(to);
 
         let app = self.app.clone();
         let ctx = Context::new(app.clone(), std::mem::take(&mut self.req), self.sock, self.peer);

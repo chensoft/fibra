@@ -45,6 +45,10 @@ impl Veloce {
         self.ensure::<Matcher>().add(pattern)
     }
 
+    pub fn group(&mut self, pattern: impl Into<Pattern>) -> &mut Veloce {
+        self.route(pattern).all(Veloce::default()).treat::<Veloce>()
+    }
+
     pub fn catch(&mut self, handler: impl Fn(anyhow::Error) -> Response<Body> + Send + Sync + 'static) {
         match self.cached.first_mut().and_then(|first| first.as_mut().as_any_mut().downcast_mut::<Catcher>()) {
             Some(catcher) => catcher.handler = Box::new(handler),
