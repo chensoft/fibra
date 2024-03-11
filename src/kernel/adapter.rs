@@ -11,6 +11,29 @@ impl IntoError for StatusCode {
     }
 }
 
+/// Into Listener
+pub trait IntoListener {
+    fn into_listener(self) -> Result<StdTcpListener>;
+}
+
+impl IntoListener for &str {
+    fn into_listener(self) -> Result<StdTcpListener> {
+        Ok(StdTcpListener::bind(self)?)
+    }
+}
+
+impl IntoListener for String {
+    fn into_listener(self) -> Result<StdTcpListener> {
+        Ok(StdTcpListener::bind(self)?)
+    }
+}
+
+impl IntoListener for StdTcpListener {
+    fn into_listener(self) -> Result<StdTcpListener> {
+        Ok(self)
+    }
+}
+
 /// Into Response
 pub trait IntoResponse {
     fn into_response(self) -> Response<Body>;

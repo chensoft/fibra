@@ -49,13 +49,9 @@ impl Veloce {
         }
     }
 
-    pub fn bind(&mut self, addr: impl ToSocketAddrs) -> Result<&mut Self> {
-        Ok(self.take(StdTcpListener::bind(addr)?))
-    }
-
-    pub fn take(&mut self, tcp: StdTcpListener) -> &mut Self {
-        self.listen.push(tcp);
-        self
+    pub fn bind(&mut self, listener: impl IntoListener) -> Result<&mut Self> {
+        self.listen.push(listener.into_listener()?);
+        Ok(self)
     }
 
     pub async fn run(mut self) -> Result<()> {
