@@ -6,13 +6,13 @@ pub struct Limiter {
 }
 
 impl Limiter {
-    pub fn ok(&self, _ctx: &Context) -> bool {
-        todo!()
-    }
-
     pub fn add(&mut self, limit: impl Fn(&Context) -> bool + Send + Sync + 'static) -> &mut Self {
         self.limits.push(Box::new(limit));
         self
+    }
+
+    pub fn pass(&self, _ctx: &Context) -> bool {
+        todo!()
     }
 
     pub fn clear(&mut self) -> &mut Self {

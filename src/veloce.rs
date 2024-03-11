@@ -39,7 +39,7 @@ impl Veloce {
     }
 
     pub fn group(&mut self, pattern: impl Into<Pattern>) -> &mut Veloce {
-        self.route(pattern, Veloce::default()).treat::<Veloce>()
+        self.route(pattern, Veloce::default()).trust::<Veloce>()
     }
 
     pub fn catch(&mut self, handler: impl Fn(anyhow::Error) -> Response<Body> + Send + Sync + 'static) {
@@ -99,6 +99,10 @@ impl Veloce {
 
 #[async_trait]
 impl Handler for Veloce {
+    async fn warmup(&mut self) -> Result<()> {
+        self.mounts.warmup().await
+    }
+
     async fn handle(&self, ctx: Context) -> Result<Response<Body>> {
         self.mounts.handle(ctx).await
     }

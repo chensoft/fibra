@@ -2,26 +2,22 @@ use crate::kernel::*;
 
 pub struct Routine {
     limiter: Limiter,
-    handler: Option<Box<dyn Handler>>,
-    finally: Arc<Vec<Box<dyn Handler>>>,
+    handler: Package,
 }
 
 impl Routine {
     pub fn new(handler: impl Handler) -> Self {
-        Self { limiter: Limiter::default(), handler: Some(Box::new(handler)), finally: Arc::new(vec![]) }
+        Self { limiter: Limiter::default(), handler: Package::new(vec![handler]) }
     }
 
     pub fn limit(&mut self) -> &mut Limiter {
         &mut self.limiter
     }
 
-    pub fn treat<T: Handler>(&mut self) -> &mut T {
-        match &mut self.handler {
-            Some(obj) => match obj.as_mut().as_any_mut().downcast_mut::<T>() {
-                Some(obj) => obj,
-                None => unreachable!()
-            }
-            None => unreachable!()
+    pub fn trust<T: Handler>(&mut self) -> &mut T {
+        match self.handler.iter_mut::<T>().next() {
+            Some(Some(obj)) => obj,
+            _ => unreachable!()
         }
     }
 }
@@ -29,18 +25,13 @@ impl Routine {
 #[async_trait]
 impl Handler for Routine {
     async fn warmup(&mut self) -> Result<()> {
-        if let Some(handler) = self.handler.take() {
-            self.finally = Arc::new(vec![handler]);
-        }
-
-        Ok(())
+        self.handler.warmup().await
     }
 
-    async fn handle(&self, mut ctx: Context) -> Result<Response<Body>> {
-        if self.limiter.ok(&ctx) {
-            ctx.push(self.finally.clone(), 0);
+    async fn handle(&self, ctx: Context) -> Result<Response<Body>> {
+        match self.limiter.pass(&ctx) {
+            true => self.handler.handle(ctx).await,
+            false => ctx.next().await
         }
-
-        ctx.next().await
     }
 }
