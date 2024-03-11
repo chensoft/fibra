@@ -8,14 +8,11 @@
 #[macro_use] extern crate thiserror;
 #[macro_use] extern crate async_trait;
 
-mod macros;
 mod veloce;
 mod kernel;
-// mod limits;
 
 pub use veloce::*;
 pub use kernel::*;
-// pub use limits::*;
 
 pub mod render;
 pub mod addons;
