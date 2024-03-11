@@ -7,17 +7,32 @@ pub struct Package {
 }
 
 impl Package {
-    pub fn add(&mut self, handler: impl Handler) -> &mut Self {
+    pub fn new(handlers: Vec<impl Handler>) -> Self {
+        Self { cached: handlers.into_iter().map(|item| Box::new(item) as Box<dyn Handler>).collect(), bundle: Arc::new(vec![]) }
+    }
+
+    pub fn add<T: Handler>(&mut self, handler: impl Handler) -> &mut T {
         self.cached.push(Box::new(handler));
-        self
+        match self.iter_mut::<T>().last() {
+            Some(Some(obj)) => obj,
+            _ => unreachable!()
+        }
     }
 
-    pub fn iter<T: Handler>(&self) -> PackageIter<T> {
-        PackageIter::new(self)
+    pub fn iter<T: Handler>(&mut self) -> impl Iterator<Item = Option<&T>> {
+        self.cached.iter().map(|handler| handler.as_ref().as_any().downcast_ref::<T>())
     }
 
-    pub fn iter_mut<T: Handler>(&mut self) -> PackageIterMut<T> {
-        PackageIterMut::new(self)
+    pub fn iter_mut<T: Handler>(&mut self) -> impl Iterator<Item = Option<&mut T>> {
+        self.cached.iter_mut().map(|handler| handler.as_mut().as_any_mut().downcast_mut::<T>())
+    }
+
+    pub fn iter_all(&mut self) -> impl Iterator<Item = &Box<dyn Handler>> {
+        self.cached.iter()
+    }
+
+    pub fn iter_mut_all(&mut self) -> impl Iterator<Item = &mut Box<dyn Handler>> {
+        self.cached.iter_mut()
     }
 }
 
@@ -31,64 +46,5 @@ impl Handler for Package {
     async fn handle(&self, mut ctx: Context) -> Result<Response<Body>> {
         ctx.push(self.bundle.clone(), 0);
         ctx.next().await
-    }
-}
-
-pub struct PackageIter<'a, T: Handler> {
-    object: &'a Package,
-    cursor: usize,
-    marker: PhantomData<T>,
-}
-
-impl<'a, T: Handler> PackageIter<'a, T> {
-    fn new(object: &'a Package) -> Self {
-        PackageIter { object, cursor: 0, marker: PhantomData }
-    }
-}
-
-impl<'a, T: Handler> Iterator for PackageIter<'a, T> {
-    type Item = &'a T;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        while self.cursor < self.object.cached.len() {
-            if let Some(item) = self.object.cached[self.cursor].as_ref().as_any().downcast_ref::<T>() {
-                self.cursor += 1;
-                return Some(item);
-            }
-
-            self.cursor += 1;
-        }
-
-        None
-    }
-}
-
-pub struct PackageIterMut<'a, T: Handler> {
-    object: &'a mut Package,
-    cursor: usize,
-    marker: PhantomData<T>,
-}
-
-impl<'a, T: Handler> PackageIterMut<'a, T> {
-    fn new(object: &'a mut Package) -> Self {
-        PackageIterMut { object, cursor: 0, marker: PhantomData }
-    }
-}
-
-impl<'a, T: Handler> Iterator for PackageIterMut<'a, T> {
-    type Item = &'a mut T;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        while self.cursor < self.object.cached.len() {
-            if let Some(item) = self.object.cached[self.cursor].as_mut().as_any_mut().downcast_mut::<T>() {
-                self.cursor += 1;
-                let ptr: *mut T = item;
-                return unsafe { Some(&mut *ptr) };
-            }
-
-            self.cursor += 1;
-        }
-
-        None
     }
 }

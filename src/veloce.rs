@@ -1,16 +1,14 @@
 use crate::kernel::*;
 
 pub struct Veloce {
-    pub cached: Vec<Box<dyn Handler>>,
-    pub mounts: Arc<Vec<Box<dyn Handler>>>,
+    pub mounts: Package,
     pub listen: Vec<StdTcpListener>,
 }
 
 impl Default for Veloce {
     fn default() -> Self {
         Self {
-            cached: vec![Box::<Catcher>::default()],
-            mounts: Arc::new(vec![]),
+            mounts: Package::new(vec![Catcher::default()]),
             listen: vec![],
         }
     }
@@ -18,23 +16,18 @@ impl Default for Veloce {
 
 impl Veloce {
     pub fn ensure<T: Default + Handler>(&mut self) -> &mut T {
-        if self.cached.last_mut().and_then(|last| last.as_mut().as_any_mut().downcast_mut::<T>()).is_none() {
-            self.cached.push(Box::<T>::default());
+        if self.mounts.iter::<T>().last().is_none() {
+            self.mount(T::default());
         }
 
-        match self.cached.last_mut().and_then(|last| last.as_mut().as_any_mut().downcast_mut::<T>()) {
-            Some(obj) => obj,
-            None => unreachable!()
+        match self.mounts.iter_mut::<T>().last() {
+            Some(Some(obj)) => obj,
+            _ => unreachable!()
         }
     }
 
     pub fn mount<T: Handler>(&mut self, handler: T) -> &mut T {
-        self.cached.push(Box::new(handler));
-
-        match self.cached.last_mut().and_then(|last| last.as_mut().as_any_mut().downcast_mut::<T>()) {
-            Some(handler) => handler,
-            None => unreachable!()
-        }
+        self.mounts.add(handler)
     }
 
     pub fn limit(&mut self) -> &mut Limiter {
@@ -50,9 +43,9 @@ impl Veloce {
     }
 
     pub fn catch(&mut self, handler: impl Fn(anyhow::Error) -> Response<Body> + Send + Sync + 'static) {
-        match self.cached.first_mut().and_then(|first| first.as_mut().as_any_mut().downcast_mut::<Catcher>()) {
-            Some(catcher) => catcher.handler = Box::new(handler),
-            None => unreachable!()
+        match self.mounts.iter_mut::<Catcher>().next() {
+            Some(Some(obj)) => obj.handler = Box::new(handler),
+            _ => unreachable!()
         }
     }
 
@@ -70,7 +63,7 @@ impl Veloce {
         use hyper::server::conn::AddrStream;
         use hyper::service::{make_service_fn, service_fn};
 
-        for handler in &mut self.cached {
+        for handler in self.mounts.iter_mut_all() {
             handler.warmup().await?;
         }
 
@@ -106,13 +99,7 @@ impl Veloce {
 
 #[async_trait]
 impl Handler for Veloce {
-    async fn warmup(&mut self) -> Result<()> {
-        self.mounts = Arc::new(std::mem::take(&mut self.cached));
-        Ok(())
-    }
-
-    async fn handle(&self, mut ctx: Context) -> Result<Response<Body>> {
-        ctx.push(self.mounts.clone(), 0);
-        ctx.next().await
+    async fn handle(&self, ctx: Context) -> Result<Response<Body>> {
+        self.mounts.handle(ctx).await
     }
 }
