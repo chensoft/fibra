@@ -11,8 +11,8 @@ impl Limiter {
         self
     }
 
-    pub fn pass(&self, _ctx: &Context) -> bool {
-        todo!()
+    pub fn pass(&self, ctx: &Context) -> bool {
+        self.limits.iter().all(|f| f(ctx))
     }
 
     pub fn clear(&mut self) -> &mut Self {
@@ -20,28 +20,29 @@ impl Limiter {
         self
     }
 
-    pub fn method(&mut self, _method: Method) -> &mut Self {
-        todo!()
+    pub fn method(&mut self, method: Method) -> &mut Self {
+        self.add(move |ctx| ctx.req.method() == method);
+        self
     }
 
     pub fn host(&mut self, _pattern: impl Into<Pattern>) -> &mut Self {
-        // self.add(move |ctx| ctx.req.uri().host() == Some(value.as_str()));
-        todo!()
+        // todo self.add(move |ctx| ctx.req.uri().host() == Some(value.as_str()));
+        self
     }
 
-    pub fn header(&mut self) -> &mut Self {
-        todo!()
+    pub fn header(&mut self, key: header::HeaderName, val: header::HeaderValue) -> &mut Self {
+        self.add(move |ctx| ctx.req.headers().get(&key) == Some(&val));
+        self
     }
 }
 
 #[async_trait]
 impl Handler for Limiter {
-    async fn handle(&self, _ctx: Context) -> Result<Response<Body>> {
-//         if !self.limits.iter().all(|f| f(ctx)) {
-//             ctx.skip();
-//         }
-// 
-//         ctx.next().await
-        todo!()
+    async fn handle(&self, mut ctx: Context) -> Result<Response<Body>> {
+        if !self.pass(&ctx) {
+            ctx.pop();
+        }
+
+        ctx.next().await
     }
 }
