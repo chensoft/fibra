@@ -5,23 +5,23 @@ async fn main() -> Result<()> {
     // create a main router with a logger
     let mut app = Veloce::default();
     app.mount(addons::Logger::default());
-    app.route("/").all(app_root);
-    app.route("/index.html").get(|ctx: Context| async { ctx.rewrite("/").await });
+    app.route("/", app_root);
+    app.route("/index.html", |ctx: Context| async { ctx.rewrite("/").await });
 
     // create a subrouter with a subdomain that starts with 'api'
     let api = app.group("/");
     api.limit().host("api.*");
-    api.route("/").get(api_root);
+    api.route("/", api_root);
 
     // create api version 1 router
     let v1 = api.group("/v1");
-    v1.route("/").get(v1_root);
-    v1.route("/user").all(v1_user);
+    v1.route("/", v1_root);
+    v1.route("/user", v1_user);
 
     // create api version 2 router
     let v2 = api.group("/v2");
-    v2.route("/").get(v2_root);
-    v2.route("/user").all(v2_user);
+    v2.route("/", v2_root);
+    v2.route("/user", v2_user);
 
     // bind on two ports and run the server
     app.bind("0.0.0.0:3000")?;

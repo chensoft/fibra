@@ -6,7 +6,7 @@ pub struct Matcher {
 }
 
 impl Matcher {
-    pub fn add(&mut self, _pattern: impl Into<Pattern>) -> &mut Routine {
+    pub fn add(&mut self, _pattern: impl Into<Pattern>, _handler: impl Handler) -> &mut Routine {
         todo!()
     }
 }

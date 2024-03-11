@@ -1,7 +1,5 @@
 use crate::kernel::*;
-// use crate::limits::*;
 
-#[derive(Default)]
 pub struct Routine {
     limiter: Limiter,
     handler: Option<Box<dyn Handler>>,
@@ -9,6 +7,10 @@ pub struct Routine {
 }
 
 impl Routine {
+    pub fn new(handler: impl Handler) -> Self {
+        Self { limiter: Limiter::default(), handler: Some(Box::new(handler)), finally: Arc::new(vec![]) }
+    }
+
     pub fn limit(&mut self) -> &mut Limiter {
         &mut self.limiter
     }
@@ -21,35 +23,6 @@ impl Routine {
             }
             None => unreachable!()
         }
-    }
-
-    pub fn all<T: Handler>(&mut self, handler: T) -> &mut Self {
-        self.handler = Some(Box::new(handler));
-        self.limiter
-            .clear()
-            .method(Method::GET)
-            .method(Method::POST)
-            .method(Method::PUT)
-            .method(Method::DELETE)
-            .method(Method::HEAD)
-            .method(Method::OPTIONS)
-            .method(Method::CONNECT)
-            .method(Method::PATCH)
-            .method(Method::TRACE)
-            .method(Method::PATCH);
-        self
-    }
-
-    pub fn get<T: Handler>(&mut self, handler: T) -> &mut Self {
-        self.handler = Some(Box::new(handler));
-        self.limiter.clear().method(Method::GET);
-        self
-    }
-
-    pub fn post<T: Handler>(&mut self, handler: T) -> &mut Self {
-        self.handler = Some(Box::new(handler));
-        self.limiter.clear().method(Method::POST);
-        self
     }
 }
 

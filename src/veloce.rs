@@ -41,12 +41,12 @@ impl Veloce {
         self.ensure()
     }
 
-    pub fn route(&mut self, pattern: impl Into<Pattern>) -> &mut Routine {
-        self.ensure::<Matcher>().add(pattern)
+    pub fn route(&mut self, pattern: impl Into<Pattern>, handler: impl Handler) -> &mut Routine {
+        self.ensure::<Matcher>().add(pattern, handler)
     }
 
     pub fn group(&mut self, pattern: impl Into<Pattern>) -> &mut Veloce {
-        self.route(pattern).all(Veloce::default()).treat::<Veloce>()
+        self.route(pattern, Veloce::default()).treat::<Veloce>()
     }
 
     pub fn catch(&mut self, handler: impl Fn(anyhow::Error) -> Response<Body> + Send + Sync + 'static) {
