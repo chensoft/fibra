@@ -19,7 +19,7 @@ impl Package {
         }
     }
 
-    pub fn ensure<T: Default + Handler>(&mut self) -> &mut T {
+    pub fn ensure<T: Handler + Default>(&mut self) -> &mut T {
         if self.last::<T>().is_none() {
             return self.insert(T::default());
         }

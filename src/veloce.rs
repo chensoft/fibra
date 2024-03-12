@@ -7,7 +7,7 @@ pub struct Veloce {
 
 impl Default for Veloce {
     fn default() -> Self {
-        Self { mounted: Package::new(vec![Catcher::default()]), sockets: vec![], }
+        Self { mounted: Package::new(vec![Catcher::default()]), sockets: vec![] }
     }
 }
 
@@ -16,8 +16,8 @@ impl Veloce {
         self.mounted.insert(handler)
     }
 
-    pub fn force<T: Default + Handler>(&mut self) -> &mut T {
-        self.mounted.ensure::<T>()
+    pub fn force<T: Handler + Default>(&mut self) -> &mut T {
+        self.mounted.ensure()
     }
 
     pub fn limit(&mut self) -> &mut Limiter {
@@ -29,10 +29,10 @@ impl Veloce {
     }
 
     pub fn group(&mut self, pattern: impl Into<Pattern>) -> &mut Veloce {
-        self.route(pattern, Veloce::default()).trust::<Veloce>()
+        self.route(pattern, Veloce::default()).trust()
     }
 
-    pub fn catch(&mut self, handler: impl Fn(anyhow::Error) -> Response<Body> + Send + Sync + 'static) {
+    pub fn catch(&mut self, handler: impl Fn(&Catcher, anyhow::Error) -> Response<Body> + Send + Sync + 'static) {
         match self.mounted.first::<Catcher>() {
             Some(obj) => obj.handler = Box::new(handler),
             _ => unreachable!()

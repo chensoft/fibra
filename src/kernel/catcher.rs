@@ -1,8 +1,8 @@
 use crate::kernel::*;
 
 pub struct Catcher {
-    pub handler: Box<dyn Fn(anyhow::Error) -> Response<Body> + Send + Sync + 'static>,
     pub default: Box<dyn Fn(anyhow::Error) -> Response<Body> + Send + Sync + 'static>,
+    pub handler: Box<dyn Fn(&Catcher, anyhow::Error) -> Response<Body> + Send + Sync + 'static>,
 }
 
 impl Default for Catcher {
@@ -14,12 +14,12 @@ impl Default for Catcher {
             }
         });
 
-        Self { handler: default.clone(), default }
+        Self { default, handler: Box::new(|obj, err| (obj.default)(err)) }
     }
 }
 
 impl Catcher {
-    pub fn new(f: impl Fn(anyhow::Error) -> Response<Body> + Send + Sync + 'static) -> Self {
+    pub fn new(f: impl Fn(&Catcher, anyhow::Error) -> Response<Body> + Send + Sync + 'static) -> Self {
         Self { handler: Box::new(f), ..Default::default() }
     }
 }
@@ -32,11 +32,11 @@ impl Handler for Catcher {
         match AssertUnwindSafe(ctx.next()).catch_unwind().await {
             Ok(ret) => match ret {
                 Ok(res) => Ok(res),
-                Err(err) => Ok((self.handler)(err)),
+                Err(err) => Ok((self.handler)(self, err)),
             }
             Err(err) => match err.downcast_ref::<&str>() {
-                Some(err) => Ok((self.handler)(anyhow!(err.to_string()))),
-                None => Ok((self.handler)(anyhow!("Unknown panic"))),
+                Some(err) => Ok((self.handler)(self, anyhow!(err.to_string()))),
+                None => Ok((self.handler)(self, anyhow!("Unknown panic"))),
             }
         }
     }

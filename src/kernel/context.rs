@@ -5,12 +5,12 @@ pub struct Context {
     pub app: Arc<Veloce>,
     pub req: Request<Body>,
     pub res: Response<Body>,
-    pub nav: Vec<(*const dyn Handler, usize)>,
 
     pub sock: SocketAddr,
     pub peer: SocketAddr,
 
     pub cache: Storage,
+    pub stack: Vec<(*const dyn Handler, usize)>,
 }
 
 unsafe impl Send for Context {}
@@ -18,7 +18,7 @@ unsafe impl Sync for Context {}
 
 impl Context {
     pub fn new(app: Arc<Veloce>, req: Request<Body>, sock: SocketAddr, peer: SocketAddr) -> Self {
-        Self { app, req, res: Default::default(), nav: vec![], sock, peer, cache: Default::default() }
+        Self { app, req, res: Default::default(), sock, peer, cache: Default::default(), stack: vec![] }
     }
 
     pub fn param(&self, _key: &str) { todo!() }
@@ -61,16 +61,16 @@ impl Context {
 impl Context {
     #[inline]
     pub fn push(&mut self, cur: *const dyn Handler) {
-        self.nav.push((cur, 0));
+        self.stack.push((cur, 0));
     }
 
     #[inline]
     pub fn pop(&mut self) {
-        self.nav.pop();
+        self.stack.pop();
     }
 
     pub async fn next(mut self) -> Result<Response<Body>> {
-        while let Some((cur, idx)) = self.nav.last_mut() {
+        while let Some((cur, idx)) = self.stack.last_mut() {
             let top = unsafe { &**cur };
             let cld = match top.nested(*idx) {
                 Some(obj) => obj,

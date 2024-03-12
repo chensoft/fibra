@@ -14,5 +14,5 @@ mod kernel;
 pub use veloce::*;
 pub use kernel::*;
 
-pub mod render;
 pub mod addons;
+pub mod render;

@@ -11,7 +11,6 @@ impl IntoError for StatusCode {
     }
 }
 
-// todo more type like in Socket
 /// Into Listener
 pub trait IntoListener {
     fn into_listener(self) -> Result<socket2::Socket>;
@@ -23,7 +22,7 @@ impl IntoListener for &str {
     }
 }
 
-impl IntoListener for String {
+impl IntoListener for SocketAddr {
     fn into_listener(self) -> Result<socket2::Socket> {
         Ok(socket2::Socket::from(StdTcpListener::bind(self)?))
     }
@@ -32,6 +31,12 @@ impl IntoListener for String {
 impl IntoListener for StdTcpListener {
     fn into_listener(self) -> Result<socket2::Socket> {
         Ok(socket2::Socket::from(self))
+    }
+}
+
+impl IntoListener for socket2::Socket {
+    fn into_listener(self) -> Result<socket2::Socket> {
+        Ok(self)
     }
 }
 

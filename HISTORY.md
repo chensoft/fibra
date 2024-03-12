@@ -1,19 +1,15 @@
-## [Unreleased]
+## [Todo]
 
-### Todo
-
+- context reuse
 - tls support
 - h1 & h2 support
-- route has a name
-- hooks for events
 - cookie support
 - Swagger & OpenAPI
 - session keepalive
 - stream support
 - json5 support
-- context reuse
 
-## [0.1.0] - 2024-02-xx
+## [Unreleased] - 2024-03-xx
 
 ### Added
 
