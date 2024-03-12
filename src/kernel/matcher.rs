@@ -9,7 +9,7 @@ impl Matcher {
     pub fn add(&mut self, pattern: impl Into<Pattern>, handler: impl Handler) -> &mut Routine {
         let pattern = pattern.into();
         let package = self.preway.entry(pattern.clone()).or_insert(Package::default());
-        package.add(Routine::new(handler))
+        package.insert(Routine::new(handler))
     }
 }
 

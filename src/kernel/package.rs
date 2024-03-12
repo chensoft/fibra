@@ -11,20 +11,35 @@ impl Package {
         Self { cached: handlers.into_iter().map(|item| Box::new(item) as Box<dyn Handler>).collect(), bundle: Arc::new(vec![]) }
     }
 
-    pub fn add<T: Handler>(&mut self, handler: impl Handler) -> &mut T {
+    pub fn insert<T: Handler>(&mut self, handler: impl Handler) -> &mut T {
         self.cached.push(Box::new(handler));
         match self.iter_mut::<T>().last() {
-            Some(Some(obj)) => obj,
+            Some(obj) => obj,
             _ => unreachable!()
         }
     }
 
-    pub fn iter<T: Handler>(&mut self) -> impl Iterator<Item = Option<&T>> {
-        self.cached.iter().map(|handler| handler.as_ref().as_any().downcast_ref::<T>())
+    pub fn ensure<T: Default + Handler>(&mut self) -> &mut T {
+        if self.iter::<T>().last().is_none() {
+            return self.insert(T::default());
+        }
+
+        match self.iter_mut::<T>().last() {
+            Some(obj) => obj,
+            _ => unreachable!()
+        }
     }
 
-    pub fn iter_mut<T: Handler>(&mut self) -> impl Iterator<Item = Option<&mut T>> {
-        self.cached.iter_mut().map(|handler| handler.as_mut().as_any_mut().downcast_mut::<T>())
+    pub fn bundle(&self) -> &Vec<Box<dyn Handler>> {
+        &self.cached // todo
+    }
+
+    pub fn iter<T: Handler>(&mut self) -> impl Iterator<Item = &T> {
+        self.cached.iter().map(|handler| handler.as_ref().as_any().downcast_ref::<T>()).flatten()
+    }
+
+    pub fn iter_mut<T: Handler>(&mut self) -> impl Iterator<Item = &mut T> {
+        self.cached.iter_mut().map(|handler| handler.as_mut().as_any_mut().downcast_mut::<T>()).flatten()
     }
 
     pub fn iter_all(&mut self) -> impl Iterator<Item = &Box<dyn Handler>> {

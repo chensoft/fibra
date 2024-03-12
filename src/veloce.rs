@@ -1,41 +1,31 @@
 use crate::kernel::*;
 
 pub struct Veloce {
-    pub mounts: Package,
-    pub listen: Vec<StdTcpListener>,
+    mounts: Package,
+    listen: Vec<StdTcpListener>,
 }
 
 impl Default for Veloce {
     fn default() -> Self {
-        Self {
-            mounts: Package::new(vec![Catcher::default()]),
-            listen: vec![],
-        }
+        Self { mounts: Package::new(vec![Catcher::default()]), listen: vec![], }
     }
 }
 
 impl Veloce {
-    pub fn ensure<T: Default + Handler>(&mut self) -> &mut T {
-        if self.mounts.iter::<T>().last().is_none() {
-            self.mount(T::default());
-        }
-
-        match self.mounts.iter_mut::<T>().last() {
-            Some(Some(obj)) => obj,
-            _ => unreachable!()
-        }
+    pub fn mount<T: Handler>(&mut self, handler: T) -> &mut T {
+        self.mounts.insert(handler)
     }
 
-    pub fn mount<T: Handler>(&mut self, handler: T) -> &mut T {
-        self.mounts.add(handler)
+    pub fn force<T: Default + Handler>(&mut self) -> &mut T {
+        self.mounts.ensure::<T>()
     }
 
     pub fn limit(&mut self) -> &mut Limiter {
-        self.ensure()
+        self.force()
     }
 
     pub fn route(&mut self, pattern: impl Into<Pattern>, handler: impl Handler) -> &mut Routine {
-        self.ensure::<Matcher>().add(pattern, handler)
+        self.force::<Matcher>().add(pattern, handler)
     }
 
     pub fn group(&mut self, pattern: impl Into<Pattern>) -> &mut Veloce {
@@ -44,7 +34,7 @@ impl Veloce {
 
     pub fn catch(&mut self, handler: impl Fn(anyhow::Error) -> Response<Body> + Send + Sync + 'static) {
         match self.mounts.iter_mut::<Catcher>().next() {
-            Some(Some(obj)) => obj.handler = Box::new(handler),
+            Some(obj) => obj.handler = Box::new(handler),
             _ => unreachable!()
         }
     }

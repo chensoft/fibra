@@ -16,7 +16,7 @@ impl Routine {
 
     pub fn trust<T: Handler>(&mut self) -> &mut T {
         match self.handler.iter_mut::<T>().next() {
-            Some(Some(obj)) => obj,
+            Some(obj) => obj,
             _ => unreachable!()
         }
     }
