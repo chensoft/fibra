@@ -39,6 +39,10 @@ impl Veloce {
         }
     }
 
+    pub fn visit(&self) -> Iter<BoxHandler> {
+        self.mounted.bundle.iter()
+    }
+
     pub fn bind(&mut self, listener: impl IntoListener) -> Result<&mut socket2::Socket> {
         self.sockets.push(listener.into_listener()?);
 
