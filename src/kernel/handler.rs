@@ -2,13 +2,34 @@ use crate::kernel::*;
 
 // todo Handler<T>, T is body's custom type
 #[async_trait]
-pub trait Handler: Any + Send + Sync + 'static {
+pub trait Handler: AnyHandler + Send + Sync + 'static {
     #[allow(unused_variables)]
     fn nested(&self, idx: usize) -> Option<&BoxHandler> {
         None
     }
 
     async fn handle(&self, ctx: Context) -> Result<Response<Body>>;
+}
+
+/// Any support
+pub trait AnyHandler: Any {
+    /// Treat object as any
+    fn as_any(&self) -> &dyn Any;
+
+    /// Treat object as any mut
+    fn as_any_mut(&mut self) -> &mut dyn Any;
+}
+
+impl<T: Any> AnyHandler for T {
+    #[inline]
+    fn as_any(&self) -> &dyn Any {
+        self
+    }
+
+    #[inline]
+    fn as_any_mut(&mut self) -> &mut dyn Any {
+        self
+    }
 }
 
 /// Box Handler
