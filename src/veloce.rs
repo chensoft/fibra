@@ -33,7 +33,7 @@ impl Veloce {
     }
 
     pub fn catch(&mut self, handler: impl Fn(anyhow::Error) -> Response<Body> + Send + Sync + 'static) {
-        match self.mounts.iter_mut::<Catcher>().next() {
+        match self.mounts.first::<Catcher>() {
             Some(obj) => obj.handler = Box::new(handler),
             _ => unreachable!()
         }
@@ -48,12 +48,6 @@ impl Veloce {
         use hyper::Server;
         use hyper::server::conn::AddrStream;
         use hyper::service::{make_service_fn, service_fn};
-
-        for handler in self.mounts.iter_mut_all() {
-            handler.warmup().await?;
-        }
-
-        self.warmup().await?;
 
         let mut sockets = std::mem::take(&mut self.listen);
         let appself = Arc::new(self);
@@ -85,10 +79,6 @@ impl Veloce {
 
 #[async_trait]
 impl Handler for Veloce {
-    async fn warmup(&mut self) -> Result<()> {
-        self.mounts.warmup().await
-    }
-
     async fn handle(&self, ctx: Context) -> Result<Response<Body>> {
         self.mounts.handle(ctx).await
     }

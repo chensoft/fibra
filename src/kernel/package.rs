@@ -2,64 +2,51 @@ use crate::kernel::*;
 
 #[derive(Default)]
 pub struct Package {
-    cached: Vec<BoxHandler>,
-    bundle: Arc<Vec<BoxHandler>>,
+    pub bundle: Vec<BoxHandler>,
 }
 
 impl Package {
     pub fn new(handlers: Vec<impl Handler>) -> Self {
-        Self { cached: handlers.into_iter().map(|item| Box::new(item) as BoxHandler).collect(), bundle: Arc::new(vec![]) }
+        Self { bundle: handlers.into_iter().map(|item| Box::new(item) as BoxHandler).collect() }
     }
 
     pub fn insert<T: Handler>(&mut self, handler: impl Handler) -> &mut T {
-        self.cached.push(Box::new(handler));
-        match self.iter_mut::<T>().last() {
+        self.bundle.push(Box::new(handler));
+
+        match self.last::<T>() {
             Some(obj) => obj,
             _ => unreachable!()
         }
     }
 
     pub fn ensure<T: Default + Handler>(&mut self) -> &mut T {
-        if self.iter::<T>().last().is_none() {
+        if self.last::<T>().is_none() {
             return self.insert(T::default());
         }
 
-        match self.iter_mut::<T>().last() {
+        match self.last::<T>() {
             Some(obj) => obj,
             _ => unreachable!()
         }
     }
 
-    pub fn bundle(&self) -> &Vec<BoxHandler> {
-        &self.cached // todo
+    pub fn first<T: Handler>(&mut self) -> Option<&mut T> {
+        self.bundle.first_mut().and_then(|h| h.as_mut().as_any_mut().downcast_mut::<T>())
     }
 
-    pub fn iter<T: Handler>(&mut self) -> impl Iterator<Item = &T> {
-        self.cached.iter().map(|handler| handler.as_ref().as_any().downcast_ref::<T>()).flatten()
-    }
-
-    pub fn iter_mut<T: Handler>(&mut self) -> impl Iterator<Item = &mut T> {
-        self.cached.iter_mut().map(|handler| handler.as_mut().as_any_mut().downcast_mut::<T>()).flatten()
-    }
-
-    pub fn iter_all(&mut self) -> impl Iterator<Item = &BoxHandler> {
-        self.cached.iter()
-    }
-
-    pub fn iter_mut_all(&mut self) -> impl Iterator<Item = &mut BoxHandler> {
-        self.cached.iter_mut()
+    pub fn last<T: Handler>(&mut self) -> Option<&mut T> {
+        self.bundle.last_mut().and_then(|h| h.as_mut().as_any_mut().downcast_mut::<T>())
     }
 }
 
 #[async_trait]
 impl Handler for Package {
-    async fn warmup(&mut self) -> Result<()> {
-        self.bundle = Arc::new(std::mem::take(&mut self.cached));
-        Ok(())
+    fn nested(&self, idx: usize) -> Option<&BoxHandler> {
+        self.bundle.get(idx)
     }
 
     async fn handle(&self, mut ctx: Context) -> Result<Response<Body>> {
-        ctx.push(self.bundle.clone(), 0);
+        ctx.push(self);
         ctx.next().await
     }
 }

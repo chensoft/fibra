@@ -3,8 +3,9 @@ use crate::kernel::*;
 // todo Handler<T>, T is body's custom type
 #[async_trait]
 pub trait Handler: Any + Send + Sync + 'static {
-    async fn warmup(&mut self) -> Result<()> {
-        Ok(())
+    #[allow(unused_variables)]
+    fn nested(&self, idx: usize) -> Option<&BoxHandler> {
+        None
     }
 
     async fn handle(&self, ctx: Context) -> Result<Response<Body>>;

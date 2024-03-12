@@ -10,12 +10,14 @@ impl Pattern {
 
 impl From<&str> for Pattern {
     fn from(_value: &str) -> Self {
-        todo!()
+        // todo
+        Self {}
     }
 }
 
 impl From<String> for Pattern {
     fn from(_value: String) -> Self {
-        todo!()
+        // todo
+        Self {}
     }
 }

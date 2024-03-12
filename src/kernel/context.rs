@@ -5,13 +5,16 @@ pub struct Context {
     pub app: Arc<Veloce>,
     pub req: Request<Body>,
     pub res: Response<Body>,
-    pub nav: Vec<(Arc<Vec<BoxHandler>>, usize)>,
+    pub nav: Vec<(*const dyn Handler, usize)>,
 
     pub sock: SocketAddr,
     pub peer: SocketAddr,
 
     pub cache: Storage,
 }
+
+unsafe impl Send for Context {}
+unsafe impl Sync for Context {}
 
 impl Context {
     pub fn new(app: Arc<Veloce>, req: Request<Body>, sock: SocketAddr, peer: SocketAddr) -> Self {
@@ -57,8 +60,8 @@ impl Context {
 
 impl Context {
     #[inline]
-    pub fn push(&mut self, mounts: Arc<Vec<BoxHandler>>, index: usize) {
-        self.nav.push((mounts, index));
+    pub fn push(&mut self, cur: *const dyn Handler) {
+        self.nav.push((cur, 0));
     }
 
     #[inline]
@@ -67,19 +70,19 @@ impl Context {
     }
 
     pub async fn next(mut self) -> Result<Response<Body>> {
-        while let Some((top, idx)) = self.nav.last_mut() {
-            let top = match *idx >= top.len() {
-                true => {
+        while let Some((cur, idx)) = self.nav.last_mut() {
+            let top = unsafe { &**cur };
+            let cld = match top.nested(*idx) {
+                Some(obj) => obj,
+                None => {
                     self.pop();
                     continue;
                 }
-                false => top.clone(),
             };
 
-            let obj = &top[*idx];
             *idx += 1;
 
-            return obj.handle(self).await;
+            return cld.handle(self).await;
         }
 
         self.done()
