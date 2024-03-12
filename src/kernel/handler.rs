@@ -10,6 +10,8 @@ pub trait Handler: Any + Send + Sync + 'static {
     async fn handle(&self, ctx: Context) -> Result<Response<Body>>;
 }
 
+pub type BoxHandler = Box<dyn Handler>;
+
 // todo give example like `move |ctx| { MOVE async { Ok(Response) } }`
 #[async_trait]
 impl<F, R> Handler for F

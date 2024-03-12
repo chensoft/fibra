@@ -5,7 +5,7 @@ pub struct Context {
     pub app: Arc<Veloce>,
     pub req: Request<Body>,
     pub res: Response<Body>,
-    pub nav: Vec<(Arc<Vec<Box<dyn Handler>>>, usize)>,
+    pub nav: Vec<(Arc<Vec<BoxHandler>>, usize)>,
 
     pub sock: SocketAddr,
     pub peer: SocketAddr,
@@ -57,7 +57,7 @@ impl Context {
 
 impl Context {
     #[inline]
-    pub fn push(&mut self, mounts: Arc<Vec<Box<dyn Handler>>>, index: usize) {
+    pub fn push(&mut self, mounts: Arc<Vec<BoxHandler>>, index: usize) {
         self.nav.push((mounts, index));
     }
 

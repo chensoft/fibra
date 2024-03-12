@@ -2,13 +2,13 @@ use crate::kernel::*;
 
 #[derive(Default)]
 pub struct Package {
-    cached: Vec<Box<dyn Handler>>,
-    bundle: Arc<Vec<Box<dyn Handler>>>,
+    cached: Vec<BoxHandler>,
+    bundle: Arc<Vec<BoxHandler>>,
 }
 
 impl Package {
     pub fn new(handlers: Vec<impl Handler>) -> Self {
-        Self { cached: handlers.into_iter().map(|item| Box::new(item) as Box<dyn Handler>).collect(), bundle: Arc::new(vec![]) }
+        Self { cached: handlers.into_iter().map(|item| Box::new(item) as BoxHandler).collect(), bundle: Arc::new(vec![]) }
     }
 
     pub fn insert<T: Handler>(&mut self, handler: impl Handler) -> &mut T {
@@ -30,7 +30,7 @@ impl Package {
         }
     }
 
-    pub fn bundle(&self) -> &Vec<Box<dyn Handler>> {
+    pub fn bundle(&self) -> &Vec<BoxHandler> {
         &self.cached // todo
     }
 
@@ -42,11 +42,11 @@ impl Package {
         self.cached.iter_mut().map(|handler| handler.as_mut().as_any_mut().downcast_mut::<T>()).flatten()
     }
 
-    pub fn iter_all(&mut self) -> impl Iterator<Item = &Box<dyn Handler>> {
+    pub fn iter_all(&mut self) -> impl Iterator<Item = &BoxHandler> {
         self.cached.iter()
     }
 
-    pub fn iter_mut_all(&mut self) -> impl Iterator<Item = &mut Box<dyn Handler>> {
+    pub fn iter_mut_all(&mut self) -> impl Iterator<Item = &mut BoxHandler> {
         self.cached.iter_mut()
     }
 }
