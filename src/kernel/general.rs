@@ -10,7 +10,6 @@ pub(crate) use std::net::TcpListener as StdTcpListener;
 /// Export Types
 pub use mime::{Mime, MimeIter};
 pub use hyper::{header, HeaderMap, Method, Uri, Version, body, Body, Request, Response, StatusCode};
-pub use futures::future::BoxFuture;
 
 /// Custom Result
 pub type Result<T> = anyhow::Result<T>;

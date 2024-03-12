@@ -1,23 +1,23 @@
 use crate::kernel::*;
 
 pub struct Veloce {
-    mounts: Package,
-    listen: Vec<StdTcpListener>,
+    mounted: Package,
+    sockets: Vec<socket2::Socket>,
 }
 
 impl Default for Veloce {
     fn default() -> Self {
-        Self { mounts: Package::new(vec![Catcher::default()]), listen: vec![], }
+        Self { mounted: Package::new(vec![Catcher::default()]), sockets: vec![], }
     }
 }
 
 impl Veloce {
     pub fn mount<T: Handler>(&mut self, handler: T) -> &mut T {
-        self.mounts.insert(handler)
+        self.mounted.insert(handler)
     }
 
     pub fn force<T: Default + Handler>(&mut self) -> &mut T {
-        self.mounts.ensure::<T>()
+        self.mounted.ensure::<T>()
     }
 
     pub fn limit(&mut self) -> &mut Limiter {
@@ -33,15 +33,19 @@ impl Veloce {
     }
 
     pub fn catch(&mut self, handler: impl Fn(anyhow::Error) -> Response<Body> + Send + Sync + 'static) {
-        match self.mounts.first::<Catcher>() {
+        match self.mounted.first::<Catcher>() {
             Some(obj) => obj.handler = Box::new(handler),
             _ => unreachable!()
         }
     }
 
-    pub fn bind(&mut self, listener: impl IntoListener) -> Result<&mut Self> {
-        self.listen.push(listener.into_listener()?);
-        Ok(self)
+    pub fn bind(&mut self, listener: impl IntoListener) -> Result<&mut socket2::Socket> {
+        self.sockets.push(listener.into_listener()?);
+
+        match self.sockets.last_mut() {
+            Some(obj) => Ok(obj),
+            _ => unreachable!()
+        }
     }
 
     pub async fn run(mut self) -> Result<()> {
@@ -49,7 +53,7 @@ impl Veloce {
         use hyper::server::conn::AddrStream;
         use hyper::service::{make_service_fn, service_fn};
 
-        let mut sockets = std::mem::take(&mut self.listen);
+        let mut sockets = std::mem::take(&mut self.sockets);
         let appself = Arc::new(self);
         let service = make_service_fn(|conn: &AddrStream| {
             let appself = appself.clone();
@@ -68,7 +72,7 @@ impl Veloce {
         let mut servers = vec![];
 
         while let Some(socket) = sockets.pop() {
-            servers.push(Server::from_tcp(socket)?.serve(service));
+            servers.push(Server::from_tcp(socket.into())?.serve(service));
         }
 
         futures::future::join_all(servers).await;
@@ -80,6 +84,6 @@ impl Veloce {
 #[async_trait]
 impl Handler for Veloce {
     async fn handle(&self, ctx: Context) -> Result<Response<Body>> {
-        self.mounts.handle(ctx).await
+        self.mounted.handle(ctx).await
     }
 }
