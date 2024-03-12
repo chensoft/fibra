@@ -31,11 +31,11 @@ impl Package {
     }
 
     pub fn first<T: Handler>(&mut self) -> Option<&mut T> {
-        self.bundle.first_mut().and_then(|h| h.as_mut().as_any_mut().downcast_mut::<T>())
+        self.bundle.first_mut().and_then(|h| h.as_handler_mut::<T>())
     }
 
     pub fn last<T: Handler>(&mut self) -> Option<&mut T> {
-        self.bundle.last_mut().and_then(|h| h.as_mut().as_any_mut().downcast_mut::<T>())
+        self.bundle.last_mut().and_then(|h| h.as_handler_mut::<T>())
     }
 }
 

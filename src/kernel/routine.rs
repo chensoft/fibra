@@ -15,7 +15,7 @@ impl Routine {
     }
 
     pub fn trust<T: Handler>(&mut self) -> &mut T {
-        match self.handler.as_mut().as_any_mut().downcast_mut::<T>() {
+        match self.handler.as_handler_mut::<T>() {
             Some(obj) => obj,
             _ => unreachable!()
         }
