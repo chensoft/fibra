@@ -1,8 +1,8 @@
-use crate::kernel::*;
-use crate::veloce::*;
+use crate::inner::*;
+use crate::fibra::*;
 
 pub struct Context {
-    pub app: Arc<Veloce>,
+    pub app: Arc<Fibra>,
     pub req: Request<Body>,
     pub res: Response<Body>,
 
@@ -17,7 +17,7 @@ unsafe impl Send for Context {}
 unsafe impl Sync for Context {}
 
 impl Context {
-    pub fn new(app: Arc<Veloce>, req: Request<Body>, sock: SocketAddr, peer: SocketAddr) -> Self {
+    pub fn new(app: Arc<Fibra>, req: Request<Body>, sock: SocketAddr, peer: SocketAddr) -> Self {
         Self { app, req, res: Default::default(), sock, peer, cache: Default::default(), stack: vec![] }
     }
 

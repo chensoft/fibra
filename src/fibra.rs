@@ -1,17 +1,17 @@
-use crate::kernel::*;
+use crate::inner::*;
 
-pub struct Veloce {
+pub struct Fibra {
     mounted: Package,
     sockets: Vec<socket2::Socket>,
 }
 
-impl Default for Veloce {
+impl Default for Fibra {
     fn default() -> Self {
         Self { mounted: Package::new(vec![Catcher::default()]), sockets: vec![] }
     }
 }
 
-impl Veloce {
+impl Fibra {
     pub fn mount<T: Handler>(&mut self, handler: T) -> &mut T {
         self.mounted.insert(handler)
     }
@@ -28,8 +28,8 @@ impl Veloce {
         self.force::<Matcher>().add(pattern, handler)
     }
 
-    pub fn group(&mut self, pattern: impl Into<Pattern>) -> &mut Veloce {
-        self.route(pattern, Veloce::default()).trust()
+    pub fn group(&mut self, pattern: impl Into<Pattern>) -> &mut Fibra {
+        self.route(pattern, Fibra::default()).trust()
     }
 
     pub fn catch(&mut self, handler: impl Fn(&Catcher, anyhow::Error) -> Response<Body> + Send + Sync + 'static) {
@@ -86,7 +86,7 @@ impl Veloce {
 }
 
 #[async_trait]
-impl Handler for Veloce {
+impl Handler for Fibra {
     async fn handle(&self, ctx: Context) -> Result<Response<Body>> {
         self.mounted.handle(ctx).await
     }

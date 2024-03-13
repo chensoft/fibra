@@ -8,11 +8,11 @@
 #[macro_use] extern crate thiserror;
 #[macro_use] extern crate async_trait;
 
-mod veloce;
-mod kernel;
+mod fibra;
+mod inner;
 
-pub use veloce::*;
-pub use kernel::*;
+pub use fibra::*;
+pub use inner::*;
 
-pub mod addons;
-pub mod render;
+pub mod addon;
+pub mod reply;

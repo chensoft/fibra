@@ -1,4 +1,4 @@
-use crate::kernel::*;
+use crate::inner::*;
 
 pub struct Logger {
     pub logger: logkit::Logger,

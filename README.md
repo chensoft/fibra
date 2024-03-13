@@ -1,4 +1,4 @@
-Veloce
+Fibra
 ==========================
 
 Fast and Powerful HTTP router written in Rust
@@ -10,18 +10,18 @@ Fast and Powerful HTTP router written in Rust
 [![Build Status][linux-badge]][linux-url]
 [![Build Status][windows-badge]][windows-url]
 
-[crates-badge]: https://img.shields.io/crates/v/veloce.svg
-[crates-url]: https://crates.io/crates/veloce
+[crates-badge]: https://img.shields.io/crates/v/fibra.svg
+[crates-url]: https://crates.io/crates/fibra
 [license-badge]: https://img.shields.io/badge/license-MIT-blue.svg
-[license-url]: https://github.com/chensoft/veloce?tab=MIT-1-ov-file
-[document-badge]: https://docs.rs/veloce/badge.svg
-[document-url]: https://docs.rs/veloce
-[macos-badge]: https://github.com/chensoft/veloce/actions/workflows/macos.yml/badge.svg
-[macos-url]: https://github.com/chensoft/veloce/actions/workflows/macos.yml
-[linux-badge]: https://github.com/chensoft/veloce/actions/workflows/linux.yml/badge.svg
-[linux-url]: https://github.com/chensoft/veloce/actions/workflows/linux.yml
-[windows-badge]: https://github.com/chensoft/veloce/actions/workflows/windows.yml/badge.svg
-[windows-url]: https://github.com/chensoft/veloce/actions/workflows/windows.yml
+[license-url]: https://github.com/chensoft/fibra?tab=MIT-1-ov-file
+[document-badge]: https://docs.rs/fibra/badge.svg
+[document-url]: https://docs.rs/fibra
+[macos-badge]: https://github.com/chensoft/fibra/actions/workflows/macos.yml/badge.svg
+[macos-url]: https://github.com/chensoft/fibra/actions/workflows/macos.yml
+[linux-badge]: https://github.com/chensoft/fibra/actions/workflows/linux.yml/badge.svg
+[linux-url]: https://github.com/chensoft/fibra/actions/workflows/linux.yml
+[windows-badge]: https://github.com/chensoft/fibra/actions/workflows/windows.yml/badge.svg
+[windows-url]: https://github.com/chensoft/fibra/actions/workflows/windows.yml
 
 ## Features
 
@@ -55,8 +55,8 @@ Fast and Powerful HTTP router written in Rust
 
 ## Documentation
 
-The documentation is [available here](https://docs.rs/veloce).
+The documentation is [available here](https://docs.rs/fibra).
 
 ## License
 
-This software is released under the [MIT License](https://github.com/chensoft/veloce?tab=MIT-1-ov-file).
+This software is released under the [MIT License](https://github.com/chensoft/fibra?tab=MIT-1-ov-file).

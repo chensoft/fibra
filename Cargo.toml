@@ -1,15 +1,15 @@
 [package]
-name = "veloce"
+name = "fibra"
 version = "0.0.1"
 authors = ["Jian Chen <admin@chensoft.com>"]
 edition = "2021"
 rust-version = "1.70"
 description = "Fast and Powerful HTTP router written in Rust"
-documentation = "https://docs.rs/veloce"
+documentation = "https://docs.rs/fibra"
 readme = "README.md"
-repository = "https://github.com/chensoft/veloce"
+repository = "https://github.com/chensoft/fibra"
 license = "MIT"
-keywords = ["veloce", "http", "router", "web", "server"]
+keywords = ["fibra", "http", "router", "web", "server"]
 
 [dependencies]
 mime = "0.3"

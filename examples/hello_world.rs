@@ -1,10 +1,10 @@
-use veloce::*;
+use fibra::*;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     // create a main router with a logger
-    let mut app = Veloce::default();
-    app.mount(addons::Logger::default());
+    let mut app = Fibra::default();
+    app.mount(addon::Logger::default());
     app.route("/", app_root);
     app.route("/index.html", |ctx: Context| async { ctx.rewrite("/").await });
 

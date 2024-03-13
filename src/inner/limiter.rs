@@ -1,4 +1,4 @@
-use crate::kernel::*;
+use crate::inner::*;
 
 #[derive(Default)]
 pub struct Limiter {
