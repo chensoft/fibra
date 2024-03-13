@@ -25,9 +25,10 @@ impl Routine {
 #[async_trait]
 impl Handler for Routine {
     async fn handle(&self, ctx: Context) -> Result<Response<Body>> {
-        match self.limiter.pass(&ctx) == StatusCode::OK {
+        let status = self.limiter.pass(&ctx);
+        match status == StatusCode::OK {
             true => self.handler.handle(ctx).await,
-            false => ctx.next().await
+            false => Err(status.into_error())
         }
     }
 }
