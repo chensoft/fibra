@@ -1,7 +1,7 @@
 use veloce::*;
 
 #[tokio::main]
-async fn main() -> Result<()> {
+async fn main() -> anyhow::Result<()> {
     // create a main router with a logger
     let mut app = Veloce::default();
     app.mount(addons::Logger::default());
@@ -29,26 +29,26 @@ async fn main() -> Result<()> {
     app.run().await
 }
 
-async fn app_root(_ctx: Context) -> Result<Response<Body>> {
+async fn app_root(_ctx: Context) -> anyhow::Result<Response<Body>> {
     Ok((StatusCode::OK, "It Works!").into_response())
 }
 
-async fn api_root(_ctx: Context) -> Result<Response<Body>> {
+async fn api_root(_ctx: Context) -> anyhow::Result<Response<Body>> {
     todo!()
 }
 
-async fn v1_root(_ctx: Context) -> Result<Response<Body>> {
+async fn v1_root(_ctx: Context) -> anyhow::Result<Response<Body>> {
     todo!()
 }
 
-async fn v1_user(_ctx: Context) -> Result<Response<Body>> {
+async fn v1_user(_ctx: Context) -> anyhow::Result<Response<Body>> {
     todo!()
 }
 
-async fn v2_root(_ctx: Context) -> Result<Response<Body>> {
+async fn v2_root(_ctx: Context) -> anyhow::Result<Response<Body>> {
     todo!()
 }
 
-async fn v2_user(_ctx: Context) -> Result<Response<Body>> {
+async fn v2_user(_ctx: Context) -> anyhow::Result<Response<Body>> {
     todo!()
 }
