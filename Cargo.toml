@@ -3,7 +3,6 @@ name = "fibra"
 version = "0.0.1"
 authors = ["Jian Chen <admin@chensoft.com>"]
 edition = "2021"
-rust-version = "1.70"
 description = "Fast and Powerful HTTP router written in Rust"
 documentation = "https://docs.rs/fibra"
 readme = "README.md"
