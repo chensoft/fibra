@@ -8,6 +8,7 @@
 - session keepalive
 - stream support
 - json5 support
+- url builder macros
 
 ## [Unreleased] - 2024-03-xx
 

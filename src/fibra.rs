@@ -12,24 +12,24 @@ impl Default for Fibra {
 }
 
 impl Fibra {
-    pub fn mount<T: Handler>(&mut self, handler: T) -> &mut T {
-        self.mounted.insert(handler)
-    }
-
-    pub fn force<T: Handler + Default>(&mut self) -> &mut T {
-        self.mounted.ensure()
-    }
-
-    pub fn limit(&mut self) -> &mut Limiter {
-        self.force()
-    }
-
     pub fn route(&mut self, pattern: impl Into<Pattern>, handler: impl Handler) -> &mut Routine {
         self.force::<Matcher>().add(pattern, handler)
     }
 
     pub fn group(&mut self, pattern: impl Into<Pattern>) -> &mut Fibra {
         self.route(pattern, Fibra::default()).trust()
+    }
+
+    pub fn limit(&mut self) -> &mut Limiter {
+        self.force()
+    }
+
+    pub fn mount<T: Handler>(&mut self, handler: T) -> &mut T {
+        self.mounted.insert(handler)
+    }
+
+    pub fn force<T: Handler + Default>(&mut self) -> &mut T {
+        self.mounted.ensure()
     }
 
     pub fn catch(&mut self, handler: impl Fn(&Catcher, anyhow::Error) -> Response<Body> + Send + Sync + 'static) {

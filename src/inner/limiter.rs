@@ -34,9 +34,48 @@ impl Limiter {
         self
     }
 
+    // todo use Into Method
+    pub fn methods(&mut self) -> &mut Self {
+        todo!()
+    }
+
+    pub fn scheme(&mut self) -> &mut Self {
+        todo!()
+    }
+
+    pub fn schemes(&mut self) -> &mut Self {
+        todo!()
+    }
+
     pub fn host(&mut self, _pattern: impl Into<Pattern>) -> &mut Self {
         // todo self.add(move |ctx| ctx.req.uri().host() == Some(value.as_str()));
         self
+    }
+
+    pub fn hosts(&mut self) -> &mut Self {
+        todo!()
+    }
+
+    pub fn port(&mut self) -> &mut Self {
+        todo!()
+    }
+    pub fn ports(&mut self) -> &mut Self {
+        todo!()
+    }
+
+    pub fn path(&mut self) -> &mut Self {
+        todo!()
+    }
+    pub fn paths(&mut self) -> &mut Self {
+        todo!()
+    }
+
+    pub fn query(&mut self) -> &mut Self {
+        todo!()
+    }
+
+    pub fn queries(&mut self) -> &mut Self {
+        todo!()
     }
 
     pub fn header(&mut self, key: header::HeaderName, val: header::HeaderValue) -> &mut Self {
@@ -45,6 +84,10 @@ impl Limiter {
             false => StatusCode::BAD_REQUEST,
         });
         self
+    }
+
+    pub fn headers(&mut self) -> &mut Self {
+        todo!()
     }
 }
 
