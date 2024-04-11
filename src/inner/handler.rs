@@ -8,7 +8,7 @@ pub trait Handler: AnyHandler + Send + Sync + 'static {
         None
     }
 
-    async fn handle(&self, ctx: Context) -> Result<Response<Body>>;
+    async fn handle(&self, ctx: Context) -> FibraResult<Response<Body>>;
 }
 
 /// Any support
@@ -57,9 +57,9 @@ impl<'a> AsHandler<'a> for BoxHandler {
 impl<F, R> Handler for F
     where
         F: Fn(Context) -> R + Send + Sync + 'static,
-        R: Future<Output = Result<Response<Body>>> + Send + 'static
+        R: Future<Output = FibraResult<Response<Body>>> + Send + 'static
 {
-    async fn handle(&self, ctx: Context) -> Result<Response<Body>> {
+    async fn handle(&self, ctx: Context) -> FibraResult<Response<Body>> {
         self(ctx).await
     }
 }

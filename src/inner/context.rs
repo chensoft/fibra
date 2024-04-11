@@ -25,25 +25,25 @@ impl Context {
 }
 
 impl Context {
-    pub async fn write_status(&mut self) -> Result<()> {
+    pub async fn write_status(&mut self) -> FibraResult<()> {
         todo!()
     }
 
-    pub async fn write_header(&mut self) -> Result<()> {
+    pub async fn write_header(&mut self) -> FibraResult<()> {
         todo!()
     }
 
-    pub async fn write_body(&mut self, _multi_type_impl_from: impl Into<String>) -> Result<()> {
+    pub async fn write_body(&mut self, _multi_type_impl_from: impl Into<String>) -> FibraResult<()> {
         todo!()
     }
 }
 
 impl Context {
-    pub async fn reject(&mut self, status: Option<StatusCode>) -> Result<()> {
+    pub async fn reject(&mut self, status: Option<StatusCode>) -> FibraResult<()> {
         Err(status.unwrap_or(StatusCode::FORBIDDEN).into_error())
     }
 
-    pub async fn rewrite(mut self, to: &'static str) -> Result<Response<Body>> {
+    pub async fn rewrite(mut self, to: &'static str) -> FibraResult<Response<Body>> {
         *self.req.uri_mut() = Uri::from_static(to);
 
         let app = self.app.clone();
@@ -51,7 +51,7 @@ impl Context {
         app.handle(ctx).await
     }
 
-    pub async fn redirect(&mut self, to: Uri, status: Option<StatusCode>) -> Result<()> {
+    pub async fn redirect(&mut self, to: Uri, status: Option<StatusCode>) -> FibraResult<()> {
         *self.res.status_mut() = status.unwrap_or(StatusCode::TEMPORARY_REDIRECT);
         self.res.headers_mut().insert(header::LOCATION, header::HeaderValue::from_str(to.to_string().as_str())?);
         Ok(())
@@ -69,7 +69,7 @@ impl Context {
         self.stack.pop();
     }
 
-    pub async fn next(mut self) -> Result<Response<Body>> {
+    pub async fn next(mut self) -> FibraResult<Response<Body>> {
         while let Some((cur, idx)) = self.stack.last_mut() {
             let top = unsafe { &**cur };
             let cld = match top.nested(*idx) {
@@ -88,7 +88,7 @@ impl Context {
         self.done()
     }
 
-    pub fn done(mut self) -> Result<Response<Body>> {
+    pub fn done(mut self) -> FibraResult<Response<Body>> {
         Ok(std::mem::take(&mut self.res))
     }
 }

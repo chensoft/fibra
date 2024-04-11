@@ -45,7 +45,7 @@ impl Handler for Package {
         self.bundle.get(idx)
     }
 
-    async fn handle(&self, mut ctx: Context) -> Result<Response<Body>> {
+    async fn handle(&self, mut ctx: Context) -> FibraResult<Response<Body>> {
         ctx.push(self);
         ctx.next().await
     }

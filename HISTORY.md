@@ -10,8 +10,18 @@
 - json5 support
 - url builder macros
 
-## [Unreleased] - 2024-03-xx
+## [Unreleased] - 2024-05-xx
 
 ### Added
 
-- TODO
+- Powerful router
+- Flex middleware
+- Named params
+- Regex matching
+- Glob support
+- URL rewrite
+- URL redirect
+- Subdomain support
+- Subrouter support
+- Cache storage
+- Multiple listener

@@ -93,7 +93,7 @@ impl Limiter {
 
 #[async_trait]
 impl Handler for Limiter {
-    async fn handle(&self, mut ctx: Context) -> Result<Response<Body>> {
+    async fn handle(&self, mut ctx: Context) -> FibraResult<Response<Body>> {
         if self.pass(&ctx) != StatusCode::OK {
             ctx.pop();
         }

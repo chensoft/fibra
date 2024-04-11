@@ -34,7 +34,7 @@ impl Logger {
 
 #[async_trait]
 impl Handler for Logger {
-    async fn handle(&self, ctx: Context) -> Result<Response<Body>> {
+    async fn handle(&self, ctx: Context) -> FibraResult<Response<Body>> {
         let method = ctx.req.method().to_string();
         let path = ctx.req.uri().path().to_string();
         let query = ctx.req.uri().query().unwrap_or("").to_string();
@@ -44,34 +44,35 @@ impl Handler for Logger {
         let ret = ctx.next().await;
         let end = chrono::Local::now();
 
-        let status = match &ret {
-            Ok(res) => res.status().as_u16(),
-            Err(err) => match err.downcast_ref::<Error>() {
-                Some(Error::StatusCode(status)) => status.as_u16(),
-                _ => 0,
-            }
-        };
-
-        let offset = end - beg;
-        let offset = match self.precision {
-            chrono::SecondsFormat::Secs => offset.num_seconds(),
-            chrono::SecondsFormat::Millis => offset.num_milliseconds(),
-            chrono::SecondsFormat::Micros => offset.num_microseconds().unwrap_or(offset.num_milliseconds() * 1000),
-            _ => offset.num_nanoseconds().unwrap_or(offset.num_milliseconds() * 1000000),
-        };
-
-        logkit::record!(
-            self.logger,
-            self.level,
-            time = beg.to_rfc3339_opts(self.precision, false),
-            method = method,
-            path = path,
-            query = query,
-            status = status,
-            elapsed = offset,
-            peer = peer,
-        );
-
-        ret
+        // let status = match &ret {
+        //     Ok(res) => res.status().as_u16(),
+        //     Err(err) => match err.downcast_ref::<Error>() {
+        //         Some(Error::StatusCode(status)) => status.as_u16(),
+        //         _ => 0,
+        //     }
+        // };
+        // 
+        // let offset = end - beg;
+        // let offset = match self.precision {
+        //     chrono::SecondsFormat::Secs => offset.num_seconds(),
+        //     chrono::SecondsFormat::Millis => offset.num_milliseconds(),
+        //     chrono::SecondsFormat::Micros => offset.num_microseconds().unwrap_or(offset.num_milliseconds() * 1000),
+        //     _ => offset.num_nanoseconds().unwrap_or(offset.num_milliseconds() * 1000000),
+        // };
+        // 
+        // logkit::record!(
+        //     self.logger,
+        //     self.level,
+        //     time = beg.to_rfc3339_opts(self.precision, false),
+        //     method = method,
+        //     path = path,
+        //     query = query,
+        //     status = status,
+        //     elapsed = offset,
+        //     peer = peer,
+        // );
+        // 
+        // ret
+        todo!()
     }
 }

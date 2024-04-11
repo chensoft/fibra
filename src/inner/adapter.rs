@@ -2,40 +2,40 @@ use crate::inner::*;
 
 /// Into Error
 pub trait IntoError {
-    fn into_error(self) -> anyhow::Error;
+    fn into_error(self) -> FibraError;
 }
 
 impl IntoError for StatusCode {
-    fn into_error(self) -> anyhow::Error {
-        anyhow!(Error::StatusCode(self))
+    fn into_error(self) -> FibraError {
+        FibraError::HttpStatus(self)
     }
 }
 
 /// Into Listener
 pub trait IntoListener {
-    fn into_listener(self) -> Result<socket2::Socket>;
+    fn into_listener(self) -> FibraResult<socket2::Socket>;
 }
 
 impl IntoListener for &str {
-    fn into_listener(self) -> Result<socket2::Socket> {
+    fn into_listener(self) -> FibraResult<socket2::Socket> {
         Ok(socket2::Socket::from(StdTcpListener::bind(self)?))
     }
 }
 
 impl IntoListener for SocketAddr {
-    fn into_listener(self) -> Result<socket2::Socket> {
+    fn into_listener(self) -> FibraResult<socket2::Socket> {
         Ok(socket2::Socket::from(StdTcpListener::bind(self)?))
     }
 }
 
 impl IntoListener for StdTcpListener {
-    fn into_listener(self) -> Result<socket2::Socket> {
+    fn into_listener(self) -> FibraResult<socket2::Socket> {
         Ok(socket2::Socket::from(self))
     }
 }
 
 impl IntoListener for socket2::Socket {
-    fn into_listener(self) -> Result<socket2::Socket> {
+    fn into_listener(self) -> FibraResult<socket2::Socket> {
         Ok(self)
     }
 }

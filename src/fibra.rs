@@ -32,7 +32,7 @@ impl Fibra {
         self.mounted.ensure()
     }
 
-    pub fn catch(&mut self, handler: impl Fn(&Catcher, anyhow::Error) -> Response<Body> + Send + Sync + 'static) {
+    pub fn catch(&mut self, handler: impl Fn(&Catcher, FibraError) -> Response<Body> + Send + Sync + 'static) {
         match self.mounted.first::<Catcher>() {
             Some(obj) => obj.handler = Box::new(handler),
             _ => unreachable!()
@@ -43,7 +43,7 @@ impl Fibra {
         self.mounted.bundle.iter()
     }
 
-    pub fn bind(&mut self, listener: impl IntoListener) -> Result<&mut socket2::Socket> {
+    pub fn bind(&mut self, listener: impl IntoListener) -> FibraResult<&mut socket2::Socket> {
         self.sockets.push(listener.into_listener()?);
 
         match self.sockets.last_mut() {
@@ -52,7 +52,7 @@ impl Fibra {
         }
     }
 
-    pub async fn run(mut self) -> Result<()> {
+    pub async fn run(mut self) -> FibraResult<()> {
         use hyper::Server;
         use hyper::server::conn::AddrStream;
         use hyper::service::{make_service_fn, service_fn};
@@ -87,7 +87,7 @@ impl Fibra {
 
 #[async_trait]
 impl Handler for Fibra {
-    async fn handle(&self, ctx: Context) -> Result<Response<Body>> {
+    async fn handle(&self, ctx: Context) -> FibraResult<Response<Body>> {
         self.mounted.handle(ctx).await
     }
 }

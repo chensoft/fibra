@@ -1,6 +1,6 @@
 [package]
 name = "fibra"
-version = "0.0.1"
+version = "0.1.0"
 authors = ["Jian Chen <admin@chensoft.com>"]
 edition = "2021"
 description = "Fast and Powerful HTTP router written in Rust"
@@ -14,7 +14,6 @@ keywords = ["fibra", "http", "router", "web", "server"]
 mime = "0.3"
 tokio = { version = "1.35", features = ["full"] }
 hyper = { version = "0.14", features = ["full"] }
-anyhow = { version = "1.0", features = ["backtrace"] }
 logkit = "0.3"
 chrono = "0.4"
 socket2 = "0.5"
@@ -27,5 +26,5 @@ async-trait = "0.1"
 criterion = "0.5"
 
 [[bench]]
-name = "server"
+name = "test"
 harness = false

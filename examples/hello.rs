@@ -1,7 +1,7 @@
 use fibra::*;
 
 #[tokio::main]
-async fn main() -> anyhow::Result<()> {
+async fn main() -> FibraResult<()> {
     // create a main router with a logger
     let mut app = Fibra::default();
     app.mount(addon::Logger::default());
@@ -29,26 +29,26 @@ async fn main() -> anyhow::Result<()> {
     app.run().await
 }
 
-async fn app_root(_ctx: Context) -> anyhow::Result<Response<Body>> {
+async fn app_root(_ctx: Context) -> FibraResult<Response<Body>> {
     Ok((StatusCode::OK, "It Works!").into_response())
 }
 
-async fn api_root(_ctx: Context) -> anyhow::Result<Response<Body>> {
+async fn api_root(_ctx: Context) -> FibraResult<Response<Body>> {
     todo!()
 }
 
-async fn v1_root(_ctx: Context) -> anyhow::Result<Response<Body>> {
+async fn v1_root(_ctx: Context) -> FibraResult<Response<Body>> {
     todo!()
 }
 
-async fn v1_user(_ctx: Context) -> anyhow::Result<Response<Body>> {
+async fn v1_user(_ctx: Context) -> FibraResult<Response<Body>> {
     todo!()
 }
 
-async fn v2_root(_ctx: Context) -> anyhow::Result<Response<Body>> {
+async fn v2_root(_ctx: Context) -> FibraResult<Response<Body>> {
     todo!()
 }
 
-async fn v2_user(_ctx: Context) -> anyhow::Result<Response<Body>> {
+async fn v2_user(_ctx: Context) -> FibraResult<Response<Body>> {
     todo!()
 }

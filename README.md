@@ -27,8 +27,9 @@ Fast and Powerful HTTP router written in Rust
 
 - Powerful router
 - Flex middleware
-- Regex matching
 - Named params
+- Regex matching
+- Glob support
 - URL rewrite
 - URL redirect
 - Subdomain support
@@ -36,19 +37,19 @@ Fast and Powerful HTTP router written in Rust
 - Cache storage
 - Multiple listener
 
-## Hello World
+## Example
 
 ```rust
 ```
 
 ## Benchmark
 
-- MacBook Air, Apple M2 24G, Sonoma 14.2.1, Rust 1.75.0
+- MacBook Air, Apple M2 24G, Sonoma 14.4, Rust 1.77
 
 | Name              |              Time               |
 |:------------------|:-------------------------------:|
 
-- AWS c5.2xlarge, 8C 16G, Ubuntu 22.04, Rust 1.75.0
+- AWS c5.2xlarge, 8C 16G, Ubuntu 22.04, Rust 1.77
 
 | Name              |              Time               |
 |:------------------|:-------------------------------:|
