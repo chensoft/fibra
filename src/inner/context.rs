@@ -22,6 +22,8 @@ impl Context {
     }
 
     pub fn param(&self, _key: &str) { todo!() }
+
+    // todo tls info, ver, sni
 }
 
 impl Context {

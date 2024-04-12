@@ -47,6 +47,14 @@ impl Limiter {
         todo!()
     }
 
+    pub fn version(&mut self) -> &mut Self {
+        todo!()
+    }
+
+    pub fn versions(&mut self) -> &mut Self {
+        todo!()
+    }
+
     pub fn host(&mut self, _pattern: impl Into<Pattern>) -> &mut Self {
         // todo self.add(move |ctx| ctx.req.uri().host() == Some(value.as_str()));
         self
