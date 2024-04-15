@@ -18,6 +18,9 @@ pub use hyper::{header, HeaderMap, Method, Uri, Version, body, Body, Request, Re
 #[derive(Debug, Error)]
 pub enum FibraError {
     #[error("{0}")]
+    PanicError(String),
+
+    #[error("{0}")]
     IoError(#[from] std::io::Error),
 
     #[error("{0}")]

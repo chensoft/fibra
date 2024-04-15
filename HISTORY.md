@@ -9,6 +9,7 @@
 - stream support
 - json5 support
 - url builder macros
+- embed in another framework
 
 ## [Unreleased] - 2024-05-xx
 

@@ -5,12 +5,6 @@ pub struct Fibra {
     sockets: Vec<socket2::Socket>,
 }
 
-impl Default for Fibra {
-    fn default() -> Self {
-        Self { mounted: Package::new(vec![Catcher::default()]), sockets: vec![] }
-    }
-}
-
 impl Fibra {
     pub fn route(&mut self, pattern: impl Into<Pattern>, handler: impl Handler) -> &mut Routine {
         self.force::<Matcher>().add(pattern, handler)
@@ -82,6 +76,12 @@ impl Fibra {
         futures::future::join_all(servers).await;
 
         Ok(())
+    }
+}
+
+impl Default for Fibra {
+    fn default() -> Self {
+        Self { mounted: Package::new(vec![Catcher::default()]), sockets: vec![] }
     }
 }
 
