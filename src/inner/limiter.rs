@@ -55,7 +55,7 @@ impl Limiter {
         todo!()
     }
 
-    pub fn host(&mut self, _pattern: impl Into<Pattern>) -> &mut Self {
+    pub fn host(&mut self, _pattern: &'static str) -> &mut Self {
         // todo self.add(move |ctx| ctx.req.uri().host() == Some(value.as_str()));
         self
     }

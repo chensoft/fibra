@@ -6,7 +6,6 @@ mod handler;
 mod limiter;
 mod matcher;
 mod package;
-mod pattern;
 mod routine;
 mod storage;
 
@@ -18,6 +17,5 @@ pub use handler::*;
 pub use limiter::*;
 pub use matcher::*;
 pub use package::*;
-pub use pattern::*;
 pub use routine::*;
 pub use storage::*;

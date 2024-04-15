@@ -9,6 +9,8 @@ pub(crate) use std::collections::HashMap;
 pub(crate) use std::panic::AssertUnwindSafe;
 pub(crate) use std::net::TcpListener as StdTcpListener;
 
+pub(crate) use radixmap::RadixMap;
+
 /// Export Types
 pub use mime::{Mime, MimeIter};
 pub use hyper::{header, HeaderMap, Method, Uri, Version, body, Body, Request, Response, StatusCode};
@@ -18,10 +20,13 @@ pub use hyper::{header, HeaderMap, Method, Uri, Version, body, Body, Request, Re
 #[derive(Debug, Error)]
 pub enum FibraError {
     #[error("{0}")]
+    IoError(#[from] std::io::Error),
+
+    #[error("{0}")]
     PanicError(String),
 
     #[error("{0}")]
-    IoError(#[from] std::io::Error),
+    PatternError(#[from] radixmap::RadixError),
 
     #[error("{0}")]
     HttpError(#[from] hyper::Error),

@@ -1,12 +1,12 @@
 use criterion::*;
 
-fn test(c: &mut Criterion) {
-    c.bench_function("test", |b| b.iter(|| {
+fn bench(c: &mut Criterion) {
+    c.bench_function("bench", |b| b.iter(|| {
     }));
 }
 
 criterion_group!(
     benches,
-    test,
+    bench,
 );
 criterion_main!(benches);

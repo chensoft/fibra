@@ -6,12 +6,12 @@ pub struct Fibra {
 }
 
 impl Fibra {
-    pub fn route(&mut self, pattern: impl Into<Pattern>, handler: impl Handler) -> &mut Routine {
+    pub fn route(&mut self, pattern: &'static str, handler: impl Handler) -> FibraResult<&mut Routine> {
         self.force::<Matcher>().add(pattern, handler)
     }
 
-    pub fn group(&mut self, pattern: impl Into<Pattern>) -> &mut Fibra {
-        self.route(pattern, Fibra::default()).trust()
+    pub fn group(&mut self, pattern: &'static str) -> FibraResult<&mut Fibra> {
+        Ok(self.route(pattern, Fibra::default())?.trust())
     }
 
     pub fn limit(&mut self) -> &mut Limiter {

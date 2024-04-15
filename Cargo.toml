@@ -19,6 +19,7 @@ chrono = "0.4"
 socket2 = "0.5"
 futures = "0.3"
 indexmap = "2.2"
+radixmap = "0.1"
 thiserror = "1.0"
 async-trait = "0.1"
 
@@ -26,5 +27,9 @@ async-trait = "0.1"
 criterion = "0.5"
 
 [[bench]]
-name = "test"
+name = "playground"
+harness = false
+
+[[bench]]
+name = "benchmark"
 harness = false

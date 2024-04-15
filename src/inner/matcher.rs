@@ -2,23 +2,29 @@ use crate::inner::*;
 
 #[derive(Default)]
 pub struct Matcher {
-    pub preway: HashMap<Pattern, Package>
+    pub map: RadixMap<'static, Package>
 }
 
 impl Matcher {
-    pub fn add(&mut self, pattern: impl Into<Pattern>, handler: impl Handler) -> &mut Routine {
-        let pattern = pattern.into();
-        let package = self.preway.entry(pattern.clone()).or_default();
-        package.insert(Routine::new(handler))
+    pub fn add(&mut self, pattern: &'static str, handler: impl Handler) -> FibraResult<&mut Routine> {
+        if !self.map.contains_key(pattern) {
+            self.map.insert(pattern, Package::default())?;
+        }
+
+        match self.map.get_mut(pattern) {
+            Some(package) => Ok(package.insert(Routine::new(handler))),
+            None => unreachable!()
+        }
     }
 }
 
 #[async_trait]
 impl Handler for Matcher {
     async fn handle(&self, ctx: Context) -> FibraResult<Response<Body>> {
-        match self.preway.get(&Pattern) {
-            Some(pkg) => pkg.handle(ctx).await,
-            None => ctx.next().await
-        }
+        // match self.preway.get(&Pattern) {
+        //     Some(pkg) => pkg.handle(ctx).await,
+        //     None => ctx.next().await
+        // }
+        todo!()
     }
 }
