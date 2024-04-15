@@ -1,8 +1,8 @@
 use criterion::*;
 
 fn bench(c: &mut Criterion) {
-    c.bench_function("bench", |b| b.iter(|| {
-    }));
+    // c.bench_function("bench", |b| b.iter(|| {
+    // }));
 }
 
 criterion_group!(

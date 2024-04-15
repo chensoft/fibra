@@ -39,11 +39,7 @@ impl Fibra {
 
     pub fn bind(&mut self, listener: impl IntoListener) -> FibraResult<&mut socket2::Socket> {
         self.sockets.push(listener.into_listener()?);
-
-        match self.sockets.last_mut() {
-            Some(obj) => Ok(obj),
-            _ => unreachable!()
-        }
+        Ok(self.sockets.last_mut().unwrap_or_else(|| unreachable!()))
     }
 
     pub async fn run(mut self) -> FibraResult<()> {

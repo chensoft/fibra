@@ -12,11 +12,7 @@ impl Package {
 
     pub fn insert<T: Handler>(&mut self, handler: impl Handler) -> &mut T {
         self.bundle.push(Box::new(handler));
-
-        match self.last::<T>() {
-            Some(obj) => obj,
-            _ => unreachable!()
-        }
+        self.last::<T>().unwrap_or_else(|| unreachable!())
     }
 
     pub fn ensure<T: Handler + Default>(&mut self) -> &mut T {
@@ -24,10 +20,7 @@ impl Package {
             return self.insert(T::default());
         }
 
-        match self.last::<T>() {
-            Some(obj) => obj,
-            _ => unreachable!()
-        }
+        self.last::<T>().unwrap_or_else(|| unreachable!())
     }
 
     pub fn first<T: Handler>(&mut self) -> Option<&mut T> {

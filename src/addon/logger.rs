@@ -6,12 +6,6 @@ pub struct Logger {
     pub precision: chrono::SecondsFormat,
 }
 
-impl Default for Logger {
-    fn default() -> Self {
-        Self::new(logkit::StderrTarget, logkit::LEVEL_INFO, chrono::SecondsFormat::Millis)
-    }
-}
-
 impl Logger {
     pub fn new(target: impl logkit::Target, level: logkit::Level, precision: chrono::SecondsFormat) -> Self {
         let mut logger = logkit::Logger::new(None);
@@ -32,47 +26,46 @@ impl Logger {
     }
 }
 
+impl Default for Logger {
+    fn default() -> Self {
+        Self::new(logkit::StderrTarget, logkit::LEVEL_INFO, chrono::SecondsFormat::Millis)
+    }
+}
+
 #[async_trait]
 impl Handler for Logger {
     async fn handle(&self, ctx: Context) -> FibraResult<Response<Body>> {
-        let method = ctx.req.method().to_string();
-        let path = ctx.req.uri().path().to_string();
-        let query = ctx.req.uri().query().unwrap_or("").to_string();
-        let peer = ctx.peer.to_string();
+        let launch = chrono::Local::now();
+        let remote = ctx.peer.to_string();
 
-        let beg = chrono::Local::now();
-        let ret = ctx.next().await;
-        let end = chrono::Local::now();
+        let mut record = self.logger.spawn(self.level).unwrap_or_else(|| unreachable!());
+        record.append("time", &launch.to_rfc3339_opts(self.precision, false));
+        record.append("method", &ctx.req.method().as_str());
+        record.append("path", &ctx.req.uri().path());
+        record.append("query", &ctx.req.uri().query().unwrap_or(""));
 
-        // let status = match &ret {
-        //     Ok(res) => res.status().as_u16(),
-        //     Err(err) => match err.downcast_ref::<Error>() {
-        //         Some(Error::StatusCode(status)) => status.as_u16(),
-        //         _ => 0,
-        //     }
-        // };
-        // 
-        // let offset = end - beg;
-        // let offset = match self.precision {
-        //     chrono::SecondsFormat::Secs => offset.num_seconds(),
-        //     chrono::SecondsFormat::Millis => offset.num_milliseconds(),
-        //     chrono::SecondsFormat::Micros => offset.num_microseconds().unwrap_or(offset.num_milliseconds() * 1000),
-        //     _ => offset.num_nanoseconds().unwrap_or(offset.num_milliseconds() * 1000000),
-        // };
-        // 
-        // logkit::record!(
-        //     self.logger,
-        //     self.level,
-        //     time = beg.to_rfc3339_opts(self.precision, false),
-        //     method = method,
-        //     path = path,
-        //     query = query,
-        //     status = status,
-        //     elapsed = offset,
-        //     peer = peer,
-        // );
-        // 
-        // ret
-        todo!()
+        let result = ctx.next().await;
+        let finish = chrono::Local::now();
+        let status = match &result {
+            Ok(res) => res.status().as_u16(),
+            Err(FibraError::HttpStatus(status)) => status.as_u16(),
+            _ => 0,
+        };
+
+        let offset = finish - launch;
+        let offset = match self.precision {
+            chrono::SecondsFormat::Secs => offset.num_seconds(),
+            chrono::SecondsFormat::Millis => offset.num_milliseconds(),
+            chrono::SecondsFormat::Micros => offset.num_microseconds().unwrap_or(offset.num_milliseconds() * 1000),
+            _ => offset.num_nanoseconds().unwrap_or(offset.num_milliseconds() * 1000000),
+        };
+
+        record.append("status", &status);
+        record.append("elapsed", &offset);
+        record.append("peer", &remote);
+
+        self.logger.flush(record);
+
+        result
     }
 }

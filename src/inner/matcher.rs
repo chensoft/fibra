@@ -2,16 +2,16 @@ use crate::inner::*;
 
 #[derive(Default)]
 pub struct Matcher {
-    pub map: RadixMap<'static, Package>
+    pub routes: RadixMap<'static, Package>
 }
 
 impl Matcher {
     pub fn add(&mut self, pattern: &'static str, handler: impl Handler) -> FibraResult<&mut Routine> {
-        if !self.map.contains_key(pattern) {
-            self.map.insert(pattern, Package::default())?;
+        if !self.routes.contains_key(pattern) {
+            self.routes.insert(pattern, Package::default())?;
         }
 
-        match self.map.get_mut(pattern) {
+        match self.routes.get_mut(pattern) {
             Some(package) => Ok(package.insert(Routine::new(handler))),
             None => unreachable!()
         }
@@ -20,7 +20,7 @@ impl Matcher {
 
 #[async_trait]
 impl Handler for Matcher {
-    async fn handle(&self, ctx: Context) -> FibraResult<Response<Body>> {
+    async fn handle(&self, _ctx: Context) -> FibraResult<Response<Body>> {
         // match self.preway.get(&Pattern) {
         //     Some(pkg) => pkg.handle(ctx).await,
         //     None => ctx.next().await
