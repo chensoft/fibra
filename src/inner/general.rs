@@ -13,7 +13,10 @@ pub(crate) use radixmap::RadixMap;
 
 /// Export Types
 pub use mime::{Mime, MimeIter};
-pub use hyper::{header, HeaderMap, Method, Uri, Version, body, Body, Request, Response, StatusCode};
+pub use hyper::{header, HeaderMap, Method, Uri, Version, body, Body, StatusCode};
+
+pub type Request = hyper::Request<Body>;
+pub type Response = hyper::Response<Body>;
 
 /// Error Codes
 #[allow(missing_docs)]

@@ -97,11 +97,15 @@ impl Limiter {
     pub fn headers(&mut self) -> &mut Self {
         todo!()
     }
+
+    pub fn body_size(&mut self) -> &mut Self {
+        todo!()
+    }
 }
 
 #[async_trait]
 impl Handler for Limiter {
-    async fn handle(&self, mut ctx: Context) -> FibraResult<Response<Body>> {
+    async fn handle(&self, mut ctx: Context) -> FibraResult<Response> {
         if self.pass(&ctx) != StatusCode::OK {
             ctx.pop();
         }

@@ -3,8 +3,8 @@ use crate::fibra::*;
 
 pub struct Context {
     pub app: Arc<Fibra>,
-    pub req: Request<Body>,
-    pub res: Response<Body>,
+    pub req: Request,
+    pub res: Response,
 
     pub sock: SocketAddr,
     pub peer: SocketAddr,
@@ -17,7 +17,7 @@ unsafe impl Send for Context {}
 unsafe impl Sync for Context {}
 
 impl Context {
-    pub fn new(app: Arc<Fibra>, req: Request<Body>, sock: SocketAddr, peer: SocketAddr) -> Self {
+    pub fn new(app: Arc<Fibra>, req: Request, sock: SocketAddr, peer: SocketAddr) -> Self {
         Self { app, req, res: Default::default(), sock, peer, cache: Default::default(), stack: vec![] }
     }
 
@@ -45,7 +45,7 @@ impl Context {
         Err(status.unwrap_or(StatusCode::FORBIDDEN).into_error())
     }
 
-    pub async fn rewrite(mut self, to: &'static str) -> FibraResult<Response<Body>> {
+    pub async fn rewrite(mut self, to: &'static str) -> FibraResult<Response> {
         *self.req.uri_mut() = Uri::from_static(to);
 
         let app = self.app.clone();
@@ -71,7 +71,7 @@ impl Context {
         self.stack.pop();
     }
 
-    pub async fn next(mut self) -> FibraResult<Response<Body>> {
+    pub async fn next(mut self) -> FibraResult<Response> {
         while let Some((cur, idx)) = self.stack.last_mut() {
             let top = unsafe { &**cur };
             let cld = match top.nested(*idx) {
@@ -90,7 +90,7 @@ impl Context {
         self.done()
     }
 
-    pub fn done(mut self) -> FibraResult<Response<Body>> {
+    pub fn done(mut self) -> FibraResult<Response> {
         Ok(std::mem::take(&mut self.res))
     }
 }

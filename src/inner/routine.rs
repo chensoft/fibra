@@ -21,7 +21,7 @@ impl Routine {
 
 #[async_trait]
 impl Handler for Routine {
-    async fn handle(&self, ctx: Context) -> FibraResult<Response<Body>> {
+    async fn handle(&self, ctx: Context) -> FibraResult<Response> {
         let status = self.limiter.pass(&ctx);
         match status == StatusCode::OK {
             true => self.handler.handle(ctx).await,

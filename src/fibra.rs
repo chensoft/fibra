@@ -26,7 +26,7 @@ impl Fibra {
         self.mounted.ensure()
     }
 
-    pub fn catch(&mut self, handler: impl Fn(&Catcher, FibraError) -> Response<Body> + Send + Sync + 'static) {
+    pub fn catch(&mut self, handler: impl Fn(&Catcher, FibraError) -> Response + Send + Sync + 'static) {
         match self.mounted.first::<Catcher>() {
             Some(obj) => obj.handler = Box::new(handler),
             _ => unreachable!()
@@ -83,7 +83,7 @@ impl Default for Fibra {
 
 #[async_trait]
 impl Handler for Fibra {
-    async fn handle(&self, ctx: Context) -> FibraResult<Response<Body>> {
+    async fn handle(&self, ctx: Context) -> FibraResult<Response> {
         self.mounted.handle(ctx).await
     }
 }

@@ -26,6 +26,7 @@ Fast and Powerful HTTP router written in Rust
 ## Features
 
 - Powerful router
+- Async-ready API
 - Flex middleware
 - Named params
 - Regex matching

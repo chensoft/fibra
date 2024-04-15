@@ -16,6 +16,7 @@
 ### Added
 
 - Powerful router
+- Async-ready API
 - Flex middleware
 - Named params
 - Regex matching

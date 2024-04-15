@@ -20,7 +20,7 @@ impl Matcher {
 
 #[async_trait]
 impl Handler for Matcher {
-    async fn handle(&self, _ctx: Context) -> FibraResult<Response<Body>> {
+    async fn handle(&self, _ctx: Context) -> FibraResult<Response> {
         // match self.preway.get(&Pattern) {
         //     Some(pkg) => pkg.handle(ctx).await,
         //     None => ctx.next().await
