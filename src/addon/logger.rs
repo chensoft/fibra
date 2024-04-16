@@ -41,9 +41,9 @@ impl Handler for Logger {
 
         let mut record = self.logger.spawn(self.level).unwrap_or_else(|| unreachable!());
         record.append("time", &launch.to_rfc3339_opts(self.precision, false));
-        record.append("method", &ctx.req.method().as_str());
-        record.append("path", &ctx.req.uri().path());
-        record.append("query", &ctx.req.uri().query().unwrap_or(""));
+        record.append("method", &ctx.method().as_str());
+        record.append("path", &ctx.path());
+        record.append("query", &ctx.query());
 
         let result = ctx.next().await;
         let finish = chrono::Local::now();

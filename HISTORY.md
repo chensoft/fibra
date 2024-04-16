@@ -10,6 +10,7 @@
 - json5 support
 - url builder macros
 - embed in another framework
+- both sync & async callback
 
 ## [Unreleased] - 2024-05-xx
 

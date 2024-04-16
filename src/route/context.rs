@@ -3,23 +3,37 @@ use crate::route::*;
 use crate::fibra::*;
 
 pub struct Context {
-    pub app: Arc<Fibra>,
-    pub req: Request,
-    pub res: Response,
-
+    pub root: Arc<Fibra>,
     pub sock: SocketAddr,
     pub peer: SocketAddr,
-
-    pub cache: Storage,
-    pub stack: Vec<(*const dyn Handler, usize)>,
+    pub head: hyper::http::request::Parts,
+    pub body: Body,
+    pub lifo: Vec<(*const dyn Handler, usize)>,
 }
 
 unsafe impl Send for Context {}
 unsafe impl Sync for Context {}
 
 impl Context {
-    pub fn new(app: Arc<Fibra>, req: Request, sock: SocketAddr, peer: SocketAddr) -> Self {
-        Self { app, req, res: Default::default(), sock, peer, cache: Default::default(), stack: vec![] }
+    pub fn new(root: Arc<Fibra>, sock: SocketAddr, peer: SocketAddr, req: Request) -> Self {
+        let (head, body) = req.into_parts();
+        Self { root, sock, peer, head, body, lifo: vec![] }
+    }
+
+    pub fn method(&self) -> &Method {
+        &self.head.method
+    }
+
+    pub fn path(&self) -> &str {
+        &self.head.uri.path()
+    }
+
+    pub fn query(&self) -> &str {
+        &self.head.uri.query().unwrap_or("")
+    }
+
+    pub fn headers(&self) -> &header::HeaderMap {
+        &self.head.headers
     }
 
     pub fn param(&self, _key: &str) { todo!() }
@@ -47,33 +61,42 @@ impl Context {
     }
 
     pub async fn rewrite(mut self, to: &'static str) -> FibraResult<Response> {
-        *self.req.uri_mut() = Uri::from_static(to);
+        self.head.uri = Uri::from_static(to);
 
-        let app = self.app.clone();
-        let ctx = Context::new(app.clone(), std::mem::take(&mut self.req), self.sock, self.peer);
+        let app = self.root.clone();
+        let ctx = Context {
+            root: app.clone(),
+            sock: self.sock,
+            peer: self.peer,
+            head: std::mem::replace(&mut self.head, Request::default().into_parts().0),
+            body: std::mem::take(&mut self.body),
+            lifo: vec![],
+        };
+
         app.handle(ctx).await
     }
 
-    pub async fn redirect(&mut self, to: Uri, status: Option<StatusCode>) -> FibraResult<()> {
-        *self.res.status_mut() = status.unwrap_or(StatusCode::TEMPORARY_REDIRECT);
-        self.res.headers_mut().insert(header::LOCATION, header::HeaderValue::from_str(to.to_string().as_str())?);
-        Ok(())
+    pub async fn redirect(&mut self, to: Uri, status: Option<StatusCode>) -> FibraResult<Response> {
+        let mut res = Response::default();
+        *res.status_mut() = status.unwrap_or(StatusCode::TEMPORARY_REDIRECT);
+        res.headers_mut().insert(header::LOCATION, header::HeaderValue::from_str(to.to_string().as_str())?);
+        Ok(res)
     }
 }
 
 impl Context {
     #[inline]
     pub fn push(&mut self, cur: *const dyn Handler) {
-        self.stack.push((cur, 0));
+        self.lifo.push((cur, 0));
     }
 
     #[inline]
     pub fn pop(&mut self) {
-        self.stack.pop();
+        self.lifo.pop();
     }
 
     pub async fn next(mut self) -> FibraResult<Response> {
-        while let Some((cur, idx)) = self.stack.last_mut() {
+        while let Some((cur, idx)) = self.lifo.last_mut() {
             let top = unsafe { &**cur };
             let cld = match top.nested(*idx) {
                 Some(obj) => obj,
@@ -88,10 +111,6 @@ impl Context {
             return cld.handle(self).await;
         }
 
-        self.done()
-    }
-
-    pub fn done(mut self) -> FibraResult<Response> {
-        Ok(std::mem::take(&mut self.res))
+        Ok(Response::default())
     }
 }
