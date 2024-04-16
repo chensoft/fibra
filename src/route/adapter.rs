@@ -1,4 +1,4 @@
-use crate::inner::*;
+use crate::types::*;
 
 /// Into Error
 pub trait IntoError {

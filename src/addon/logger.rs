@@ -1,4 +1,5 @@
-use crate::inner::*;
+use crate::types::*;
+use crate::route::*;
 
 pub struct Logger {
     pub logger: logkit::Logger,

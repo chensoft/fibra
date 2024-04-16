@@ -1,7 +1,6 @@
 mod adapter;
 mod catcher;
 mod context;
-mod general;
 mod handler;
 mod limiter;
 mod matcher;
@@ -12,7 +11,6 @@ mod storage;
 pub use adapter::*;
 pub use catcher::*;
 pub use context::*;
-pub use general::*;
 pub use handler::*;
 pub use limiter::*;
 pub use matcher::*;

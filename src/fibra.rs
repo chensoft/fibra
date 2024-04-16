@@ -1,4 +1,5 @@
-use crate::inner::*;
+use crate::types::*;
+use crate::route::*;
 
 pub struct Fibra {
     mounted: Package,
