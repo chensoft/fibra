@@ -2,12 +2,12 @@ use crate::types::*;
 use crate::route::*;
 
 pub struct Catcher {
-    pub default: Box<dyn Fn(FibraError) -> Response + Send + Sync + 'static>,
-    pub handler: Box<dyn Fn(&Catcher, FibraError) -> Response + Send + Sync + 'static>,
+    pub default: Box<dyn Fn(FibraError) -> Response<Body> + Send + Sync + 'static>,
+    pub handler: Box<dyn Fn(&Catcher, FibraError) -> Response<Body> + Send + Sync + 'static>,
 }
 
 impl Catcher {
-    pub fn new(f: impl Fn(&Catcher, FibraError) -> Response + Send + Sync + 'static) -> Self {
+    pub fn new(f: impl Fn(&Catcher, FibraError) -> Response<Body> + Send + Sync + 'static) -> Self {
         Self { handler: Box::new(f), ..Default::default() }
     }
 }
@@ -16,7 +16,7 @@ impl Default for Catcher {
     fn default() -> Self {
         let default = Box::new(|err: FibraError| {
             match err {
-                FibraError::HttpStatus(status) => status.into_response(),
+                FibraError::StatusCode(status) => status.into_response(),
                 _ => StatusCode::INTERNAL_SERVER_ERROR.into_response(),
             }
         });
@@ -27,7 +27,7 @@ impl Default for Catcher {
 
 #[async_trait]
 impl Handler for Catcher {
-    async fn handle(&self, ctx: Context) -> FibraResult<Response> {
+    async fn handle(&self, ctx: Context) -> FibraResult<Response<Body>> {
         use futures::FutureExt;
 
         match AssertUnwindSafe(ctx.next()).catch_unwind().await {

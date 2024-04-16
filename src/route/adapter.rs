@@ -7,7 +7,7 @@ pub trait IntoError {
 
 impl IntoError for StatusCode {
     fn into_error(self) -> FibraError {
-        FibraError::HttpStatus(self)
+        FibraError::StatusCode(self)
     }
 }
 
@@ -42,31 +42,44 @@ impl IntoListener for socket2::Socket {
 
 /// Into Response
 pub trait IntoResponse {
-    fn into_response(self) -> Response;
+    fn into_response(self) -> Response<Body>;
 }
 
 impl IntoResponse for StatusCode {
-    fn into_response(self) -> Response {
-        let mut res = Response::default();
-        *res.status_mut() = self;
-        res
+    fn into_response(self) -> Response<Body> {
+        Response::builder()
+            .status(self)
+            .body(Body::default())
+            .unwrap_or_else(|_| unreachable!())
     }
 }
 
-impl IntoResponse for (StatusCode, &'static str) {
-    fn into_response(self) -> Response {
-        let mut res = Response::default();
-        *res.status_mut() = self.0;
-        *res.body_mut() = Body::from(self.1);
-        res
+impl<T> IntoResponse for (StatusCode, T)
+    where
+        T: Into<Body>,
+{
+    fn into_response(self) -> Response<Body> {
+        Response::builder()
+            .status(self.0)
+            .body(self.1.into())
+            .unwrap_or_else(|_| unreachable!())
     }
 }
 
-impl IntoResponse for (StatusCode, String) {
-    fn into_response(self) -> Response {
-        let mut res = Response::default();
-        *res.status_mut() = self.0;
-        *res.body_mut() = Body::from(self.1);
-        res
+impl IntoResponse for &'static str {
+    fn into_response(self) -> Response<Body> {
+        Response::builder()
+            .status(StatusCode::OK)
+            .body(self.into())
+            .unwrap_or_else(|_| unreachable!())
+    }
+}
+
+impl IntoResponse for String {
+    fn into_response(self) -> Response<Body> {
+        Response::builder()
+            .status(StatusCode::OK)
+            .body(self.into())
+            .unwrap_or_else(|_| unreachable!())
     }
 }

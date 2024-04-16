@@ -12,10 +12,7 @@ pub(crate) use radixmap::RadixMap;
 
 /// Export Types
 pub use mime::{Mime, MimeIter};
-pub use hyper::{header, HeaderMap, Method, Uri, Version, body, Body, StatusCode};
-
-pub type Request = hyper::Request<Body>;
-pub type Response = hyper::Response<Body>;
+pub use hyper::{header, HeaderMap, Method, Uri, Version, body, Body, Request, Response, StatusCode};
 
 /// Error Codes
 #[allow(missing_docs)]
@@ -31,13 +28,16 @@ pub enum FibraError {
     PatternError(#[from] radixmap::RadixError),
 
     #[error("{0}")]
-    HttpError(#[from] hyper::Error),
+    HyperError(#[from] hyper::Error),
 
     #[error("{0}")]
-    HttpStatus(StatusCode),
+    HttpError(#[from] hyper::http::Error),
 
     #[error("{0}")]
-    HttpHeader(#[from] header::InvalidHeaderValue),
+    StatusCode(StatusCode),
+
+    #[error("{0}")]
+    HeaderInvalid(#[from] header::InvalidHeaderValue),
 }
 
 /// Custom Result

@@ -28,26 +28,26 @@ async fn main() -> FibraResult<()> {
     app.run().await
 }
 
-async fn app_root(_ctx: Context) -> FibraResult<Response> {
+async fn app_root(_ctx: Context) -> FibraResult<Response<Body>> {
     Ok((StatusCode::OK, "It Works!").into_response())
 }
 
-async fn api_root(_ctx: Context) -> FibraResult<Response> {
+async fn api_root(_ctx: Context) -> FibraResult<Response<Body>> {
     Ok((StatusCode::OK, "Api Root").into_response())
 }
 
-async fn v1_root(_ctx: Context) -> FibraResult<Response> {
+async fn v1_root(_ctx: Context) -> FibraResult<Response<Body>> {
     Ok((StatusCode::OK, "V1 Root").into_response())
 }
 
-async fn v1_user(_ctx: Context) -> FibraResult<Response> {
+async fn v1_user(_ctx: Context) -> FibraResult<Response<Body>> {
     Ok((StatusCode::OK, "User1").into_response())
 }
 
-async fn v2_root(_ctx: Context) -> FibraResult<Response> {
+async fn v2_root(_ctx: Context) -> FibraResult<Response<Body>> {
     Ok((StatusCode::OK, "V2 Root").into_response())
 }
 
-async fn v2_user(_ctx: Context) -> FibraResult<Response> {
+async fn v2_user(_ctx: Context) -> FibraResult<Response<Body>> {
     Ok((StatusCode::OK, "User2").into_response())
 }

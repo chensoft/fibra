@@ -35,7 +35,7 @@ impl Default for Logger {
 
 #[async_trait]
 impl Handler for Logger {
-    async fn handle(&self, ctx: Context) -> FibraResult<Response> {
+    async fn handle(&self, ctx: Context) -> FibraResult<Response<Body>> {
         let launch = chrono::Local::now();
         let remote = ctx.peer.to_string();
 
@@ -49,7 +49,7 @@ impl Handler for Logger {
         let finish = chrono::Local::now();
         let status = match &result {
             Ok(res) => res.status().as_u16(),
-            Err(FibraError::HttpStatus(status)) => status.as_u16(),
+            Err(FibraError::StatusCode(status)) => status.as_u16(),
             _ => 0,
         };
 

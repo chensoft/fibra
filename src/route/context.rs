@@ -15,7 +15,7 @@ unsafe impl Send for Context {}
 unsafe impl Sync for Context {}
 
 impl Context {
-    pub fn new(root: Arc<Fibra>, sock: SocketAddr, peer: SocketAddr, req: Request) -> Self {
+    pub fn new(root: Arc<Fibra>, sock: SocketAddr, peer: SocketAddr, req: Request<Body>) -> Self {
         let (head, body) = req.into_parts();
         Self { root, sock, peer, head, body, lifo: vec![] }
     }
@@ -60,7 +60,7 @@ impl Context {
         Err(status.unwrap_or(StatusCode::FORBIDDEN).into_error())
     }
 
-    pub async fn rewrite(mut self, to: &'static str) -> FibraResult<Response> {
+    pub async fn rewrite(mut self, to: &'static str) -> FibraResult<Response<Body>> {
         self.head.uri = Uri::from_static(to);
 
         let app = self.root.clone();
@@ -68,7 +68,7 @@ impl Context {
             root: app.clone(),
             sock: self.sock,
             peer: self.peer,
-            head: std::mem::replace(&mut self.head, Request::default().into_parts().0),
+            head: std::mem::replace(&mut self.head, Request::<()>::default().into_parts().0),
             body: std::mem::take(&mut self.body),
             lifo: vec![],
         };
@@ -76,11 +76,11 @@ impl Context {
         app.handle(ctx).await
     }
 
-    pub async fn redirect(&mut self, to: Uri, status: Option<StatusCode>) -> FibraResult<Response> {
-        let mut res = Response::default();
-        *res.status_mut() = status.unwrap_or(StatusCode::TEMPORARY_REDIRECT);
-        res.headers_mut().insert(header::LOCATION, header::HeaderValue::from_str(to.to_string().as_str())?);
-        Ok(res)
+    pub async fn redirect(&mut self, to: Uri, status: Option<StatusCode>) -> FibraResult<Response<Body>> {
+        Ok(Response::builder()
+            .status(status.unwrap_or(StatusCode::TEMPORARY_REDIRECT))
+            .header(header::LOCATION, header::HeaderValue::from_str(to.to_string().as_str())?)
+            .body(Body::default())?)
     }
 }
 
@@ -95,7 +95,7 @@ impl Context {
         self.lifo.pop();
     }
 
-    pub async fn next(mut self) -> FibraResult<Response> {
+    pub async fn next(mut self) -> FibraResult<Response<Body>> {
         while let Some((cur, idx)) = self.lifo.last_mut() {
             let top = unsafe { &**cur };
             let cld = match top.nested(*idx) {
