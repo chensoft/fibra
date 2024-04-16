@@ -1,5 +1,5 @@
 use crate::types::*;
-use crate::route::*;
+use crate::inner::*;
 
 pub struct Fibra {
     mounted: Package,
@@ -56,6 +56,8 @@ impl Fibra {
 
             async move {
                 Ok::<_, Infallible>(service_fn(move |req| {
+                    println!("{}", req.uri().to_string());
+
                     let appself = appself.clone();
                     let context = Context::new(appself.clone(), address.0, address.1, req);
 

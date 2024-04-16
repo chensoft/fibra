@@ -1,5 +1,5 @@
 use crate::types::*;
-use crate::route::*;
+use crate::inner::*;
 
 /// Remove duplicate slashes
 pub struct Normalize;

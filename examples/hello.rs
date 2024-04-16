@@ -6,7 +6,7 @@ async fn main() -> FibraResult<()> {
     let mut app = Fibra::default();
     app.mount(addon::Logger::default());
     app.route("/", app_root)?;
-    app.route("/index.html", |ctx: Context| async { ctx.rewrite("/").await })?;
+    app.route("/index.html", |ctx: Context| async { ctx.rewrite("/", b"todo".into()).await })?;
 
     // create a subrouter with a subdomain that starts with 'api'
     let api = app.group("/")?;

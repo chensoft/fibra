@@ -9,10 +9,13 @@ pub(crate) use std::panic::AssertUnwindSafe;
 pub(crate) use std::net::TcpListener as StdTcpListener;
 
 pub(crate) use radixmap::RadixMap;
+pub(crate) use indexmap::IndexMap;
+pub(crate) use chrono::{DateTime, Local};
 
 /// Export Types
 pub use mime::{Mime, MimeIter};
-pub use hyper::{header, HeaderMap, Method, Uri, Version, body, Body, Request, Response, StatusCode};
+pub use hyper::http::{request::Parts, uri::{Scheme, Authority}};
+pub use hyper::{Method, Uri, Version, header, header::{HeaderName, HeaderValue, HeaderMap}, body, Body, Request, Response, StatusCode};
 
 /// Error Codes
 #[allow(missing_docs)]

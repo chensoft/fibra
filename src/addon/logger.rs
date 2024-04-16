@@ -1,5 +1,5 @@
 use crate::types::*;
-use crate::route::*;
+use crate::inner::*;
 
 pub struct Logger {
     pub logger: logkit::Logger,
@@ -36,17 +36,17 @@ impl Default for Logger {
 #[async_trait]
 impl Handler for Logger {
     async fn handle(&self, ctx: Context) -> FibraResult<Response<Body>> {
-        let launch = chrono::Local::now();
-        let remote = ctx.peer.to_string();
+        let launch = *ctx.beginning();
+        let client = ctx.client().to_string();
 
         let mut record = self.logger.spawn(self.level).unwrap_or_else(|| unreachable!());
         record.append("time", &launch.to_rfc3339_opts(self.precision, false));
         record.append("method", &ctx.method().as_str());
         record.append("path", &ctx.path());
-        record.append("query", &ctx.query());
+        record.append("query", &ctx.queries());
 
         let result = ctx.next().await;
-        let finish = chrono::Local::now();
+        let finish = Local::now();
         let status = match &result {
             Ok(res) => res.status().as_u16(),
             Err(FibraError::StatusCode(status)) => status.as_u16(),
@@ -63,7 +63,7 @@ impl Handler for Logger {
 
         record.append("status", &status);
         record.append("elapsed", &offset);
-        record.append("peer", &remote);
+        record.append("client", &client);
 
         self.logger.flush(record);
 

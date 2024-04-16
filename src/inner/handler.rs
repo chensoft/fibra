@@ -1,5 +1,5 @@
 use crate::types::*;
-use crate::route::*;
+use crate::inner::*;
 
 #[async_trait]
 pub trait Handler: AnyHandler + Send + Sync + 'static {

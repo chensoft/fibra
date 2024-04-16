@@ -1,5 +1,5 @@
 use crate::types::*;
-use crate::route::*;
+use crate::inner::*;
 
 pub struct Catcher {
     pub default: Box<dyn Fn(FibraError) -> Response<Body> + Send + Sync + 'static>,
