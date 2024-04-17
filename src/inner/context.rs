@@ -153,7 +153,7 @@ impl Context {
         Ok(Response::builder()
             .status(status.unwrap_or(StatusCode::TEMPORARY_REDIRECT))
             .header(header::LOCATION, header::HeaderValue::from_str(to.to_string().as_str())?)
-            .body(Body::default())?)
+            .body(Body::empty())?)
     }
 }
 

@@ -2,6 +2,7 @@ use crate::types::*;
 use crate::inner::*;
 
 /// Remove duplicate slashes
+/// todo https://url.spec.whatwg.org/#example-url-parsing
 pub struct Normalize;
 
 #[async_trait]
