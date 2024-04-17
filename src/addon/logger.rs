@@ -49,7 +49,6 @@ impl Handler for Logger {
         let finish = Local::now();
         let status = match &result {
             Ok(res) => res.status().as_u16(),
-            Err(FibraError::StatusCode(status)) => status.as_u16(),
             _ => 0,
         };
 

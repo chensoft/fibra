@@ -26,7 +26,7 @@ impl Handler for Routine {
         let status = self.limiter.pass(&ctx);
         match status == StatusCode::OK {
             true => self.handler.handle(ctx).await,
-            false => Err(status.into_error())
+            false => Ok(status.into_response())
         }
     }
 }

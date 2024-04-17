@@ -3,6 +3,7 @@ pub(crate) use std::any::Any;
 pub(crate) use std::sync::Arc;
 pub(crate) use std::slice::Iter;
 pub(crate) use std::future::Future;
+pub(crate) use std::net::IpAddr;
 pub(crate) use std::net::SocketAddr;
 pub(crate) use std::convert::Infallible;
 pub(crate) use std::panic::AssertUnwindSafe;
@@ -37,11 +38,93 @@ pub enum FibraError {
     HttpError(#[from] hyper::http::Error),
 
     #[error("{0}")]
-    StatusCode(StatusCode),
-
-    #[error("{0}")]
     HeaderInvalid(#[from] header::InvalidHeaderValue),
 }
 
 /// Custom Result
 pub type FibraResult<T> = Result<T, FibraError>;
+
+/// Into Listener
+pub trait IntoListener {
+    fn into_listener(self) -> FibraResult<socket2::Socket>;
+}
+
+impl IntoListener for &str {
+    fn into_listener(self) -> FibraResult<socket2::Socket> {
+        StdTcpListener::bind(self)?.into_listener()
+    }
+}
+
+impl IntoListener for (&str, u16) {
+    fn into_listener(self) -> FibraResult<socket2::Socket> {
+        StdTcpListener::bind(self)?.into_listener()
+    }
+}
+
+impl IntoListener for SocketAddr {
+    fn into_listener(self) -> FibraResult<socket2::Socket> {
+        StdTcpListener::bind(self)?.into_listener()
+    }
+}
+
+impl IntoListener for (IpAddr, u16) {
+    fn into_listener(self) -> FibraResult<socket2::Socket> {
+        StdTcpListener::bind(self)?.into_listener()
+    }
+}
+
+impl IntoListener for StdTcpListener {
+    fn into_listener(self) -> FibraResult<socket2::Socket> {
+        Ok(socket2::Socket::from(self))
+    }
+}
+
+impl IntoListener for socket2::Socket {
+    fn into_listener(self) -> FibraResult<socket2::Socket> {
+        Ok(self)
+    }
+}
+
+/// Into Response
+pub trait IntoResponse {
+    fn into_response(self) -> Response<Body>;
+}
+
+impl IntoResponse for StatusCode {
+    fn into_response(self) -> Response<Body> {
+        Response::builder()
+            .status(self)
+            .body(Body::default())
+            .unwrap_or_else(|_| unreachable!())
+    }
+}
+
+impl<T> IntoResponse for (StatusCode, T)
+    where
+        T: Into<Body>,
+{
+    fn into_response(self) -> Response<Body> {
+        Response::builder()
+            .status(self.0)
+            .body(self.1.into())
+            .unwrap_or_else(|_| unreachable!())
+    }
+}
+
+impl IntoResponse for &'static str {
+    fn into_response(self) -> Response<Body> {
+        Response::builder()
+            .status(StatusCode::OK)
+            .body(self.into())
+            .unwrap_or_else(|_| unreachable!())
+    }
+}
+
+impl IntoResponse for String {
+    fn into_response(self) -> Response<Body> {
+        Response::builder()
+            .status(StatusCode::OK)
+            .body(self.into())
+            .unwrap_or_else(|_| unreachable!())
+    }
+}

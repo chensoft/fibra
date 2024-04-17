@@ -14,11 +14,8 @@ impl Catcher {
 
 impl Default for Catcher {
     fn default() -> Self {
-        let default = Box::new(|err: FibraError| {
-            match err {
-                FibraError::StatusCode(status) => status.into_response(),
-                _ => StatusCode::INTERNAL_SERVER_ERROR.into_response(),
-            }
+        let default = Box::new(|_| {
+            StatusCode::INTERNAL_SERVER_ERROR.into_response()
         });
 
         Self { default, handler: Box::new(|obj, err| (obj.default)(err)) }

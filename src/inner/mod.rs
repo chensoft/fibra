@@ -1,4 +1,3 @@
-mod adapter;
 mod catcher;
 mod context;
 mod handler;
@@ -7,7 +6,6 @@ mod matcher;
 mod package;
 mod routine;
 
-pub use adapter::*;
 pub use catcher::*;
 pub use context::*;
 pub use handler::*;

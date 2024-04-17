@@ -135,8 +135,8 @@ impl Context {
         todo!()
     }
 
-    pub async fn reject(&mut self, status: Option<StatusCode>) -> FibraResult<()> {
-        Err(status.unwrap_or(StatusCode::FORBIDDEN).into_error())
+    pub async fn reject(&mut self, status: Option<StatusCode>) -> FibraResult<Response<Body>> {
+        Ok(status.unwrap_or(StatusCode::FORBIDDEN).into_response())
     }
 
     pub async fn rewrite(mut self, to: &'static str, body: Vec<u8>) -> FibraResult<Response<Body>> {
