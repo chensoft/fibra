@@ -38,8 +38,8 @@ impl Fibra {
         self.mounted.bundle.iter()
     }
 
-    pub fn bind(&mut self, listener: impl IntoListener) -> FibraResult<&mut socket2::Socket> {
-        self.sockets.push(listener.into_listener()?);
+    pub fn bind(&mut self, addr: impl ToSocketAddrs) -> FibraResult<&mut socket2::Socket> {
+        self.sockets.push(StdTcpListener::bind(addr)?.into());
         Ok(self.sockets.last_mut().unwrap_or_else(|| unreachable!()))
     }
 

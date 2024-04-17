@@ -1,4 +1,5 @@
 use fibra::*;
+use fibra::reply::*; // todo
 
 #[tokio::main]
 async fn main() -> FibraResult<()> {
@@ -24,7 +25,7 @@ async fn main() -> FibraResult<()> {
     v2.route("/user", v2_user)?;
 
     // bind on a port and run the server
-    app.bind(":3000")?;
+    app.bind("0.0.0.0:3000")?;
     app.run().await
 }
 
