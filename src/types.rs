@@ -23,10 +23,13 @@ pub use hyper::{Method, Uri, Version, header, header::{HeaderName, HeaderValue, 
 #[derive(Debug, Error)]
 pub enum FibraError {
     #[error("{0}")]
+    PanicError(String),
+
+    #[error("{0}")]
     IoError(#[from] std::io::Error),
 
     #[error("{0}")]
-    PanicError(String),
+    ParseIntError(#[from] std::num::ParseIntError),
 
     #[error("{0}")]
     PatternError(#[from] radixmap::RadixError),
@@ -51,7 +54,10 @@ pub trait IntoListener {
 
 impl IntoListener for &str {
     fn into_listener(self) -> FibraResult<socket2::Socket> {
-        StdTcpListener::bind(self)?.into_listener()
+        match self.as_bytes().first() {
+            Some(&b':') => ("0.0.0.0", self[1..].parse::<u16>()?).into_listener(),
+            _ => StdTcpListener::bind(self)?.into_listener()
+        }
     }
 }
 
