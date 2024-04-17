@@ -46,3 +46,47 @@ pub enum FibraError {
 
 /// Custom Result
 pub type FibraResult<T> = Result<T, FibraError>;
+
+/// Into Listener
+pub trait IntoListener {
+    fn into_listener(self) -> FibraResult<socket2::Socket>;
+}
+
+impl IntoListener for &str {
+    fn into_listener(self) -> FibraResult<socket2::Socket> {
+        match self.as_bytes().first() {
+            Some(&b':') => ("0.0.0.0", self[1..].parse::<u16>()?).into_listener(),
+            _ => StdTcpListener::bind(self)?.into_listener()
+        }
+    }
+}
+
+impl IntoListener for (&str, u16) {
+    fn into_listener(self) -> FibraResult<socket2::Socket> {
+        StdTcpListener::bind(self)?.into_listener()
+    }
+}
+
+impl IntoListener for SocketAddr {
+    fn into_listener(self) -> FibraResult<socket2::Socket> {
+        StdTcpListener::bind(self)?.into_listener()
+    }
+}
+
+impl IntoListener for (IpAddr, u16) {
+    fn into_listener(self) -> FibraResult<socket2::Socket> {
+        StdTcpListener::bind(self)?.into_listener()
+    }
+}
+
+impl IntoListener for StdTcpListener {
+    fn into_listener(self) -> FibraResult<socket2::Socket> {
+        Ok(socket2::Socket::from(self))
+    }
+}
+
+impl IntoListener for socket2::Socket {
+    fn into_listener(self) -> FibraResult<socket2::Socket> {
+        Ok(self)
+    }
+}
