@@ -11,8 +11,6 @@ mod types;
 mod inner;
 
 pub mod addon;
-pub mod reply;
-
 pub use fibra::*;
 pub use types::*;
 pub use inner::*;

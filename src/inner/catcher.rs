@@ -1,6 +1,5 @@
 use crate::types::*;
 use crate::inner::*;
-use crate::reply::*; // todo
 
 pub struct Catcher {
     pub default: Box<dyn Fn(FibraError) -> Response<Body> + Send + Sync + 'static>,
@@ -16,7 +15,7 @@ impl Catcher {
 impl Default for Catcher {
     fn default() -> Self {
         let default = Box::new(|_| {
-            StatusCode::INTERNAL_SERVER_ERROR.into_response()
+            Response::default().set_status(StatusCode::INTERNAL_SERVER_ERROR)
         });
 
         Self { default, handler: Box::new(|obj, err| (obj.default)(err)) }

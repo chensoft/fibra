@@ -147,46 +147,6 @@ impl Context {
     pub async fn save(&mut self, _path: &str) {
         todo!()
     }
-
-    // todo put these in reply module, each is a struct
-    // pub async fn file(&mut self) {
-    //     // auto detect file mime, chunk transfer, stream wrap
-    //     // attachment header
-    //     todo!()
-    // }
-    // 
-    // pub async fn data(&mut self) {
-    //     // binary with oct
-    //     todo!()
-    // }
-    // 
-    // pub async fn text(&mut self) {
-    //     todo!()
-    // }
-    // 
-    // pub async fn json(&mut self) {
-    //     todo!()
-    // }
-    // 
-    // pub async fn jsonp(&mut self, _callback: &str) {
-    //     todo!()
-    // }
-    // 
-    // pub async fn html(&mut self) {
-    //     // template engine
-    //     todo!()
-    // }
-    // 
-    // pub async fn reject(&mut self, status: Option<StatusCode>) -> FibraResult<Response<Body>> {
-    //     Ok(status.unwrap_or(StatusCode::FORBIDDEN).into_response())
-    // }
-
-    // pub async fn redirect(&mut self, to: Uri, status: Option<StatusCode>) -> FibraResult<Response<Body>> {
-    //     Ok(Response::builder()
-    //         .status(status.unwrap_or(StatusCode::TEMPORARY_REDIRECT))
-    //         .header(header::LOCATION, header::HeaderValue::from_str(to.to_string().as_str())?)
-    //         .body(Body::empty())?)
-    // }
 }
 
 impl Context {
@@ -219,6 +179,10 @@ impl Context {
         Ok(Response::default())
     }
 
+    pub async fn reject(mut self, status: Option<StatusCode>) -> FibraResult<Response<Body>> {
+        Ok(Response::default().set_status(status.unwrap_or(StatusCode::FORBIDDEN)))
+    }
+
     pub async fn rewrite(mut self, to: &'static str, body: Vec<u8>) -> FibraResult<Response<Body>> {
         // todo no body
         self.head.uri = Uri::from_static(to); // todo right?
@@ -227,5 +191,11 @@ impl Context {
         let ctx = Context::new(app.clone(), self.sock, self.peer, Request::from_parts(self.head, Body::from(body)));
 
         app.handle(ctx).await
+    }
+
+    pub async fn redirect(mut self, to: Uri, status: Option<StatusCode>) -> FibraResult<Response<Body>> {
+        Ok(Response::default()
+            .set_status(status.unwrap_or(StatusCode::TEMPORARY_REDIRECT))
+            .set_header(header::LOCATION, HeaderValue::from_str(to.to_string().as_str())?))
     }
 }

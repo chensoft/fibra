@@ -4,6 +4,7 @@ mod handler;
 mod limiter;
 mod matcher;
 mod package;
+mod replies;
 mod routine;
 
 pub use catcher::*;
@@ -12,4 +13,5 @@ pub use handler::*;
 pub use limiter::*;
 pub use matcher::*;
 pub use package::*;
+pub use replies::*;
 pub use routine::*;

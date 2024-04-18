@@ -1,5 +1,4 @@
 use fibra::*;
-use fibra::reply::*; // todo
 
 #[tokio::main]
 async fn main() -> FibraResult<()> {
@@ -30,25 +29,25 @@ async fn main() -> FibraResult<()> {
 }
 
 async fn app_root(_ctx: Context) -> FibraResult<Response<Body>> {
-    Ok((StatusCode::OK, "It Works!").into_response())
+    Ok(Response::default().set_text("It Works!"))
 }
 
 async fn api_root(_ctx: Context) -> FibraResult<Response<Body>> {
-    Ok((StatusCode::OK, "Api Root").into_response())
+    Ok(Response::default().set_text(""))
 }
 
 async fn v1_root(_ctx: Context) -> FibraResult<Response<Body>> {
-    Ok((StatusCode::OK, "V1 Root").into_response())
+    Ok(Response::default().set_text(""))
 }
 
 async fn v1_user(_ctx: Context) -> FibraResult<Response<Body>> {
-    Ok((StatusCode::OK, "User1").into_response())
+    Ok(Response::default().set_text(""))
 }
 
 async fn v2_root(_ctx: Context) -> FibraResult<Response<Body>> {
-    Ok((StatusCode::OK, "V2 Root").into_response())
+    Ok(Response::default().set_text(""))
 }
 
 async fn v2_user(_ctx: Context) -> FibraResult<Response<Body>> {
-    Ok((StatusCode::OK, "User2").into_response())
+    Ok(Response::default().set_text(""))
 }

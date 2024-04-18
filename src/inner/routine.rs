@@ -1,6 +1,5 @@
 use crate::types::*;
 use crate::inner::*;
-use crate::reply::*; // todo
 
 pub struct Routine {
     limiter: Limiter,
@@ -27,7 +26,7 @@ impl Handler for Routine {
         let status = self.limiter.pass(&ctx);
         match status == StatusCode::OK {
             true => self.handler.handle(ctx).await,
-            false => Ok(status.into_response())
+            false => Ok(Response::default().set_status(status))
         }
     }
 }
