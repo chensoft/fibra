@@ -1,25 +1,25 @@
+use crate::route::*;
 use crate::types::*;
-use crate::inner::*;
 
 #[derive(Default)]
 pub struct Limiter {
-    pub limits: Vec<Box<dyn Fn(&Context) -> StatusCode + Send + Sync + 'static>>
+    pub limits: Vec<Box<dyn Fn(&Context) -> Status + Send + Sync + 'static>>
 }
 
 impl Limiter {
-    pub fn add(&mut self, limit: impl Fn(&Context) -> StatusCode + Send + Sync + 'static) -> &mut Self {
+    pub fn add(&mut self, limit: impl Fn(&Context) -> Status + Send + Sync + 'static) -> &mut Self {
         self.limits.push(Box::new(limit));
         self
     }
 
-    pub fn pass(&self, ctx: &Context) -> StatusCode {
+    pub fn pass(&self, ctx: &Context) -> Status {
         self.limits.iter().find_map(|f| {
             let status = f(ctx);
-            match status == StatusCode::OK {
+            match status == Status::OK {
                 true => None,
                 false => Some(status),
             }
-        }).unwrap_or(StatusCode::OK)
+        }).unwrap_or(Status::OK)
     }
 
     pub fn clear(&mut self) -> &mut Self {
@@ -28,9 +28,9 @@ impl Limiter {
     }
 
     pub fn method(&mut self, method: Method) -> &mut Self {
-        self.add(move |ctx| match ctx.method() == method {
-            true => StatusCode::OK,
-            false => StatusCode::METHOD_NOT_ALLOWED
+        self.add(move |ctx| match ctx.req.method() == method {
+            true => Status::OK,
+            false => Status::METHOD_NOT_ALLOWED
         });
         self
     }
@@ -88,9 +88,9 @@ impl Limiter {
     }
 
     pub fn header(&mut self, key: header::HeaderName, val: header::HeaderValue) -> &mut Self {
-        self.add(move |ctx| match ctx.headers().get(&key) == Some(&val) {
-            true => StatusCode::OK,
-            false => StatusCode::BAD_REQUEST,
+        self.add(move |ctx| match ctx.req.headers().get(&key) == Some(&val) {
+            true => Status::OK,
+            false => Status::BAD_REQUEST,
         });
         self
     }
@@ -106,8 +106,8 @@ impl Limiter {
 
 #[async_trait]
 impl Handler for Limiter {
-    async fn handle(&self, mut ctx: Context) -> FibraResult<Response<Body>> {
-        if self.pass(&ctx) != StatusCode::OK {
+    async fn handle(&self, mut ctx: Context) -> FibraResult<Response> {
+        if self.pass(&ctx) != Status::OK {
             ctx.pop();
         }
 

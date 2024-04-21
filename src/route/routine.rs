@@ -1,5 +1,5 @@
+use crate::route::*;
 use crate::types::*;
-use crate::inner::*;
 
 pub struct Routine {
     limiter: Limiter,
@@ -22,11 +22,11 @@ impl Routine {
 
 #[async_trait]
 impl Handler for Routine {
-    async fn handle(&self, ctx: Context) -> FibraResult<Response<Body>> {
+    async fn handle(&self, ctx: Context) -> FibraResult<Response> {
         let status = self.limiter.pass(&ctx);
-        match status == StatusCode::OK {
+        match status == Status::OK {
             true => self.handler.handle(ctx).await,
-            false => Ok(Response::default().set_status(status))
+            false => Ok(Response::default().status(status))
         }
     }
 }

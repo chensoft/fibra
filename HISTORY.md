@@ -1,6 +1,6 @@
 ## [Todo]
 
-- context reuse
+- context & request & **response** reuse
 - tls support
 - h1 & h2 support
 - cookie support
@@ -19,6 +19,8 @@
 - sequence id on same connection when keepalived
 - addon caching, Cache-Control If-Modified-Since
 - addon realip, cors, limiter, Accepts
+- radix pack special merge multiple regex into one using (R1)|(R2), must ensure Rx is correct
+- lru cache serve hottest path, map to handler directly
 
 ## [Unreleased] - 2024-05-xx
 

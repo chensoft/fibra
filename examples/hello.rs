@@ -28,26 +28,26 @@ async fn main() -> FibraResult<()> {
     app.run().await
 }
 
-async fn app_root(_ctx: Context) -> FibraResult<Response<Body>> {
-    Ok(Response::default().set_text("It Works!"))
+async fn app_root(_ctx: Context) -> FibraResult<Response> {
+    Ok(Response::default().text("It Works!"))
 }
 
-async fn api_root(_ctx: Context) -> FibraResult<Response<Body>> {
-    Ok(Response::default().set_text(""))
+async fn api_root(_ctx: Context) -> FibraResult<Response> {
+    Ok(Response::default().text(""))
 }
 
-async fn v1_root(_ctx: Context) -> FibraResult<Response<Body>> {
-    Ok(Response::default().set_text(""))
+async fn v1_root(_ctx: Context) -> FibraResult<Response> {
+    Ok(Response::default().text(""))
 }
 
-async fn v1_user(_ctx: Context) -> FibraResult<Response<Body>> {
-    Ok(Response::default().set_text(""))
+async fn v1_user(_ctx: Context) -> FibraResult<Response> {
+    Ok(Response::default().text(""))
 }
 
-async fn v2_root(_ctx: Context) -> FibraResult<Response<Body>> {
-    Ok(Response::default().set_text(""))
+async fn v2_root(_ctx: Context) -> FibraResult<Response> {
+    Ok(Response::default().text(""))
 }
 
-async fn v2_user(_ctx: Context) -> FibraResult<Response<Body>> {
-    Ok(Response::default().set_text(""))
+async fn v2_user(_ctx: Context) -> FibraResult<Response> {
+    Ok(Response::default().text(""))
 }

@@ -1,5 +1,5 @@
+use crate::route::*;
 use crate::types::*;
-use crate::inner::*;
 
 pub struct Fibra {
     mounted: Package,
@@ -27,7 +27,7 @@ impl Fibra {
         self.mounted.ensure()
     }
 
-    pub fn catch(&mut self, handler: impl Fn(&Catcher, FibraError) -> Response<Body> + Send + Sync + 'static) {
+    pub fn catch(&mut self, handler: impl Fn(&Catcher, FibraError) -> Response + Send + Sync + 'static) {
         match self.mounted.first::<Catcher>() {
             Some(obj) => obj.handler = Box::new(handler),
             _ => unreachable!()
@@ -57,9 +57,10 @@ impl Fibra {
             async move {
                 Ok::<_, Infallible>(service_fn(move |req| {
                     let appself = appself.clone();
-                    let context = Context::new(appself.clone(), address.0, address.1, req);
+                    let request = Request::new(address.0, address.1, req);
+                    let context = Context::new(appself.clone(), request);
 
-                    async move { appself.handle(context).await }
+                    async move { Ok::<_, FibraError>(appself.handle(context).await?.into()) }
                 }))
             }
         });
@@ -84,7 +85,7 @@ impl Default for Fibra {
 
 #[async_trait]
 impl Handler for Fibra {
-    async fn handle(&self, ctx: Context) -> FibraResult<Response<Body>> {
+    async fn handle(&self, ctx: Context) -> FibraResult<Response> {
         self.mounted.handle(ctx).await
     }
 }

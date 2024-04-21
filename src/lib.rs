@@ -7,10 +7,11 @@
 #[macro_use] extern crate async_trait;
 
 mod fibra;
+mod route;
 mod types;
-mod inner;
 
 pub mod addon;
+
 pub use fibra::*;
+pub use route::*;
 pub use types::*;
-pub use inner::*;

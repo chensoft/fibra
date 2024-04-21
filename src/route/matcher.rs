@@ -1,5 +1,5 @@
+use crate::route::*;
 use crate::types::*;
-use crate::inner::*;
 
 #[derive(Default)]
 pub struct Matcher {
@@ -21,7 +21,7 @@ impl Matcher {
 
 #[async_trait]
 impl Handler for Matcher {
-    async fn handle(&self, _ctx: Context) -> FibraResult<Response<Body>> {
+    async fn handle(&self, _ctx: Context) -> FibraResult<Response> {
         // match self.preway.get(&Pattern) {
         //     Some(pkg) => pkg.handle(ctx).await,
         //     None => ctx.next().await
