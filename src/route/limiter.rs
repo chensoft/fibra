@@ -28,7 +28,7 @@ impl Limiter {
     }
 
     pub fn method(&mut self, method: Method) -> &mut Self {
-        self.add(move |ctx| match ctx.req.method() == method {
+        self.add(move |ctx| match ctx.method() == method {
             true => Status::OK,
             false => Status::METHOD_NOT_ALLOWED
         });
@@ -87,8 +87,8 @@ impl Limiter {
         todo!()
     }
 
-    pub fn header(&mut self, key: header::HeaderName, val: header::HeaderValue) -> &mut Self {
-        self.add(move |ctx| match ctx.req.headers().get(&key) == Some(&val) {
+    pub fn header(&mut self, key: HeaderName, val: HeaderValue) -> &mut Self {
+        self.add(move |ctx| match ctx.header(&key) == Some(&val) {
             true => Status::OK,
             false => Status::BAD_REQUEST,
         });
