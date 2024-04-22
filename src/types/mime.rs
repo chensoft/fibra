@@ -1,1 +1,1 @@
-pub use mime::{Mime, MimeIter};
+pub use mime::*;

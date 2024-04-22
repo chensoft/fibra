@@ -145,8 +145,8 @@ impl Request {
         self.headers.get_mut(key)
     }
 
-    pub fn header(mut self, key: impl header::IntoHeaderName, val: HeaderValue) -> Self {
-        self.headers.insert(key, val);
+    pub fn header(mut self, key: impl header::IntoHeaderName, val: impl header::IntoHeaderValue) -> Self {
+        self.headers.insert(key, val.into_value());
         self
     }
 

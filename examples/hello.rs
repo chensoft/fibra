@@ -29,25 +29,25 @@ async fn main() -> FibraResult<()> {
 }
 
 async fn app_root(_ctx: Context) -> FibraResult<Response> {
-    Ok(Response::default().text("It Works!"))
+    Ok("It Works!".into())
 }
 
 async fn api_root(_ctx: Context) -> FibraResult<Response> {
-    Ok(Response::default().text(""))
+    Ok("".into())
 }
 
 async fn v1_root(_ctx: Context) -> FibraResult<Response> {
-    Ok(Response::default().text(""))
+    Ok("".into())
 }
 
 async fn v1_user(_ctx: Context) -> FibraResult<Response> {
-    Ok(Response::default().text(""))
+    Ok("".into())
 }
 
 async fn v2_root(_ctx: Context) -> FibraResult<Response> {
-    Ok(Response::default().text(""))
+    Ok("".into())
 }
 
 async fn v2_user(_ctx: Context) -> FibraResult<Response> {
-    Ok(Response::default().text(""))
+    Ok("".into())
 }

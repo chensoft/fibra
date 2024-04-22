@@ -66,7 +66,7 @@ impl Context {
     }
 
     pub fn is_secure(&self) -> bool {
-        self.req.scheme() == &Scheme::HTTPS // todo wss
+        self.req.scheme() == &Scheme::HTTPS
     }
 
     pub fn authority(&self) -> Option<&Authority> {
@@ -194,7 +194,7 @@ impl Context {
         Ok(Response::default().status(status.unwrap_or(Status::FORBIDDEN)))
     }
 
-    pub async fn rewrite(mut self, to: &'static str, body: Vec<u8>) -> FibraResult<Response> {
+    pub async fn rewrite(mut self, to: &'static str, _body: Vec<u8>) -> FibraResult<Response> {
         // todo no body
         self.req = self.req.uri(Uri::from_static(to)); // todo right?
         // self.req.body_mut() = ;
