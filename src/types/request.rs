@@ -1,79 +1,153 @@
 use crate::types::*;
-use hyper::http::request::Parts;
 
 pub struct Request {
-    uniq: u64, // todo request id how to uniq? atom
-    time: DateTime<Local>,
-    sock: SocketAddr,
-    peer: SocketAddr,
-    head: Parts,
+    id: u128,
+    created: DateTime<Local>,
+
+    sockaddr: SocketAddr,
+    peeraddr: SocketAddr,
+
+    method: Method,
+    uri: Uri,
+    query: IndexMap<String, String>,
+    version: Version,
+    headers: HeaderMap,
     body: Body,
 }
 
 impl Request {
-    pub fn new(sock: SocketAddr, peer: SocketAddr, from: hyper::Request<Body>) -> Self {
+    pub fn new(sock: impl Into<SocketAddr>, peer: impl Into<SocketAddr>, from: hyper::Request<Body>) -> Self {
         let (head, body) = from.into_parts();
-        Self { uniq: 0, time: Local::now(), sock, peer, head, body }
+        Self {
+            id: Ulid::new().0,
+            created: Local::now(),
+            sockaddr: sock.into(),
+            peeraddr: peer.into(),
+            method: head.method,
+            uri: head.uri,
+            query: IndexMap::new(),
+            version: head.version,
+            headers: head.headers,
+            body,
+        }
     }
 
-    pub fn id_ref(&self) -> u64 {
-        self.uniq
+    pub fn id_ref(&self) -> &u128 {
+        &self.id
     }
 
-    pub fn id_mut(&mut self) -> &mut u64 {
-        &mut self.uniq
+    pub fn id_mut(&mut self) -> &mut u128 {
+        &mut self.id
     }
 
-    pub fn id(mut self) -> Self {
-        todo!()
+    pub fn id(mut self, val: u128) -> Self {
+        self.id = val;
+        self
     }
 
-    pub fn time_ref(&self) -> &DateTime<Local> {
-        &self.time
+    pub fn created_ref(&self) -> &DateTime<Local> {
+        &self.created
     }
 
-    pub fn time_mut(&mut self) -> &mut DateTime<Local> {
-        &mut self.time
+    pub fn created_mut(&mut self) -> &mut DateTime<Local> {
+        &mut self.created
     }
 
-    pub fn time(mut self) -> Self {
-        todo!()
+    pub fn created(mut self, val: DateTime<Local>) -> Self {
+        self.created = val;
+        self
     }
 
-    pub fn server_ref(&self) -> &SocketAddr {
-        &self.sock
+    pub fn sockaddr_ref(&self) -> &SocketAddr {
+        &self.sockaddr
     }
 
-    pub fn server_mut(&mut self) -> &mut SocketAddr {
-        &mut self.sock
+    pub fn sockaddr_mut(&mut self) -> &mut SocketAddr {
+        &mut self.sockaddr
     }
 
-    pub fn server(mut self) -> Self {
-        todo!()
+    pub fn sockaddr(mut self, val: impl Into<SocketAddr>) -> Self {
+        self.sockaddr = val.into();
+        self
     }
 
-    pub fn client_ref(&self) -> &SocketAddr {
-        &self.peer
+    pub fn peeraddr_ref(&self) -> &SocketAddr {
+        &self.peeraddr
     }
 
-    pub fn client_mut(&mut self) -> &mut SocketAddr {
-        &mut self.peer
+    pub fn peeraddr_mut(&mut self) -> &mut SocketAddr {
+        &mut self.peeraddr
     }
 
-    pub fn client(mut self) -> Self {
-        todo!()
+    pub fn peeraddr(mut self, val: impl Into<SocketAddr>) -> Self {
+        self.peeraddr = val.into();
+        self
     }
 
-    pub fn parts_ref(&self) -> &Parts {
-        &self.head
+    pub fn method_ref(&self) -> &Method {
+        &self.method
     }
 
-    pub fn parts_mut(&mut self) -> &mut Parts {
-        &mut self.head
+    pub fn method_mut(&mut self) -> &mut Method {
+        &mut self.method
     }
 
-    pub fn parts(mut self) -> Self {
-        todo!()
+    pub fn method(mut self, val: impl Into<Method>) -> Self {
+        self.method = val.into();
+        self
+    }
+
+    pub fn uri_ref(&self) -> &Uri {
+        &self.uri
+    }
+
+    pub fn uri_mut(&mut self) -> &mut Uri {
+        &mut self.uri
+    }
+
+    pub fn uri(mut self, val: impl Into<Uri>) -> Self {
+        self.uri = val.into();
+        self.query.clear();
+        self
+    }
+
+    pub fn version_ref(&self) -> &Version {
+        &self.version
+    }
+
+    pub fn version_mut(&mut self) -> &mut Version {
+        &mut self.version
+    }
+
+    pub fn version(mut self, val: impl Into<Version>) -> Self {
+        self.version = val.into();
+        self
+    }
+
+    pub fn headers_ref(&self) -> &HeaderMap {
+        &self.headers
+    }
+
+    pub fn headers_mut(&mut self) -> &mut HeaderMap {
+        &mut self.headers
+    }
+
+    pub fn headers(mut self, val: HeaderMap) -> Self {
+        self.headers = val;
+        self
+    }
+
+    pub fn header_ref(&self, key: impl header::AsHeaderName) -> Option<&HeaderValue> {
+        self.headers.get(key)
+    }
+
+    pub fn header_mut(&mut self, key: impl header::AsHeaderName) -> Option<&mut HeaderValue> {
+        self.headers.get_mut(key)
+    }
+
+    pub fn header(mut self, key: impl header::IntoHeaderName, val: HeaderValue) -> Self {
+        self.headers.insert(key, val);
+        self
     }
 
     pub fn body_ref(&self) -> &Body {
@@ -84,88 +158,19 @@ impl Request {
         &mut self.body
     }
 
-    pub fn body(mut self) -> Self {
-        todo!()
-    }
-
-    // todo realip and port use addon
-
-    // todo tls info, ver, sni
-
-    pub fn method_ref(&self) -> &Method {
-        &self.head.method
-    }
-    pub fn method_mut(&self) -> &Method {
-        &self.head.method
-    }
-    pub fn method(&self) -> &Method {
-        &self.head.method
-    }
-
-    pub fn uri_ref(&self) -> &Uri {
-        &self.head.uri
-    }
-    pub fn uri_mut(&self) -> &Uri {
-        &self.head.uri
-    }
-    pub fn uri(&self) -> &Uri {
-        &self.head.uri
-    }
-
-    pub fn version_ref(&self) -> &Version {
-        &self.head.version
-    }
-    pub fn version_mut(&self) -> &Version {
-        &self.head.version
-    }
-    pub fn version(&self) -> &Version {
-        &self.head.version
-    }
-
-    pub fn headers_ref(&self) -> &HeaderMap {
-        &self.head.headers
-    }
-    pub fn headers_mut(&self) -> &HeaderMap {
-        &self.head.headers
-    }
-    pub fn headers(&self) -> &HeaderMap {
-        &self.head.headers
-    }
-
-    pub fn header_ref(&self, key: &HeaderName) -> Option<&HeaderValue> {
-        self.head.headers.get(key.as_str())
-    }
-
-    pub fn header_mut(&self, key: &HeaderName) -> Option<&HeaderValue> {
-        self.head.headers.get(key.as_str())
-    }
-
-    pub fn header(&self, key: &HeaderName) -> Option<&HeaderValue> {
-        self.head.headers.get(key.as_str())
+    pub fn body(mut self, val: impl Into<Body>) -> Self {
+        self.body = val.into();
+        self
     }
 }
 
 impl Request {
-    pub fn is_get(&self) -> bool {
-        self.method_ref() == Method::GET
-    }
-
-    pub fn is_post(&self) -> bool {
-        self.method_ref() == Method::POST
-    }
-
-    // todo more methods
-
     pub fn scheme(&self) -> &Scheme {
-        self.head.uri.scheme().unwrap_or_else(|| unreachable!()) // todo ws, wss
-    }
-
-    pub fn is_secure(&self) -> bool {
-        self.scheme() == &Scheme::HTTPS || self.scheme().as_str() == "wss"
+        todo!() // check tls socket
     }
 
     pub fn authority(&self) -> Option<&Authority> {
-        self.head.uri.authority()
+        self.uri.authority()
     }
 
     pub fn subdomain(&self) -> &str {
@@ -173,42 +178,38 @@ impl Request {
     }
 
     pub fn host(&self) -> &str {
-        self.head.uri.host().unwrap_or("")
+        self.uri.host().unwrap_or("")
     }
 
     pub fn port(&self) -> u16 {
-        match self.head.uri.port_u16() {
+        match self.uri.port_u16() {
             Some(port) => port,
             None => match self.scheme() {
-                scheme if scheme == &Scheme::HTTP || scheme.as_str() == "ws" => 80,
-                scheme if scheme == &Scheme::HTTPS || scheme.as_str() == "wss" => 443,
-                _ => unreachable!()
+                Scheme::HTTP => 80,
+                Scheme::HTTPS => 443
             }
         }
     }
 
     pub fn path(&self) -> &str {
-        &self.head.uri.path()
+        &self.uri.path()
     }
 
     pub fn queries(&self) -> &str {
-        self.head.uri.query().unwrap_or("")
+        self.uri.query().unwrap_or("")
     }
 
     pub fn query(&self, _key: &str) -> &str {
-        // todo use self.form
         todo!()
     }
 
     pub fn href(&self) -> String {
-        self.head.uri.to_string()
+        self.uri.to_string()
     }
-
-    // todo cookie
 }
 
 impl Default for Request {
     fn default() -> Self {
-        todo!()
+        Self::new(([0, 0, 0, 0], 0), ([0, 0, 0, 0], 0), hyper::Request::default())
     }
 }

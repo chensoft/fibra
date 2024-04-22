@@ -36,8 +36,8 @@ impl Default for Logger {
 #[async_trait]
 impl Handler for Logger {
     async fn handle(&self, ctx: Context) -> FibraResult<Response> {
-        let launch = *ctx.time();
-        let client = ctx.client().to_string();
+        let launch = *ctx.created();
+        let client = ctx.peeraddr().to_string();
 
         let mut record = self.logger.spawn(self.level).unwrap_or_else(|| unreachable!());
         record.append("time", &launch.to_rfc3339_opts(self.precision, false));

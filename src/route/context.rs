@@ -27,20 +27,20 @@ impl Context {
         &self.req
     }
 
-    pub fn id(&self) -> u64 {
+    pub fn id(&self) -> &u128 {
         self.req.id_ref()
     }
 
-    pub fn time(&self) -> &DateTime<Local> {
-        self.req.time_ref()
+    pub fn created(&self) -> &DateTime<Local> {
+        self.req.created_ref()
     }
 
-    pub fn server(&self) -> &SocketAddr {
-        self.req.server_ref()
+    pub fn sockaddr(&self) -> &SocketAddr {
+        self.req.sockaddr_ref()
     }
 
-    pub fn client(&self) -> &SocketAddr {
-        self.req.client_ref()
+    pub fn peeraddr(&self) -> &SocketAddr {
+        self.req.peeraddr_ref()
     }
 
     pub fn method(&self) -> &Method {
@@ -48,11 +48,11 @@ impl Context {
     }
 
     pub fn is_get(&self) -> bool {
-        self.req.is_get()
+        self.method() == &Method::GET
     }
 
     pub fn is_post(&self) -> bool {
-        self.req.is_post()
+        self.method() == &Method::POST
     }
 
     // todo more methods
@@ -66,7 +66,7 @@ impl Context {
     }
 
     pub fn is_secure(&self) -> bool {
-        self.req.is_secure()
+        self.req.scheme() == &Scheme::HTTPS // todo wss
     }
 
     pub fn authority(&self) -> Option<&Authority> {
@@ -102,17 +102,31 @@ impl Context {
         self.req.href()
     }
 
-    // todo cookie
-
     pub fn version(&self) -> &Version {
         self.req.version_ref()
+    }
+
+    pub fn is_http10(&self) -> bool {
+        self.version() == &Version::HTTP_10
+    }
+
+    pub fn is_http11(&self) -> bool {
+        self.version() == &Version::HTTP_11
+    }
+
+    pub fn is_http2(&self) -> bool {
+        self.version() == &Version::HTTP_2
+    }
+
+    pub fn is_http3(&self) -> bool {
+        self.version() == &Version::HTTP_3
     }
 
     pub fn headers(&self) -> &HeaderMap {
         self.req.headers_ref()
     }
 
-    pub fn header(&self, key: &HeaderName) -> Option<&HeaderValue> {
+    pub fn header(&self, key: impl header::AsHeaderName) -> Option<&HeaderValue> {
         self.req.header_ref(key)
     }
 
@@ -142,6 +156,8 @@ impl Context {
     pub async fn save(&mut self, _path: &str) {
         todo!()
     }
+
+    // todo peek
 }
 
 impl Context {
@@ -180,7 +196,7 @@ impl Context {
 
     pub async fn rewrite(mut self, to: &'static str, body: Vec<u8>) -> FibraResult<Response> {
         // todo no body
-        self.req.parts_mut().uri = Uri::from_static(to); // todo right?
+        self.req = self.req.uri(Uri::from_static(to)); // todo right?
         // self.req.body_mut() = ;
 
         let app = self.app;

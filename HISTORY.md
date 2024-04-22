@@ -1,8 +1,15 @@
 ## [Todo]
 
+- reduce unreachable!()
 - context & request & **response** reuse
 - tls support
 - h1 & h2 support
+- chunk trailer, form Boundary
+- content type, referer, user agent, is keepalive, content encoding, accepts, length, type... 
+- realip and port use addon
+- tls info, ver, sni
+- encode and decode
+- codec response, stream encoding
 - cookie support
 - session support
 - Swagger & OpenAPI
