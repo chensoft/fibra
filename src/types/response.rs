@@ -205,8 +205,49 @@ impl Response {
         self.header(header::CONTENT_TYPE, mime::APPLICATION_OCTET_STREAM) // todo
     }
 
-    pub fn stream(self) -> Self {
-        todo!()
+    /// ```
+    /// use bytes::Bytes;
+    /// use futures::Stream;
+    /// use std::task::Poll;
+    /// use std::io::{BufReader, Read};
+    /// use fibra::{Response, FibraResult};
+    ///
+    /// struct FileStream(BufReader<std::fs::File>);
+    ///
+    /// impl FileStream {
+    ///     pub fn new() -> FibraResult<Self> {
+    ///         std::fs::write(std::env::temp_dir().join("sample.txt"), "Actions speak louder than words")?;
+    ///         Ok(Self(BufReader::new(std::fs::File::open(std::env::temp_dir().join("sample.txt"))?)))
+    ///     }
+    /// }
+    ///
+    /// impl Stream for FileStream {
+    ///     type Item = FibraResult<Bytes>;
+    ///
+    ///     fn poll_next(mut self: std::pin::Pin<&mut Self>, _cx: &mut std::task::Context<'_>) -> Poll<Option<Self::Item>> {
+    ///         let mut buffer = vec![0; 10];
+    ///         match self.0.read(&mut buffer) {
+    ///             Ok(0) => Poll::Ready(None),
+    ///             Ok(n) => {
+    ///                 buffer.truncate(n);
+    ///                 Poll::Ready(Some(Ok(Bytes::from(buffer))))
+    ///             },
+    ///             Err(e) => Poll::Ready(Some(Err(e.into()))),
+    ///         }
+    ///     }
+    /// }
+    ///
+    /// fn main() -> FibraResult<()> {
+    ///     let _ = Response::default().stream(FileStream::new()?);
+    ///     Ok(())
+    /// }
+    /// ```
+    pub fn stream<S, O>(self, val: S) -> Self
+        where
+            S: Stream<Item = FibraResult<O>> + Send + 'static,
+            O: Into<Bytes> + 'static,
+    {
+        self.body(Body::wrap_stream(val))
     }
 }
 

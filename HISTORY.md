@@ -14,7 +14,6 @@
 - session support
 - Swagger & OpenAPI
 - session keepalive
-- stream support
 - websocket support
 - json5 support
 - url builder macros
