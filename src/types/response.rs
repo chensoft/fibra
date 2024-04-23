@@ -94,7 +94,7 @@ impl Response {
     ///
     /// let mut res = Response::default();
     /// res.headers_mut().insert(header::CONTENT_TYPE, mime::APPLICATION_JSON.into_value());
-    /// assert_eq!(res.headers_mut()[header::CONTENT_TYPE], mime::APPLICATION_JSON.into_value());
+    /// assert_eq!(res.headers_mut()[header::CONTENT_TYPE], mime::APPLICATION_JSON.as_ref());
     /// ```
     pub fn headers_mut(&mut self) -> &mut HeaderMap {
         &mut self.headers
@@ -109,7 +109,7 @@ impl Response {
     /// map.insert(header::CONTENT_TYPE, mime::APPLICATION_JSON.into_value());
     /// res = res.headers(map);
     ///
-    /// assert_eq!(res.headers_mut()[header::CONTENT_TYPE], mime::APPLICATION_JSON.into_value());
+    /// assert_eq!(res.headers_mut()[header::CONTENT_TYPE], mime::APPLICATION_JSON.as_ref());
     /// ```
     pub fn headers(mut self, val: HeaderMap) -> Self {
         self.headers = val;
@@ -117,12 +117,12 @@ impl Response {
     }
 
     /// ```
-    /// use fibra::{Response, header::{self, IntoHeaderValue}};
+    /// use fibra::{Response, header};
     ///
     /// let mut res = Response::default();
     /// res = res.header(header::CONTENT_TYPE, mime::APPLICATION_JSON);
     ///
-    /// assert_eq!(res.header_ref(header::CONTENT_TYPE), Some(&mime::APPLICATION_JSON.into_value()));
+    /// assert_eq!(res.header_ref(header::CONTENT_TYPE).map(|v| v.as_bytes()), Some(mime::APPLICATION_JSON.as_ref().as_bytes()));
     /// ```
     pub fn header_ref(&self, key: impl AsHeaderName) -> Option<&HeaderValue> {
         self.headers.get(key)
@@ -134,43 +134,104 @@ impl Response {
     /// let mut res = Response::default().header(header::CONTENT_TYPE, mime::APPLICATION_JSON);
     /// res.header_mut(header::CONTENT_TYPE).map(|v| *v = mime::TEXT_PLAIN_UTF_8.into_value());
     ///
-    /// assert_eq!(res.header_ref(header::CONTENT_TYPE), Some(&mime::TEXT_PLAIN_UTF_8.into_value()));
+    /// assert_eq!(res.header_ref(header::CONTENT_TYPE).map(|v| v.as_bytes()), Some(mime::TEXT_PLAIN_UTF_8.as_ref().as_bytes()));
     /// ```
     pub fn header_mut(&mut self, key: impl header::AsHeaderName) -> Option<&mut HeaderValue> {
         self.headers.get_mut(key)
     }
 
     /// ```
-    /// use fibra::{Response, header::{self, IntoHeaderValue}};
+    /// use fibra::{Response, header};
     ///
     /// let mut res = Response::default().header(header::CONTENT_TYPE, mime::TEXT_HTML_UTF_8);
     ///
-    /// assert_eq!(res.header_ref(header::CONTENT_TYPE), Some(&mime::TEXT_HTML_UTF_8.into_value()));
+    /// assert_eq!(res.header_ref(header::CONTENT_TYPE).map(|v| v.as_bytes()), Some(mime::TEXT_HTML_UTF_8.as_ref().as_bytes()));
     /// ```
     pub fn header(mut self, key: impl IntoHeaderName, val: impl IntoHeaderValue) -> Self {
         self.headers.insert(key, val.into_value());
         self
     }
 
+    /// ```
+    /// use fibra::{Response};
+    ///
+    /// Response::default().body_ref();
+    /// ```
     pub fn body_ref(&self) -> &Body {
         &self.body
     }
 
+    /// ```
+    /// use bytes::Bytes;
+    /// use fibra::{Response, FibraResult, body};
+    ///
+    /// #[tokio::main]
+    /// async fn main() -> FibraResult<()> {
+    ///     let mut res = Response::default().body("Hello World!");
+    ///     assert_eq!(body::to_bytes(res.body_mut()).await?, Bytes::from("Hello World!"));
+    ///     Ok(())
+    /// }
+    /// ```
     pub fn body_mut(&mut self) -> &mut Body {
         &mut self.body
     }
 
+    /// ```
+    /// use bytes::Bytes;
+    /// use fibra::{Response, FibraResult, body};
+    ///
+    /// #[tokio::main]
+    /// async fn main() -> FibraResult<()> {
+    ///     let mut res = Response::default().body("Hello World!");
+    ///     assert_eq!(body::to_bytes(res.body_mut()).await?, Bytes::from("Hello World!"));
+    ///     Ok(())
+    /// }
+    /// ```
     pub fn body(mut self, val: impl Into<Body>) -> Self {
         self.body = val.into();
         self
     }
 
+    /// ```
+    /// use bytes::Bytes;
+    /// use indexmap::indexmap;
+    /// use fibra::{Response, FibraResult, body};
+    ///
+    /// #[tokio::main]
+    /// async fn main() -> FibraResult<()> {
+    ///     let map = indexmap!(
+    ///         "a" => 1,
+    ///         "b" => 2,
+    ///     );
+    ///
+    ///     let mut res = Response::default().json(map);
+    ///     assert_eq!(body::to_bytes(res.body_mut()).await?, Bytes::from("{\"a\":1,\"b\":2}"));
+    ///     Ok(())
+    /// }
+    /// ```
     pub fn json(self, val: impl encoder::json::Encode) -> Self {
         let mut buf = vec![];
         val.encode(&mut buf);
         self.header(header::CONTENT_TYPE, mime::APPLICATION_JSON).body(buf)
     }
 
+    /// ```
+    /// use bytes::Bytes;
+    /// use indexmap::indexmap;
+    /// use fibra::{Response, FibraResult, body};
+    ///
+    /// #[tokio::main]
+    /// async fn main() -> FibraResult<()> {
+    ///     let map = indexmap!(
+    ///         "a" => 1,
+    ///         "b" => 2,
+    ///     );
+    ///
+    ///     let mut res = Response::default().jsonp(map, "callback");
+    ///     assert_eq!(body::to_bytes(res.body_mut()).await?, Bytes::from("callback({\"a\":1,\"b\":2})"));
+    ///     Ok(())
+    /// }
+    /// ```
     pub fn jsonp(self, val: impl encoder::json::Encode, callback: &str) -> Self {
         let mut buf = vec![];
         buf.extend(callback.as_bytes());
@@ -181,12 +242,20 @@ impl Response {
         self.header(header::CONTENT_TYPE, mime::APPLICATION_JSON).body(buf)
     }
 
+    /// ```
+    /// use bytes::Bytes;
+    /// use fibra::{Response, FibraResult, header, body};
+    ///
+    /// #[tokio::main]
+    /// async fn main() -> FibraResult<()> {
+    ///     let mut res = Response::default().text("It Works!");
+    ///     assert_eq!(res.header_ref(header::CONTENT_TYPE).map(|v| v.as_bytes()), Some(mime::TEXT_PLAIN_UTF_8.as_ref().as_bytes()));
+    ///     assert_eq!(body::to_bytes(res.body_mut()).await?, Bytes::from("It Works!"));
+    ///     Ok(())
+    /// }
+    /// ```
     pub fn text(self, val: impl Into<String>) -> Self {
         self.header(header::CONTENT_TYPE, mime::TEXT_PLAIN_UTF_8).body(val.into())
-    }
-
-    pub fn text_add(self, _val: &str) -> Self {
-        todo!()
     }
 
     pub fn html(self) -> Self {
@@ -197,12 +266,20 @@ impl Response {
         todo!() // auto detect file mime, chunk transfer, stream wrap attachment header
     }
 
+    /// ```
+    /// use bytes::Bytes;
+    /// use fibra::{Response, FibraResult, header, body};
+    ///
+    /// #[tokio::main]
+    /// async fn main() -> FibraResult<()> {
+    ///     let mut res = Response::default().bytes(b"abc".to_vec());
+    ///     assert_eq!(res.header_ref(header::CONTENT_TYPE).map(|v| v.as_bytes()), Some(mime::APPLICATION_OCTET_STREAM.as_ref().as_bytes()));
+    ///     assert_eq!(body::to_bytes(res.body_mut()).await?, Bytes::from(b"abc".to_vec()));
+    ///     Ok(())
+    /// }
+    /// ```
     pub fn bytes(self, val: impl Into<Body>) -> Self {
         self.header(header::CONTENT_TYPE, mime::APPLICATION_OCTET_STREAM).body(val)
-    }
-
-    pub fn bytes_add(self, _val: impl Into<Body>) -> Self {
-        self.header(header::CONTENT_TYPE, mime::APPLICATION_OCTET_STREAM) // todo
     }
 
     /// ```
