@@ -1,5 +1,7 @@
+//! Error & Result
 use crate::types::*;
 
+/// Error Codes
 #[allow(missing_docs)]
 #[derive(Debug, Error)]
 pub enum FibraError {
@@ -22,4 +24,5 @@ pub enum FibraError {
     HeaderInvalid(#[from] header::InvalidHeaderValue),
 }
 
+/// Custom Result
 pub type FibraResult<T> = Result<T, FibraError>;

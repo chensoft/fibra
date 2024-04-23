@@ -1,3 +1,5 @@
+//! Type Exports
+
 /// Internal
 pub(crate) use std::any::Any;
 pub(crate) use std::sync::Arc;
@@ -32,7 +34,7 @@ mod version;
 pub use authority::*;
 pub use body::{Body};
 pub use error::*;
-pub use header::{HeaderMap, HeaderName, HeaderValue};
+pub use header::{HeaderMap, HeaderName, HeaderValue, AsHeaderName, IntoHeaderName, IntoHeaderValue};
 pub use method::*;
 pub use request::*;
 pub use response::*;

@@ -1,62 +1,153 @@
+//! HTTP Response
 use crate::types::*;
 
+/// HTTP Response
 #[derive(Default)]
 pub struct Response {
+    /// HTTP Version
     version: Version,
+
+    /// Status Code
     status: Status,
+
+    /// HTTP Headers
     headers: HeaderMap,
+
+    /// Response Body
     body: Body
 }
 
 impl Response {
+    /// ```
+    /// use fibra::{Response, Version};
+    ///
+    /// assert_eq!(Response::default().version_ref(), &Version::HTTP_11);
+    /// ```
     pub fn version_ref(&self) -> &Version {
         &self.version
     }
 
+    /// ```
+    /// use fibra::{Response, Version};
+    ///
+    /// let mut res = Response::default();
+    /// *res.version_mut() = Version::HTTP_10;
+    /// assert_eq!(res.version_mut(), &Version::HTTP_10);
+    /// ```
     pub fn version_mut(&mut self) -> &mut Version {
         &mut self.version
     }
 
+    /// ```
+    /// use fibra::{Response, Version};
+    ///
+    /// let mut res = Response::default().version(Version::HTTP_10);
+    /// assert_eq!(res.version_mut(), &Version::HTTP_10);
+    /// ```
     pub fn version(mut self, val: impl Into<Version>) -> Self {
         self.version = val.into();
         self
     }
 
+    /// ```
+    /// use fibra::{Response, Status};
+    ///
+    /// assert_eq!(Response::default().status_ref(), &Status::OK);
+    /// ```
     pub fn status_ref(&self) -> &Status {
         &self.status
     }
 
+    /// ```
+    /// use fibra::{Response, Status};
+    ///
+    /// let mut res = Response::default();
+    /// *res.status_mut() = Status::NOT_FOUND;
+    /// assert_eq!(res.status_mut(), &Status::NOT_FOUND);
+    /// ```
     pub fn status_mut(&mut self) -> &mut Status {
         &mut self.status
     }
 
+    /// ```
+    /// use fibra::{Response, Status};
+    ///
+    /// let mut res = Response::default().status(Status::NOT_FOUND);
+    /// assert_eq!(res.status_mut(), &Status::NOT_FOUND);
+    /// ```
     pub fn status(mut self, val: impl Into<Status>) -> Self {
         self.status = val.into();
         self
     }
 
+    /// ```
+    /// use fibra::{Response};
+    ///
+    /// assert_eq!(Response::default().headers_ref().len(), 0);
+    /// ```
     pub fn headers_ref(&self) -> &HeaderMap {
         &self.headers
     }
 
+    /// ```
+    /// use fibra::{Response, header::{self, IntoHeaderValue}};
+    ///
+    /// let mut res = Response::default();
+    /// res.headers_mut().insert(header::CONTENT_TYPE, mime::APPLICATION_JSON.into_value());
+    /// assert_eq!(res.headers_mut()[header::CONTENT_TYPE], mime::APPLICATION_JSON.into_value());
+    /// ```
     pub fn headers_mut(&mut self) -> &mut HeaderMap {
         &mut self.headers
     }
 
+    /// ```
+    /// use fibra::{Response, header::{self, HeaderMap, IntoHeaderValue}};
+    ///
+    /// let mut map = HeaderMap::new();
+    /// let mut res = Response::default();
+    ///
+    /// map.insert(header::CONTENT_TYPE, mime::APPLICATION_JSON.into_value());
+    /// res = res.headers(map);
+    ///
+    /// assert_eq!(res.headers_mut()[header::CONTENT_TYPE], mime::APPLICATION_JSON.into_value());
+    /// ```
     pub fn headers(mut self, val: HeaderMap) -> Self {
         self.headers = val;
         self
     }
 
-    pub fn header_ref(&self, key: impl header::AsHeaderName) -> Option<&HeaderValue> {
+    /// ```
+    /// use fibra::{Response, header::{self, IntoHeaderValue}};
+    ///
+    /// let mut res = Response::default();
+    /// res = res.header(header::CONTENT_TYPE, mime::APPLICATION_JSON);
+    ///
+    /// assert_eq!(res.header_ref(header::CONTENT_TYPE), Some(&mime::APPLICATION_JSON.into_value()));
+    /// ```
+    pub fn header_ref(&self, key: impl AsHeaderName) -> Option<&HeaderValue> {
         self.headers.get(key)
     }
 
+    /// ```
+    /// use fibra::{Response, header::{self, IntoHeaderValue}};
+    ///
+    /// let mut res = Response::default().header(header::CONTENT_TYPE, mime::APPLICATION_JSON);
+    /// res.header_mut(header::CONTENT_TYPE).map(|v| *v = mime::TEXT_PLAIN_UTF_8.into_value());
+    ///
+    /// assert_eq!(res.header_ref(header::CONTENT_TYPE), Some(&mime::TEXT_PLAIN_UTF_8.into_value()));
+    /// ```
     pub fn header_mut(&mut self, key: impl header::AsHeaderName) -> Option<&mut HeaderValue> {
         self.headers.get_mut(key)
     }
 
-    pub fn header(mut self, key: impl header::IntoHeaderName, val: impl header::IntoHeaderValue) -> Self {
+    /// ```
+    /// use fibra::{Response, header::{self, IntoHeaderValue}};
+    ///
+    /// let mut res = Response::default().header(header::CONTENT_TYPE, mime::TEXT_HTML_UTF_8);
+    ///
+    /// assert_eq!(res.header_ref(header::CONTENT_TYPE), Some(&mime::TEXT_HTML_UTF_8.into_value()));
+    /// ```
+    pub fn header(mut self, key: impl IntoHeaderName, val: impl IntoHeaderValue) -> Self {
         self.headers.insert(key, val.into_value());
         self
     }
