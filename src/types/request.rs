@@ -192,7 +192,7 @@ impl Request {
     }
 
     pub fn path(&self) -> &str {
-        &self.uri.path()
+        self.uri.path()
     }
 
     pub fn queries(&self) -> &str {
