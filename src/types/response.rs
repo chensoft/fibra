@@ -195,7 +195,7 @@ impl Response {
     /// ```
     /// use bytes::Bytes;
     /// use indexmap::indexmap;
-    /// use fibra::{Response, FibraResult, body};
+    /// use fibra::{Response, FibraResult, header, body};
     ///
     /// #[tokio::main]
     /// async fn main() -> FibraResult<()> {
@@ -205,7 +205,10 @@ impl Response {
     ///     );
     ///
     ///     let mut res = Response::default().json(map);
+    ///
+    ///     assert_eq!(res.header_ref(header::CONTENT_TYPE).map(|v| v.as_bytes()), Some(mime::APPLICATION_JSON.as_ref().as_bytes()));
     ///     assert_eq!(body::to_bytes(res.body_mut()).await?, Bytes::from("{\"a\":1,\"b\":2}"));
+    ///
     ///     Ok(())
     /// }
     /// ```
@@ -218,7 +221,7 @@ impl Response {
     /// ```
     /// use bytes::Bytes;
     /// use indexmap::indexmap;
-    /// use fibra::{Response, FibraResult, body};
+    /// use fibra::{Response, FibraResult, header, body};
     ///
     /// #[tokio::main]
     /// async fn main() -> FibraResult<()> {
@@ -228,7 +231,10 @@ impl Response {
     ///     );
     ///
     ///     let mut res = Response::default().jsonp(map, "callback");
+    ///
+    ///     assert_eq!(res.header_ref(header::CONTENT_TYPE).map(|v| v.as_bytes()), Some(mime::APPLICATION_JSON.as_ref().as_bytes()));
     ///     assert_eq!(body::to_bytes(res.body_mut()).await?, Bytes::from("callback({\"a\":1,\"b\":2})"));
+    ///
     ///     Ok(())
     /// }
     /// ```
@@ -249,8 +255,10 @@ impl Response {
     /// #[tokio::main]
     /// async fn main() -> FibraResult<()> {
     ///     let mut res = Response::default().text("It Works!");
+    ///
     ///     assert_eq!(res.header_ref(header::CONTENT_TYPE).map(|v| v.as_bytes()), Some(mime::TEXT_PLAIN_UTF_8.as_ref().as_bytes()));
     ///     assert_eq!(body::to_bytes(res.body_mut()).await?, Bytes::from("It Works!"));
+    ///
     ///     Ok(())
     /// }
     /// ```
@@ -258,8 +266,22 @@ impl Response {
         self.header(header::CONTENT_TYPE, mime::TEXT_PLAIN_UTF_8).body(val.into())
     }
 
-    pub fn html(self) -> Self {
-        self.header(header::CONTENT_TYPE, mime::TEXT_HTML_UTF_8) // todo template engine
+    /// ```
+    /// use bytes::Bytes;
+    /// use fibra::{Response, FibraResult, header, body};
+    ///
+    /// #[tokio::main]
+    /// async fn main() -> FibraResult<()> {
+    ///     let mut res = Response::default().html("<html><body>It Works!</body></html>");
+    ///
+    ///     assert_eq!(res.header_ref(header::CONTENT_TYPE).map(|v| v.as_bytes()), Some(mime::TEXT_HTML_UTF_8.as_ref().as_bytes()));
+    ///     assert_eq!(body::to_bytes(res.body_mut()).await?, Bytes::from("<html><body>It Works!</body></html>"));
+    ///
+    ///     Ok(())
+    /// }
+    /// ```
+    pub fn html(self, val: impl Into<Body>) -> Self {
+        self.header(header::CONTENT_TYPE, mime::TEXT_HTML_UTF_8).body(val.into())
     }
 
     pub fn file(self) -> Self {
@@ -273,8 +295,10 @@ impl Response {
     /// #[tokio::main]
     /// async fn main() -> FibraResult<()> {
     ///     let mut res = Response::default().bytes(b"abc".to_vec());
+    ///
     ///     assert_eq!(res.header_ref(header::CONTENT_TYPE).map(|v| v.as_bytes()), Some(mime::APPLICATION_OCTET_STREAM.as_ref().as_bytes()));
     ///     assert_eq!(body::to_bytes(res.body_mut()).await?, Bytes::from(b"abc".to_vec()));
+    ///
     ///     Ok(())
     /// }
     /// ```
@@ -287,7 +311,7 @@ impl Response {
     /// use futures::Stream;
     /// use std::task::Poll;
     /// use std::io::{BufReader, Read};
-    /// use fibra::{Response, FibraResult};
+    /// use fibra::{Response, FibraResult, body};
     ///
     /// struct FileStream(BufReader<std::fs::File>);
     ///
@@ -314,8 +338,12 @@ impl Response {
     ///     }
     /// }
     ///
-    /// fn main() -> FibraResult<()> {
-    ///     let _ = Response::default().stream(FileStream::new()?);
+    /// #[tokio::main]
+    /// async fn main() -> FibraResult<()> {
+    ///     let mut res = Response::default().stream(FileStream::new()?);
+    ///
+    ///     assert_eq!(body::to_bytes(res.body_mut()).await?, Bytes::from("Actions speak louder than words"));
+    ///
     ///     Ok(())
     /// }
     /// ```
