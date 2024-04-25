@@ -11,6 +11,7 @@ license = "MIT"
 keywords = ["fibra", "http", "router", "web", "server"]
 
 [dependencies]
+psl = "2.1"
 mime = "0.3"
 ulid = "1.1"
 bytes = "1.6"
@@ -25,6 +26,7 @@ indexmap = "2.2"
 radixmap = "0.1"
 thiserror = "1.0"
 async-trait = "0.1"
+form_urlencoded = "1.2"
 
 [dev-dependencies]
 criterion = "0.5"

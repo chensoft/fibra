@@ -51,13 +51,18 @@ impl Fibra {
         let mut sockets = std::mem::take(&mut self.sockets);
         let appself = Arc::new(self);
         let service = make_service_fn(|conn: &AddrStream| {
+            // todo one context one connection
             let appself = appself.clone();
             let address = (conn.local_addr(), conn.remote_addr());
 
+            println!("addr {}", address.1.to_string());
+
             async move {
                 Ok::<_, Infallible>(service_fn(move |req| {
+                    println!("req {}", req.uri().to_string());
+
                     let appself = appself.clone();
-                    let request = Request::new(address.0, address.1, req);
+                    let request = Request::from((address.0, address.1, req));
                     let context = Context::new(appself.clone(), request);
 
                     async move { Ok::<_, FibraError>(appself.handle(context).await?.into()) }

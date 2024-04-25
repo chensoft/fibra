@@ -22,6 +22,7 @@ pub(crate) use chrono::{DateTime, Local};
 /// Export
 mod authority;
 pub mod body;
+mod connection;
 mod error;
 pub mod header;
 mod method;
@@ -35,6 +36,7 @@ mod version;
 
 pub use authority::*;
 pub use body::{Body};
+// pub use connection::*;
 pub use error::*;
 pub use header::{HeaderMap, HeaderName, HeaderValue, AsHeaderName, IntoHeaderName, IntoHeaderValue};
 pub use method::*;

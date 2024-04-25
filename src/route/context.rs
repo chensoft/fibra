@@ -89,13 +89,12 @@ impl Context {
         self.req.path()
     }
 
-    pub fn queries(&self) -> &str {
-        self.req.queries()
+    pub fn query_raw(&self) -> &str {
+        self.req.query_raw()
     }
 
-    pub fn query(&self, _key: &str) -> &str {
-        // todo use self.form
-        todo!()
+    pub fn query(&self, key: &str) -> &str {
+        self.req.query(key)
     }
 
     pub fn href(&self) -> String {
