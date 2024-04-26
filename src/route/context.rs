@@ -39,11 +39,13 @@ impl Context {
     }
 
     pub fn sockaddr(&self) -> &SocketAddr {
-        self.req.sockaddr_ref()
+        // self.req.sockaddr_ref()
+        todo!()
     }
 
     pub fn peeraddr(&self) -> &SocketAddr {
-        self.req.peeraddr_ref()
+        // self.req.peeraddr_ref()
+        todo!()
     }
 
     pub fn method(&self) -> &Method {

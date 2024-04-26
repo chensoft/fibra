@@ -62,7 +62,7 @@ impl Fibra {
                     println!("req {}", req.uri().to_string());
 
                     let appself = appself.clone();
-                    let request = Request::from((address.0, address.1, req));
+                    let request = Request::from(req);
                     let context = Context::new(appself.clone(), request);
 
                     async move { Ok::<_, FibraError>(appself.handle(context).await?.into()) }

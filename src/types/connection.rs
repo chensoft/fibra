@@ -7,6 +7,9 @@ pub struct Connection {
     /// The unique identifier of this connection
     id: u128,
 
+    /// The count of requests processed
+    count: u64,
+
     /// The time the connection was created
     created: DateTime<Local>,
 
@@ -34,10 +37,10 @@ impl Connection {
     /// ```
     /// use fibra::{Connection};
     ///
-    /// let mut req = Connection::default();
-    /// *req.id_mut() = 12345;
+    /// let mut con = Connection::default();
+    /// *con.id_mut() = 12345;
     ///
-    /// assert_eq!(req.id_ref(), &12345);
+    /// assert_eq!(con.id_ref(), &12345);
     /// ```
     pub fn id_mut(&mut self) -> &mut u128 {
         &mut self.id
@@ -52,6 +55,43 @@ impl Connection {
     /// ```
     pub fn id(mut self, val: u128) -> Self {
         self.id = val;
+        self
+    }
+
+    /// Get the count of requests processed
+    ///
+    /// ```
+    /// use fibra::{Connection};
+    ///
+    /// assert_eq!(*Connection::default().count_ref(), 0);
+    /// ```
+    pub fn count_ref(&self) -> &u64 {
+        &self.count
+    }
+
+    /// Get/Set the count of requests processed
+    ///
+    /// ```
+    /// use fibra::{Connection};
+    ///
+    /// let mut con = Connection::default();
+    /// *con.count_mut() = 12345;
+    ///
+    /// assert_eq!(con.count_ref(), &12345);
+    /// ```
+    pub fn count_mut(&mut self) -> &mut u64 {
+        &mut self.count
+    }
+
+    /// Set the count of requests processed
+    ///
+    /// ```
+    /// use fibra::{Connection};
+    ///
+    /// assert_eq!(Connection::default().count(12345).count_ref(), &12345);
+    /// ```
+    pub fn count(mut self, val: u64) -> Self {
+        self.count = val;
         self
     }
 
@@ -74,10 +114,10 @@ impl Connection {
     /// use fibra::{Connection};
     ///
     /// let now = Local::now();
-    /// let mut req = Connection::default();
-    /// *req.created_mut() = now;
+    /// let mut con = Connection::default();
+    /// *con.created_mut() = now;
     ///
-    /// assert_eq!(req.created_ref(), &now);
+    /// assert_eq!(con.created_ref(), &now);
     /// ```
     pub fn created_mut(&mut self) -> &mut DateTime<Local> {
         &mut self.created
@@ -90,9 +130,9 @@ impl Connection {
     /// use fibra::{Connection};
     ///
     /// let now = Local::now();
-    /// let req = Connection::default().created(now);
+    /// let con = Connection::default().created(now);
     ///
-    /// assert_eq!(req.created_ref(), &now);
+    /// assert_eq!(con.created_ref(), &now);
     /// ```
     pub fn created(mut self, val: DateTime<Local>) -> Self {
         self.created = val;
@@ -117,10 +157,10 @@ impl Connection {
     /// use fibra::{Connection};
     /// use std::net::SocketAddr;
     ///
-    /// let mut req = Connection::default();
-    /// *req.sockaddr_mut() = SocketAddr::from(([127, 0, 0, 1], 3000));
+    /// let mut con = Connection::default();
+    /// *con.sockaddr_mut() = SocketAddr::from(([127, 0, 0, 1], 3000));
     ///
-    /// assert_eq!(req.sockaddr_ref(), &SocketAddr::from(([127, 0, 0, 1], 3000)));
+    /// assert_eq!(con.sockaddr_ref(), &SocketAddr::from(([127, 0, 0, 1], 3000)));
     /// ```
     pub fn sockaddr_mut(&mut self) -> &mut SocketAddr {
         &mut self.sockaddr
@@ -157,10 +197,10 @@ impl Connection {
     /// use fibra::{Connection};
     /// use std::net::SocketAddr;
     ///
-    /// let mut req = Connection::default();
-    /// *req.peeraddr_mut() = SocketAddr::from(([127, 0, 0, 1], 3000));
+    /// let mut con = Connection::default();
+    /// *con.peeraddr_mut() = SocketAddr::from(([127, 0, 0, 1], 3000));
     ///
-    /// assert_eq!(req.peeraddr_ref(), &SocketAddr::from(([127, 0, 0, 1], 3000)));
+    /// assert_eq!(con.peeraddr_ref(), &SocketAddr::from(([127, 0, 0, 1], 3000)));
     /// ```
     pub fn peeraddr_mut(&mut self) -> &mut SocketAddr {
         &mut self.peeraddr
@@ -190,6 +230,6 @@ impl Default for Connection {
 /// Create a new connection
 impl<S: Into<SocketAddr>, P: Into<SocketAddr>> From<(S, P)> for Connection {
     fn from((sock, peer): (S, P)) -> Self {
-        Self { id: Ulid::new().0, created: Local::now(), sockaddr: sock.into(), peeraddr: peer.into() }
+        Self { id: Ulid::new().0, count: 0, created: Local::now(), sockaddr: sock.into(), peeraddr: peer.into() }
     }
 }

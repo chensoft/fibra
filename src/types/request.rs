@@ -10,12 +10,6 @@ pub struct Request {
     /// The time the request was created
     created: DateTime<Local>,
 
-    /// The local address that is connected
-    sockaddr: SocketAddr,
-
-    /// The remote address that the connection comes from or connects to
-    peeraddr: SocketAddr,
-
     /// GET, POST, ...
     method: Method,
 
@@ -120,86 +114,6 @@ impl Request {
     /// ```
     pub fn created(mut self, val: DateTime<Local>) -> Self {
         self.created = val;
-        self
-    }
-
-    /// Get the local address
-    ///
-    /// ```
-    /// use fibra::{Request};
-    /// use std::net::SocketAddr;
-    ///
-    /// assert_eq!(Request::default().sockaddr_ref(), &SocketAddr::from(([0, 0, 0, 0], 0)));
-    /// ```
-    pub fn sockaddr_ref(&self) -> &SocketAddr {
-        &self.sockaddr
-    }
-
-    /// Get/Set the local address
-    ///
-    /// ```
-    /// use fibra::{Request};
-    /// use std::net::SocketAddr;
-    ///
-    /// let mut req = Request::default();
-    /// *req.sockaddr_mut() = SocketAddr::from(([127, 0, 0, 1], 3000));
-    ///
-    /// assert_eq!(req.sockaddr_ref(), &SocketAddr::from(([127, 0, 0, 1], 3000)));
-    /// ```
-    pub fn sockaddr_mut(&mut self) -> &mut SocketAddr {
-        &mut self.sockaddr
-    }
-
-    /// Set the local address
-    ///
-    /// ```
-    /// use fibra::{Request};
-    /// use std::net::SocketAddr;
-    ///
-    /// assert_eq!(Request::default().sockaddr(([127, 0, 0, 1], 3000)).sockaddr_ref(), &SocketAddr::from(([127, 0, 0, 1], 3000)));
-    /// ```
-    pub fn sockaddr(mut self, val: impl Into<SocketAddr>) -> Self {
-        self.sockaddr = val.into();
-        self
-    }
-
-    /// Get the remote address
-    ///
-    /// ```
-    /// use fibra::{Request};
-    /// use std::net::SocketAddr;
-    ///
-    /// assert_eq!(Request::default().peeraddr_ref(), &SocketAddr::from(([0, 0, 0, 0], 0)));
-    /// ```
-    pub fn peeraddr_ref(&self) -> &SocketAddr {
-        &self.peeraddr
-    }
-
-    /// Get/Set the remote address
-    ///
-    /// ```
-    /// use fibra::{Request};
-    /// use std::net::SocketAddr;
-    ///
-    /// let mut req = Request::default();
-    /// *req.peeraddr_mut() = SocketAddr::from(([127, 0, 0, 1], 3000));
-    ///
-    /// assert_eq!(req.peeraddr_ref(), &SocketAddr::from(([127, 0, 0, 1], 3000)));
-    /// ```
-    pub fn peeraddr_mut(&mut self) -> &mut SocketAddr {
-        &mut self.peeraddr
-    }
-
-    /// Set the remote address
-    ///
-    /// ```
-    /// use fibra::{Request};
-    /// use std::net::SocketAddr;
-    ///
-    /// assert_eq!(Request::default().peeraddr(([127, 0, 0, 1], 3000)).peeraddr_ref(), &SocketAddr::from(([127, 0, 0, 1], 3000)));
-    /// ```
-    pub fn peeraddr(mut self, val: impl Into<SocketAddr>) -> Self {
-        self.peeraddr = val.into();
         self
     }
 
@@ -595,19 +509,17 @@ impl Request {
 /// Default trait
 impl Default for Request {
     fn default() -> Self {
-        Self::from((([0, 0, 0, 0], 0), ([0, 0, 0, 0], 0), hyper::Request::default()))
+        Self::from(hyper::Request::default())
     }
 }
 
 /// Create a new Request based on hyper's Request
-impl<S: Into<SocketAddr>, P: Into<SocketAddr>> From<(S, P, hyper::Request<Body>)> for Request {
-    fn from((sock, peer, from): (S, P, hyper::Request<Body>)) -> Self {
+impl From<hyper::Request<Body>> for Request {
+    fn from(from: hyper::Request<Body>) -> Self {
         let (head, body) = from.into_parts();
         Self {
             id: Ulid::new().0,
             created: Local::now(),
-            sockaddr: sock.into(),
-            peeraddr: peer.into(),
             method: head.method,
             uri: head.uri,
             version: head.version,
