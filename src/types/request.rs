@@ -31,9 +31,6 @@ pub struct Request {
     /// ```
     uri: Uri,
 
-    /// The query string of the Uri
-    query: IndexMap<String, String>,
-
     /// 1.0, 1.1, 2, ...
     version: Version,
 
@@ -248,10 +245,24 @@ impl Request {
     /// ```
     /// use fibra::{Request};
     ///
-    /// assert_eq!(Request::default().uri_ref().host(), None);
+    /// assert_eq!(Request::default().uri_ref(), "/");
     /// ```
     pub fn uri_ref(&self) -> &Uri {
         &self.uri
+    }
+
+    /// Get/Set the uri
+    ///
+    /// ```
+    /// use fibra::{Request, Uri};
+    ///
+    /// let mut req = Request::default();
+    /// *req.uri_mut() = Uri::from_static("http://chensoft.com");
+    ///
+    /// assert_eq!(req.uri_ref(), "http://chensoft.com/");
+    /// ```
+    pub fn uri_mut(&mut self) -> &mut Uri {
+        &mut self.uri
     }
 
     /// Set the uri
@@ -259,11 +270,10 @@ impl Request {
     /// ```
     /// use fibra::{Request, Uri};
     ///
-    /// assert_eq!(Request::default().uri(Uri::from_static("http://chensoft.com")).host(), "chensoft.com");
+    /// assert_eq!(Request::default().uri(Uri::from_static("http://chensoft.com")).uri_ref(), "http://chensoft.com/");
     /// ```
     pub fn uri(mut self, val: impl Into<Uri>) -> Self {
         self.uri = val.into();
-        self.query = form_urlencoded::parse(self.query_raw().as_bytes()).into_owned().collect();
         self
     }
 
@@ -534,34 +544,16 @@ impl Request {
     /// ```
     /// use fibra::{Request, Uri};
     ///
-    /// assert_eq!(Request::default().query_raw(), "");
-    /// assert_eq!(Request::default().uri(Uri::from_static("http://chensoft.com")).query_raw(), "");
-    /// assert_eq!(Request::default().uri(Uri::from_static("http://chensoft.com/")).query_raw(), "");
-    /// assert_eq!(Request::default().uri(Uri::from_static("http://chensoft.com/blog")).query_raw(), "");
-    /// assert_eq!(Request::default().uri(Uri::from_static("http://chensoft.com/blog?")).query_raw(), "");
-    /// assert_eq!(Request::default().uri(Uri::from_static("http://chensoft.com/blog?nonce=1a2b3c")).query_raw(), "nonce=1a2b3c");
-    /// assert_eq!(Request::default().uri(Uri::from_static("http://chensoft.com/blog?nonce=1a2b3c&signature=abcde")).query_raw(), "nonce=1a2b3c&signature=abcde");
+    /// assert_eq!(Request::default().query(), "");
+    /// assert_eq!(Request::default().uri(Uri::from_static("http://chensoft.com")).query(), "");
+    /// assert_eq!(Request::default().uri(Uri::from_static("http://chensoft.com/")).query(), "");
+    /// assert_eq!(Request::default().uri(Uri::from_static("http://chensoft.com/blog")).query(), "");
+    /// assert_eq!(Request::default().uri(Uri::from_static("http://chensoft.com/blog?")).query(), "");
+    /// assert_eq!(Request::default().uri(Uri::from_static("http://chensoft.com/blog?nonce=1a2b3c")).query(), "nonce=1a2b3c");
+    /// assert_eq!(Request::default().uri(Uri::from_static("http://chensoft.com/blog?nonce=1a2b3c&signature=abcde")).query(), "nonce=1a2b3c&signature=abcde");
     /// ```
-    pub fn query_raw(&self) -> &str {
+    pub fn query(&self) -> &str {
         self.uri.query().unwrap_or("")
-    }
-
-    /// Get a query value
-    ///
-    /// ```
-    /// use fibra::{Request, Uri};
-    ///
-    /// assert_eq!(Request::default().query("nonce"), "");
-    /// assert_eq!(Request::default().uri(Uri::from_static("http://chensoft.com")).query("nonce"), "");
-    /// assert_eq!(Request::default().uri(Uri::from_static("http://chensoft.com/")).query("nonce"), "");
-    /// assert_eq!(Request::default().uri(Uri::from_static("http://chensoft.com/blog")).query("nonce"), "");
-    /// assert_eq!(Request::default().uri(Uri::from_static("http://chensoft.com/blog?")).query("nonce"), "");
-    /// assert_eq!(Request::default().uri(Uri::from_static("http://chensoft.com/blog?nonce=1a2b3c")).query("nonce"), "1a2b3c");
-    /// assert_eq!(Request::default().uri(Uri::from_static("http://chensoft.com/blog?nonce=1a2b3c&signature=abcde")).query("nonce"), "1a2b3c");
-    /// ```
-    pub fn query(&self, key: &str) -> &str {
-        // todo performance
-        self.query.get(key).map(|v| v.as_str()).unwrap_or("")
     }
 
     /// Get the whole uri
@@ -593,7 +585,6 @@ impl Default for Request {
 impl<S: Into<SocketAddr>, P: Into<SocketAddr>> From<(S, P, hyper::Request<Body>)> for Request {
     fn from((sock, peer, from): (S, P, hyper::Request<Body>)) -> Self {
         let (head, body) = from.into_parts();
-        let query = form_urlencoded::parse(head.uri.query().unwrap_or("").as_bytes()).into_owned().collect();
         Self {
             id: Ulid::new().0,
             created: Local::now(),
@@ -601,7 +592,6 @@ impl<S: Into<SocketAddr>, P: Into<SocketAddr>> From<(S, P, hyper::Request<Body>)
             peeraddr: peer.into(),
             method: head.method,
             uri: head.uri,
-            query,
             version: head.version,
             headers: head.headers,
             body,

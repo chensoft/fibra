@@ -43,7 +43,7 @@ impl Handler for Logger {
         record.append("time", &launch.to_rfc3339_opts(self.precision, false));
         record.append("method", &ctx.method().as_str());
         record.append("path", &ctx.path());
-        record.append("query", &ctx.query_raw());
+        record.append("query", &ctx.req().query());
 
         let result = ctx.next().await;
         let finish = Local::now();

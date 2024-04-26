@@ -8,6 +8,8 @@ pub struct Context {
     req: Request,
 
     param: IndexMap<String, String>, // todo radix map
+    /// The query string of the Uri
+    query: IndexMap<String, String>,
     stack: Vec<(*const dyn Handler, usize)>,
 }
 
@@ -16,8 +18,26 @@ unsafe impl Sync for Context {}
 
 impl Context {
     pub fn new(app: Arc<Fibra>, req: Request) -> Self {
-        Self { app, req, param: IndexMap::new(), stack: vec![] }
+        // self.query = form_urlencoded::parse(self.query_raw().as_bytes()).into_owned().collect();
+        Self { app, req, param: IndexMap::new(), query: IndexMap::new(), stack: vec![] }
     }
+    // /// Get a query value
+    // ///
+    // /// ```
+    // /// use fibra::{Request, Uri};
+    // ///
+    // /// assert_eq!(Request::default().query("nonce"), "");
+    // /// assert_eq!(Request::default().uri(Uri::from_static("http://chensoft.com")).query("nonce"), "");
+    // /// assert_eq!(Request::default().uri(Uri::from_static("http://chensoft.com/")).query("nonce"), "");
+    // /// assert_eq!(Request::default().uri(Uri::from_static("http://chensoft.com/blog")).query("nonce"), "");
+    // /// assert_eq!(Request::default().uri(Uri::from_static("http://chensoft.com/blog?")).query("nonce"), "");
+    // /// assert_eq!(Request::default().uri(Uri::from_static("http://chensoft.com/blog?nonce=1a2b3c")).query("nonce"), "1a2b3c");
+    // /// assert_eq!(Request::default().uri(Uri::from_static("http://chensoft.com/blog?nonce=1a2b3c&signature=abcde")).query("nonce"), "1a2b3c");
+    // /// ```
+    // pub fn query(&self, key: &str) -> &str {
+    //     // todo performance
+    //     self.query.get(key).map(|v| v.as_str()).unwrap_or("")
+    // }
 
     pub fn app(&self) -> &Fibra {
         &self.app
@@ -89,12 +109,12 @@ impl Context {
         self.req.path()
     }
 
-    pub fn query_raw(&self) -> &str {
-        self.req.query_raw()
+    pub fn query(&self, key: &str) -> &str {
+        self.query.get(key).map(|v| v.as_str()).unwrap_or("")
     }
 
-    pub fn query(&self, key: &str) -> &str {
-        self.req.query(key)
+    pub fn queries(&self) -> &IndexMap<String, String> {
+        &self.query
     }
 
     pub fn href(&self) -> String {
