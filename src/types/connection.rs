@@ -1,242 +1,195 @@
-// //! HTTP Connection
-// use crate::types::*;
-// 
-// /// This object represents a single HTTP connection. A client can send multiple requests on a single
-// /// connection if using HTTP/1.1's keep-alive feature or HTTP/2.
-// pub struct Connection {
-//     /// The unique identifier of this connection
-//     id: u128,
-// 
-//     /// The time the connection was created
-//     created: DateTime<Local>,
-// 
-//     /// The local address that is connected
-//     sockaddr: SocketAddr,
-// 
-//     /// The remote address that the connection comes from or connects to
-//     peeraddr: SocketAddr,
-// }
-// 
-// impl Request {
-//     /// Create a new Request based on hyper's Request
-//     pub fn new(sock: impl Into<SocketAddr>, peer: impl Into<SocketAddr>, from: hyper::Request<Body>) -> Self {
-//         let (head, body) = from.into_parts();
-//         Self {
-//             id: Ulid::new().0,
-//             created: Local::now(),
-//             sockaddr: sock.into(),
-//             peeraddr: peer.into(),
-//             method: head.method,
-//             uri: head.uri,
-//             query: IndexMap::new(),
-//             version: head.version,
-//             headers: head.headers,
-//             body,
-//         }
-//     }
-// 
-//     /// Get the unique identifier of this request
-//     ///
-//     /// ```
-//     /// use fibra::{Request};
-//     ///
-//     /// assert_eq!(*Request::default().id_ref() > 0, true);
-//     /// ```
-//     pub fn id_ref(&self) -> &u128 {
-//         &self.id
-//     }
-// 
-//     /// Get the unique identifier of this request
-//     ///
-//     /// ```
-//     /// use fibra::{Request};
-//     ///
-//     /// let mut req = Request::default();
-//     /// *req.id_mut() = 12345;
-//     ///
-//     /// assert_eq!(req.id_ref(), &12345);
-//     /// ```
-//     pub fn id_mut(&mut self) -> &mut u128 {
-//         &mut self.id
-//     }
-// 
-//     /// Set the unique identifier of this request
-//     ///
-//     /// ```
-//     /// use fibra::{Request};
-//     ///
-//     /// assert_eq!(Request::default().id(12345).id_ref(), &12345);
-//     /// ```
-//     pub fn id(mut self, val: u128) -> Self {
-//         self.id = val;
-//         self
-//     }
-// 
-//     pub fn created_ref(&self) -> &DateTime<Local> {
-//         &self.created
-//     }
-// 
-//     pub fn created_mut(&mut self) -> &mut DateTime<Local> {
-//         &mut self.created
-//     }
-// 
-//     pub fn created(mut self, val: DateTime<Local>) -> Self {
-//         self.created = val;
-//         self
-//     }
-// 
-//     pub fn sockaddr_ref(&self) -> &SocketAddr {
-//         &self.sockaddr
-//     }
-// 
-//     pub fn sockaddr_mut(&mut self) -> &mut SocketAddr {
-//         &mut self.sockaddr
-//     }
-// 
-//     pub fn sockaddr(mut self, val: impl Into<SocketAddr>) -> Self {
-//         self.sockaddr = val.into();
-//         self
-//     }
-// 
-//     pub fn peeraddr_ref(&self) -> &SocketAddr {
-//         &self.peeraddr
-//     }
-// 
-//     pub fn peeraddr_mut(&mut self) -> &mut SocketAddr {
-//         &mut self.peeraddr
-//     }
-// 
-//     pub fn peeraddr(mut self, val: impl Into<SocketAddr>) -> Self {
-//         self.peeraddr = val.into();
-//         self
-//     }
-// 
-//     pub fn method_ref(&self) -> &Method {
-//         &self.method
-//     }
-// 
-//     pub fn method_mut(&mut self) -> &mut Method {
-//         &mut self.method
-//     }
-// 
-//     pub fn method(mut self, val: impl Into<Method>) -> Self {
-//         self.method = val.into();
-//         self
-//     }
-// 
-//     pub fn uri_ref(&self) -> &Uri {
-//         &self.uri
-//     }
-// 
-//     pub fn uri_mut(&mut self) -> &mut Uri {
-//         &mut self.uri
-//     }
-// 
-//     pub fn uri(mut self, val: impl Into<Uri>) -> Self {
-//         self.uri = val.into();
-//         self.query.clear();
-//         self
-//     }
-// 
-//     pub fn version_ref(&self) -> &Version {
-//         &self.version
-//     }
-// 
-//     pub fn version_mut(&mut self) -> &mut Version {
-//         &mut self.version
-//     }
-// 
-//     pub fn version(mut self, val: impl Into<Version>) -> Self {
-//         self.version = val.into();
-//         self
-//     }
-// 
-//     pub fn headers_ref(&self) -> &HeaderMap {
-//         &self.headers
-//     }
-// 
-//     pub fn headers_mut(&mut self) -> &mut HeaderMap {
-//         &mut self.headers
-//     }
-// 
-//     pub fn headers(mut self, val: HeaderMap) -> Self {
-//         self.headers = val;
-//         self
-//     }
-// 
-//     pub fn header_ref(&self, key: impl header::AsHeaderName) -> Option<&HeaderValue> {
-//         self.headers.get(key)
-//     }
-// 
-//     pub fn header_mut(&mut self, key: impl AsHeaderName) -> Option<&mut HeaderValue> {
-//         self.headers.get_mut(key)
-//     }
-// 
-//     pub fn header(mut self, key: impl IntoHeaderName, val: impl IntoHeaderValue) -> Self {
-//         self.headers.insert(key, val.into_value());
-//         self
-//     }
-// 
-//     pub fn body_ref(&self) -> &Body {
-//         &self.body
-//     }
-// 
-//     pub fn body_mut(&mut self) -> &mut Body {
-//         &mut self.body
-//     }
-// 
-//     pub fn body(mut self, val: impl Into<Body>) -> Self {
-//         self.body = val.into();
-//         self
-//     }
-// }
-// 
-// impl Request {
-//     pub fn scheme(&self) -> &Scheme {
-//         todo!() // check tls socket
-//     }
-// 
-//     pub fn authority(&self) -> Option<&Authority> {
-//         self.uri.authority()
-//     }
-// 
-//     pub fn subdomain(&self) -> &str {
-//         todo!()
-//     }
-// 
-//     pub fn host(&self) -> &str {
-//         self.uri.host().unwrap_or("")
-//     }
-// 
-//     pub fn port(&self) -> u16 {
-//         match self.uri.port_u16() {
-//             Some(port) => port,
-//             None => match self.scheme() {
-//                 Scheme::HTTP => 80,
-//                 Scheme::HTTPS => 443
-//             }
-//         }
-//     }
-// 
-//     pub fn path(&self) -> &str {
-//         self.uri.path()
-//     }
-// 
-//     pub fn queries(&self) -> &str {
-//         self.uri.query().unwrap_or("")
-//     }
-// 
-//     pub fn query(&self, _key: &str) -> &str {
-//         todo!()
-//     }
-// 
-//     pub fn href(&self) -> String {
-//         self.uri.to_string()
-//     }
-// }
-// 
-// impl Default for Request {
-//     fn default() -> Self {
-//         Self::new(([0, 0, 0, 0], 0), ([0, 0, 0, 0], 0), hyper::Request::default())
-//     }
-// }
+//! HTTP Connection
+use crate::types::*;
+
+/// This object represents a single HTTP connection. A client can send multiple requests on a single
+/// connection if using HTTP/1.1's keep-alive feature or HTTP/2.
+pub struct Connection {
+    /// The unique identifier of this connection
+    id: u128,
+
+    /// The time the connection was created
+    created: DateTime<Local>,
+
+    /// The local address that is connected
+    sockaddr: SocketAddr,
+
+    /// The remote address that the connection comes from or connects to
+    peeraddr: SocketAddr,
+}
+
+impl Connection {
+    /// Get the unique identifier of this connection
+    ///
+    /// ```
+    /// use fibra::{Connection};
+    ///
+    /// assert_eq!(*Connection::default().id_ref() > 0, true);
+    /// ```
+    pub fn id_ref(&self) -> &u128 {
+        &self.id
+    }
+
+    /// Get/Set the unique identifier of this connection
+    ///
+    /// ```
+    /// use fibra::{Connection};
+    ///
+    /// let mut req = Connection::default();
+    /// *req.id_mut() = 12345;
+    ///
+    /// assert_eq!(req.id_ref(), &12345);
+    /// ```
+    pub fn id_mut(&mut self) -> &mut u128 {
+        &mut self.id
+    }
+
+    /// Set the unique identifier of this connection
+    ///
+    /// ```
+    /// use fibra::{Connection};
+    ///
+    /// assert_eq!(Connection::default().id(12345).id_ref(), &12345);
+    /// ```
+    pub fn id(mut self, val: u128) -> Self {
+        self.id = val;
+        self
+    }
+
+    /// Get the created time of this connection
+    ///
+    /// ```
+    /// use chrono::Local;
+    /// use fibra::{Connection};
+    ///
+    /// assert_eq!(Connection::default().created_ref() <= &Local::now(), true);
+    /// ```
+    pub fn created_ref(&self) -> &DateTime<Local> {
+        &self.created
+    }
+
+    /// Get/Set the created time of this connection
+    ///
+    /// ```
+    /// use chrono::Local;
+    /// use fibra::{Connection};
+    ///
+    /// let now = Local::now();
+    /// let mut req = Connection::default();
+    /// *req.created_mut() = now;
+    ///
+    /// assert_eq!(req.created_ref(), &now);
+    /// ```
+    pub fn created_mut(&mut self) -> &mut DateTime<Local> {
+        &mut self.created
+    }
+
+    /// Set the created time of this connection
+    ///
+    /// ```
+    /// use chrono::Local;
+    /// use fibra::{Connection};
+    ///
+    /// let now = Local::now();
+    /// let req = Connection::default().created(now);
+    ///
+    /// assert_eq!(req.created_ref(), &now);
+    /// ```
+    pub fn created(mut self, val: DateTime<Local>) -> Self {
+        self.created = val;
+        self
+    }
+
+    /// Get the local address
+    ///
+    /// ```
+    /// use fibra::{Connection};
+    /// use std::net::SocketAddr;
+    ///
+    /// assert_eq!(Connection::default().sockaddr_ref(), &SocketAddr::from(([0, 0, 0, 0], 0)));
+    /// ```
+    pub fn sockaddr_ref(&self) -> &SocketAddr {
+        &self.sockaddr
+    }
+
+    /// Get/Set the local address
+    ///
+    /// ```
+    /// use fibra::{Connection};
+    /// use std::net::SocketAddr;
+    ///
+    /// let mut req = Connection::default();
+    /// *req.sockaddr_mut() = SocketAddr::from(([127, 0, 0, 1], 3000));
+    ///
+    /// assert_eq!(req.sockaddr_ref(), &SocketAddr::from(([127, 0, 0, 1], 3000)));
+    /// ```
+    pub fn sockaddr_mut(&mut self) -> &mut SocketAddr {
+        &mut self.sockaddr
+    }
+
+    /// Set the local address
+    ///
+    /// ```
+    /// use fibra::{Connection};
+    /// use std::net::SocketAddr;
+    ///
+    /// assert_eq!(Connection::default().sockaddr(([127, 0, 0, 1], 3000)).sockaddr_ref(), &SocketAddr::from(([127, 0, 0, 1], 3000)));
+    /// ```
+    pub fn sockaddr(mut self, val: impl Into<SocketAddr>) -> Self {
+        self.sockaddr = val.into();
+        self
+    }
+
+    /// Get the remote address
+    ///
+    /// ```
+    /// use fibra::{Connection};
+    /// use std::net::SocketAddr;
+    ///
+    /// assert_eq!(Connection::default().peeraddr_ref(), &SocketAddr::from(([0, 0, 0, 0], 0)));
+    /// ```
+    pub fn peeraddr_ref(&self) -> &SocketAddr {
+        &self.peeraddr
+    }
+
+    /// Get/Set the remote address
+    ///
+    /// ```
+    /// use fibra::{Connection};
+    /// use std::net::SocketAddr;
+    ///
+    /// let mut req = Connection::default();
+    /// *req.peeraddr_mut() = SocketAddr::from(([127, 0, 0, 1], 3000));
+    ///
+    /// assert_eq!(req.peeraddr_ref(), &SocketAddr::from(([127, 0, 0, 1], 3000)));
+    /// ```
+    pub fn peeraddr_mut(&mut self) -> &mut SocketAddr {
+        &mut self.peeraddr
+    }
+
+    /// Set the remote address
+    ///
+    /// ```
+    /// use fibra::{Connection};
+    /// use std::net::SocketAddr;
+    ///
+    /// assert_eq!(Connection::default().peeraddr(([127, 0, 0, 1], 3000)).peeraddr_ref(), &SocketAddr::from(([127, 0, 0, 1], 3000)));
+    /// ```
+    pub fn peeraddr(mut self, val: impl Into<SocketAddr>) -> Self {
+        self.peeraddr = val.into();
+        self
+    }
+}
+
+/// Default trait
+impl Default for Connection {
+    fn default() -> Self {
+        Self::from((([0, 0, 0, 0], 0), ([0, 0, 0, 0], 0)))
+    }
+}
+
+/// Create a new connection
+impl<S: Into<SocketAddr>, P: Into<SocketAddr>> From<(S, P)> for Connection {
+    fn from((sock, peer): (S, P)) -> Self {
+        Self { id: Ulid::new().0, created: Local::now(), sockaddr: sock.into(), peeraddr: peer.into() }
+    }
+}

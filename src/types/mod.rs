@@ -36,7 +36,7 @@ mod version;
 
 pub use authority::*;
 pub use body::{Body};
-// pub use connection::*;
+pub use connection::*;
 pub use error::*;
 pub use header::{HeaderMap, HeaderName, HeaderValue, AsHeaderName, IntoHeaderName, IntoHeaderValue};
 pub use method::*;

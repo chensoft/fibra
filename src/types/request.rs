@@ -472,7 +472,7 @@ impl Request {
     /// ```
     pub fn domain(&self) -> &str {
         match psl::domain(self.host().as_bytes()) {
-            Some(d) => unsafe { std::mem::transmute(d.as_bytes()) },
+            Some(d) => unsafe { std::str::from_utf8_unchecked(d.as_bytes()) },
             None => return "",
         }
     }

@@ -28,6 +28,7 @@
 - radix pack special merge multiple regex into one using (R1)|(R2), must ensure Rx is correct
 - lru cache serve hottest path, map to handler directly
 - custom uri impl like ada-url allow modify every parts
+- bench: https://www.techempower.com/benchmarks/#section=intro&test=fortune
 
 ## [Unreleased] - 2024-05-xx
 
