@@ -459,7 +459,25 @@ impl Request {
         self.uri.authority()
     }
 
-    /// Get the subdomain of the host
+    /// Get the domain from the host
+    ///
+    /// ```
+    /// use fibra::{Request, Uri};
+    ///
+    /// assert_eq!(Request::default().domain(), "");
+    /// assert_eq!(Request::default().uri(Uri::from_static("http://chensoft.com")).domain(), "chensoft.com");
+    /// assert_eq!(Request::default().uri(Uri::from_static("http://www.chensoft.com")).domain(), "chensoft.com");
+    /// assert_eq!(Request::default().uri(Uri::from_static("http://fibra.api.chensoft.com")).domain(), "chensoft.com");
+    /// assert_eq!(Request::default().uri(Uri::from_static("https://www.google.com.hk")).domain(), "google.com.hk");
+    /// ```
+    pub fn domain(&self) -> &str {
+        match psl::domain(self.host().as_bytes()) {
+            Some(d) => unsafe { std::mem::transmute(d.as_bytes()) },
+            None => return "",
+        }
+    }
+
+    /// Get the subdomain from the host
     ///
     /// ```
     /// use fibra::{Request, Uri};
