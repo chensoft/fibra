@@ -1,5 +1,7 @@
 ## [Todo]
 
+- set config in fibra
+- context with body type default generic type: pub struct HeaderMap<T = HeaderValue>
 - reduce unreachable!()
 - context & request & **response** reuse
 - tls support

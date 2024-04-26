@@ -2,21 +2,21 @@
 use crate::types::*;
 
 /// This object represents a single HTTP connection. A client can send multiple requests on a single
-/// connection if using HTTP/1.1's keep-alive feature or HTTP/2.
+/// connection if using HTTP/1x's Keep-Alive feature or HTTP/2.
 pub struct Connection {
     /// The unique identifier of this connection
     id: u128,
 
-    /// The count of requests processed
-    count: u64,
-
     /// The time the connection was created
     created: DateTime<Local>,
+
+    /// The count of requests processed
+    count: u64,
 
     /// The local address that is connected
     sockaddr: SocketAddr,
 
-    /// The remote address that the connection comes from or connects to
+    /// The remote address that the connection comes from
     peeraddr: SocketAddr,
 }
 
@@ -55,43 +55,6 @@ impl Connection {
     /// ```
     pub fn id(mut self, val: u128) -> Self {
         self.id = val;
-        self
-    }
-
-    /// Get the count of requests processed
-    ///
-    /// ```
-    /// use fibra::{Connection};
-    ///
-    /// assert_eq!(*Connection::default().count_ref(), 0);
-    /// ```
-    pub fn count_ref(&self) -> &u64 {
-        &self.count
-    }
-
-    /// Get/Set the count of requests processed
-    ///
-    /// ```
-    /// use fibra::{Connection};
-    ///
-    /// let mut con = Connection::default();
-    /// *con.count_mut() = 12345;
-    ///
-    /// assert_eq!(con.count_ref(), &12345);
-    /// ```
-    pub fn count_mut(&mut self) -> &mut u64 {
-        &mut self.count
-    }
-
-    /// Set the count of requests processed
-    ///
-    /// ```
-    /// use fibra::{Connection};
-    ///
-    /// assert_eq!(Connection::default().count(12345).count_ref(), &12345);
-    /// ```
-    pub fn count(mut self, val: u64) -> Self {
-        self.count = val;
         self
     }
 
@@ -134,8 +97,45 @@ impl Connection {
     ///
     /// assert_eq!(con.created_ref(), &now);
     /// ```
-    pub fn created(mut self, val: DateTime<Local>) -> Self {
-        self.created = val;
+    pub fn created(mut self, val: impl Into<DateTime<Local>>) -> Self {
+        self.created = val.into();
+        self
+    }
+
+    /// Get the count of requests processed
+    ///
+    /// ```
+    /// use fibra::{Connection};
+    ///
+    /// assert_eq!(*Connection::default().count_ref(), 0);
+    /// ```
+    pub fn count_ref(&self) -> &u64 {
+        &self.count
+    }
+
+    /// Get/Set the count of requests processed
+    ///
+    /// ```
+    /// use fibra::{Connection};
+    ///
+    /// let mut con = Connection::default();
+    /// *con.count_mut() = 12345;
+    ///
+    /// assert_eq!(con.count_ref(), &12345);
+    /// ```
+    pub fn count_mut(&mut self) -> &mut u64 {
+        &mut self.count
+    }
+
+    /// Set the count of requests processed
+    ///
+    /// ```
+    /// use fibra::{Connection};
+    ///
+    /// assert_eq!(Connection::default().count(12345).count_ref(), &12345);
+    /// ```
+    pub fn count(mut self, val: u64) -> Self {
+        self.count = val;
         self
     }
 

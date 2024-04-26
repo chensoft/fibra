@@ -2,7 +2,7 @@
 use crate::types::*;
 
 /// A request represents a single request-response cycle. Multiple requests may exist on a
-/// single connection if the client is using HTTP/1.1's keep-alive feature or HTTP/2
+/// single connection if the client is using HTTP/1x's Keep-Alive feature or HTTP/2
 pub struct Request {
     /// The unique identifier of this request
     id: u128,
@@ -112,8 +112,8 @@ impl Request {
     ///
     /// assert_eq!(req.created_ref(), &now);
     /// ```
-    pub fn created(mut self, val: DateTime<Local>) -> Self {
-        self.created = val;
+    pub fn created(mut self, val: impl Into<DateTime<Local>>) -> Self {
+        self.created = val.into();
         self
     }
 
@@ -265,8 +265,8 @@ impl Request {
     ///
     /// assert_eq!(req.headers_ref().get(header::CACHE_CONTROL).map(|v| v.as_bytes()), Some("no-cache".as_bytes()));
     /// ```
-    pub fn headers(mut self, val: HeaderMap) -> Self {
-        self.headers = val;
+    pub fn headers(mut self, val: impl Into<HeaderMap>) -> Self {
+        self.headers = val.into();
         self
     }
 
@@ -306,6 +306,8 @@ impl Request {
         self
     }
 
+    /// Get the body
+    ///
     /// ```
     /// use fibra::{Request};
     ///
@@ -315,6 +317,8 @@ impl Request {
         &self.body
     }
 
+    /// Get the stream body for reading
+    ///
     /// ```
     /// use bytes::Bytes;
     /// use fibra::{Request, FibraResult, body};
@@ -330,7 +334,18 @@ impl Request {
         &mut self.body
     }
 
+    /// Set a new body
     ///
+    /// ```
+    /// use bytes::Bytes;
+    /// use fibra::{Request, FibraResult, body};
+    ///
+    /// #[tokio::main]
+    /// async fn main() -> FibraResult<()> {
+    ///     assert_eq!(body::to_bytes(Request::default().body("Hello World!").body_mut()).await?, Bytes::from("Hello World!"));
+    ///     Ok(())
+    /// }
+    /// ```
     pub fn body(mut self, val: impl Into<Body>) -> Self {
         self.body = val.into();
         self

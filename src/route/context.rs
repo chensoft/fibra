@@ -1,51 +1,73 @@
+//! Request Context
 use crate::fibra::*;
 use crate::route::*;
 use crate::types::*;
 
-// todo default generic type: pub struct HeaderMap<T = HeaderValue>
+/// Context which hold the connection and request
 pub struct Context {
-    app: Arc<Fibra>, // todo set config in fibra, read from this
+    /// The root app instance
+    app: Arc<Fibra>,
+
+    /// Current connection ref
+    conn: Arc<Connection>,
+
+    /// Current request object
     req: Request,
 
-    param: IndexMap<String, String>, // todo radix map
+    /// The named params after path matching
+    param: IndexMap<String, String>,
+
     /// The query string of the Uri
     query: IndexMap<String, String>,
-    stack: Vec<(*const dyn Handler, usize)>,
+
+    /// Internal routing stack
+    route: Vec<(*const dyn Handler, usize)>,
 }
 
 unsafe impl Send for Context {}
 unsafe impl Sync for Context {}
 
 impl Context {
-    pub fn new(app: Arc<Fibra>, req: Request) -> Self {
-        let query = form_urlencoded::parse(req.query().as_bytes()).into_owned().collect();
-        Self { app, req, param: IndexMap::new(), query, stack: vec![] }
-    }
-
     pub fn app(&self) -> &Fibra {
         &self.app
     }
 
+    pub fn conn(&self) -> &Connection {
+        &self.conn
+    }
+
+    pub fn connid(&self) -> u128 {
+        *self.conn.id_ref()
+    }
+
+    pub fn established(&self) -> &DateTime<Local> {
+        self.conn.created_ref()
+    }
+
+    pub fn served(&self) -> u64 {
+        *self.conn.count_ref()
+    }
+
+    pub fn local(&self) -> &SocketAddr {
+        self.conn.sockaddr_ref()
+    }
+
+    pub fn remote(&self) -> &SocketAddr {
+        self.conn.peeraddr_ref()
+    }
+}
+
+impl Context {
     pub fn req(&self) -> &Request {
         &self.req
     }
 
-    pub fn id(&self) -> &u128 {
-        self.req.id_ref()
+    pub fn reqid(&self) -> u128 {
+        *self.req.id_ref()
     }
 
     pub fn created(&self) -> &DateTime<Local> {
         self.req.created_ref()
-    }
-
-    pub fn sockaddr(&self) -> &SocketAddr {
-        // self.req.sockaddr_ref()
-        todo!()
-    }
-
-    pub fn peeraddr(&self) -> &SocketAddr {
-        // self.req.peeraddr_ref()
-        todo!()
     }
 
     pub fn method(&self) -> &Method {
@@ -184,16 +206,16 @@ impl Context {
 impl Context {
     #[inline]
     pub fn push(&mut self, cur: *const dyn Handler) {
-        self.stack.push((cur, 0));
+        self.route.push((cur, 0));
     }
 
     #[inline]
     pub fn pop(&mut self) {
-        self.stack.pop();
+        self.route.pop();
     }
 
     pub async fn next(mut self) -> FibraResult<Response> {
-        while let Some((cur, idx)) = self.stack.last_mut() {
+        while let Some((cur, idx)) = self.route.last_mut() {
             let top = unsafe { &**cur };
             let cld = match top.nested(*idx) {
                 Some(obj) => obj,
@@ -221,7 +243,7 @@ impl Context {
         // self.req.body_mut() = ;
 
         let app = self.app;
-        let ctx = Context::new(app.clone(), self.req);
+        let ctx = Context::from((app.clone(), self.conn, self.req));
 
         app.handle(ctx).await
     }
@@ -230,5 +252,12 @@ impl Context {
         Ok(Response::default()
             .status(status.unwrap_or(Status::TEMPORARY_REDIRECT))
             .header(header::LOCATION, HeaderValue::from_str(to.to_string().as_str())?))
+    }
+}
+
+impl From<(Arc<Fibra>, Arc<Connection>, Request)> for Context {
+    fn from((app, conn, req): (Arc<Fibra>, Arc<Connection>, Request)) -> Self {
+        let query = form_urlencoded::parse(req.query().as_bytes()).into_owned().collect();
+        Self { app, conn, req, param: IndexMap::new(), query, route: vec![] }
     }
 }

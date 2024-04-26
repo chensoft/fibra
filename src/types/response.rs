@@ -18,6 +18,8 @@ pub struct Response {
 }
 
 impl Response {
+    /// Get the http version
+    ///
     /// ```
     /// use fibra::{Response, Version};
     ///
@@ -27,6 +29,8 @@ impl Response {
         &self.version
     }
 
+    /// Get/Set the http version
+    ///
     /// ```
     /// use fibra::{Response, Version};
     ///
@@ -38,6 +42,8 @@ impl Response {
         &mut self.version
     }
 
+    /// Set the http version
+    ///
     /// ```
     /// use fibra::{Response, Version};
     ///
@@ -49,6 +55,8 @@ impl Response {
         self
     }
 
+    /// Get the status code
+    ///
     /// ```
     /// use fibra::{Response, Status};
     ///
@@ -58,6 +66,8 @@ impl Response {
         &self.status
     }
 
+    /// Get/Set the status code
+    ///
     /// ```
     /// use fibra::{Response, Status};
     ///
@@ -69,6 +79,8 @@ impl Response {
         &mut self.status
     }
 
+    /// Set the status code
+    ///
     /// ```
     /// use fibra::{Response, Status};
     ///
@@ -80,6 +92,8 @@ impl Response {
         self
     }
 
+    /// Get the response headers
+    ///
     /// ```
     /// use fibra::{Response};
     ///
@@ -89,6 +103,8 @@ impl Response {
         &self.headers
     }
 
+    /// Get/Set the response headers
+    ///
     /// ```
     /// use fibra::{Response, header::{self, IntoHeaderValue}};
     ///
@@ -100,6 +116,8 @@ impl Response {
         &mut self.headers
     }
 
+    /// Set the response headers
+    ///
     /// ```
     /// use fibra::{Response, header::{self, HeaderMap, IntoHeaderValue}};
     ///
@@ -111,11 +129,13 @@ impl Response {
     ///
     /// assert_eq!(res.headers_mut()[header::CONTENT_TYPE], mime::APPLICATION_JSON.as_ref());
     /// ```
-    pub fn headers(mut self, val: HeaderMap) -> Self {
-        self.headers = val;
+    pub fn headers(mut self, val: impl Into<HeaderMap>) -> Self {
+        self.headers = val.into();
         self
     }
 
+    /// Get a response header's value
+    ///
     /// ```
     /// use fibra::{Response, header};
     ///
@@ -128,6 +148,8 @@ impl Response {
         self.headers.get(key)
     }
 
+    /// Get/Set a response header's value
+    ///
     /// ```
     /// use fibra::{Response, header::{self, IntoHeaderValue}};
     ///
@@ -136,10 +158,12 @@ impl Response {
     ///
     /// assert_eq!(res.header_ref(header::CONTENT_TYPE).map(|v| v.as_bytes()), Some(mime::TEXT_PLAIN_UTF_8.as_ref().as_bytes()));
     /// ```
-    pub fn header_mut(&mut self, key: impl header::AsHeaderName) -> Option<&mut HeaderValue> {
+    pub fn header_mut(&mut self, key: impl AsHeaderName) -> Option<&mut HeaderValue> {
         self.headers.get_mut(key)
     }
 
+    /// Set a response header's value
+    ///
     /// ```
     /// use fibra::{Response, header};
     ///
@@ -152,6 +176,8 @@ impl Response {
         self
     }
 
+    /// Get the http body
+    ///
     /// ```
     /// use fibra::{Response};
     ///
@@ -161,6 +187,8 @@ impl Response {
         &self.body
     }
 
+    /// Get/Set the http body
+    ///
     /// ```
     /// use bytes::Bytes;
     /// use fibra::{Response, FibraResult, body};
@@ -176,6 +204,8 @@ impl Response {
         &mut self.body
     }
 
+    /// Set the http body without predefined content-type
+    ///
     /// ```
     /// use bytes::Bytes;
     /// use fibra::{Response, FibraResult, body};
@@ -192,6 +222,8 @@ impl Response {
         self
     }
 
+    /// Set JSON response with correct content-type header
+    ///
     /// ```
     /// use bytes::Bytes;
     /// use indexmap::indexmap;
@@ -218,6 +250,8 @@ impl Response {
         self.header(header::CONTENT_TYPE, mime::APPLICATION_JSON).body(buf)
     }
 
+    /// Set JSONP response with a callback name
+    ///
     /// ```
     /// use bytes::Bytes;
     /// use indexmap::indexmap;
@@ -248,6 +282,8 @@ impl Response {
         self.header(header::CONTENT_TYPE, mime::APPLICATION_JSON).body(buf)
     }
 
+    /// Set plain text response with TEXT_PLAIN_UTF_8 content-type header
+    ///
     /// ```
     /// use bytes::Bytes;
     /// use fibra::{Response, FibraResult, header, body};
@@ -266,6 +302,8 @@ impl Response {
         self.header(header::CONTENT_TYPE, mime::TEXT_PLAIN_UTF_8).body(val.into())
     }
 
+    /// Set plain text response with TEXT_HTML_UTF_8 content-type header
+    ///
     /// ```
     /// use bytes::Bytes;
     /// use fibra::{Response, FibraResult, header, body};
@@ -284,12 +322,15 @@ impl Response {
         self.header(header::CONTENT_TYPE, mime::TEXT_HTML_UTF_8).body(val.into())
     }
 
+    /// Set file response with auto detecting its type
     /// todo
     pub fn file(self) -> Self {
         // auto detect file mime, chunk transfer, stream wrap attachment header
         self
     }
 
+    /// Set raw byte stream response with APPLICATION_OCTET_STREAM
+    ///
     /// ```
     /// use bytes::Bytes;
     /// use fibra::{Response, FibraResult, header, body};
@@ -308,6 +349,8 @@ impl Response {
         self.header(header::CONTENT_TYPE, mime::APPLICATION_OCTET_STREAM).body(val)
     }
 
+    /// Set custom stream response without predefined content-type
+    ///
     /// ```
     /// use bytes::Bytes;
     /// use futures::Stream;
@@ -358,6 +401,8 @@ impl Response {
     }
 }
 
+/// Conversion
+///
 /// ```
 /// use bytes::Bytes;
 /// use fibra::{Response, Status, FibraResult, header, body, mime};
@@ -381,6 +426,8 @@ impl<T> From<(Status, Mime, T)> for Response
     }
 }
 
+/// Conversion
+///
 /// ```
 /// use bytes::Bytes;
 /// use fibra::{Response, Status, FibraResult, header, body, mime};
@@ -402,6 +449,8 @@ impl From<(Status, &'static str)> for Response {
     }
 }
 
+/// Conversion
+///
 /// ```
 /// use bytes::Bytes;
 /// use fibra::{Response, Status, FibraResult, header, body, mime};
@@ -423,6 +472,8 @@ impl From<(Status, String)> for Response {
     }
 }
 
+/// Conversion
+///
 /// ```
 /// use bytes::Bytes;
 /// use fibra::{Response, Status, FibraResult, header, body, mime};
@@ -444,6 +495,8 @@ impl From<(Status, &'static [u8])> for Response {
     }
 }
 
+/// Conversion
+///
 /// ```
 /// use bytes::Bytes;
 /// use fibra::{Response, Status, FibraResult, header, body, mime};
@@ -465,6 +518,8 @@ impl From<(Status, Vec<u8>)> for Response {
     }
 }
 
+/// Conversion
+///
 /// ```
 /// use bytes::Bytes;
 /// use fibra::{Response, Status, FibraResult, header, body, mime};
@@ -486,6 +541,8 @@ impl From<()> for Response {
     }
 }
 
+/// Conversion
+///
 /// ```
 /// use bytes::Bytes;
 /// use fibra::{Response, Status, FibraResult, header, body, mime};
@@ -507,6 +564,8 @@ impl From<Status> for Response {
     }
 }
 
+/// Conversion
+///
 /// ```
 /// use bytes::Bytes;
 /// use fibra::{Response, Status, FibraResult, header, body, mime};
@@ -528,6 +587,8 @@ impl From<&'static str> for Response {
     }
 }
 
+/// Conversion
+///
 /// ```
 /// use bytes::Bytes;
 /// use fibra::{Response, Status, FibraResult, header, body, mime};
@@ -549,6 +610,8 @@ impl From<String> for Response {
     }
 }
 
+/// Conversion
+///
 /// ```
 /// use bytes::Bytes;
 /// use fibra::{Response, Status, FibraResult, header, body, mime};
@@ -570,6 +633,8 @@ impl From<&'static [u8]> for Response {
     }
 }
 
+/// Conversion
+///
 /// ```
 /// use bytes::Bytes;
 /// use fibra::{Response, Status, FibraResult, header, body, mime};
@@ -591,6 +656,8 @@ impl From<Vec<u8>> for Response {
     }
 }
 
+/// Conversion
+///
 /// ```
 /// use bytes::Bytes;
 /// use fibra::{Response, Status, FibraResult, header, body, mime};

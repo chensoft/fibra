@@ -53,17 +53,13 @@ impl Fibra {
         let service = make_service_fn(|conn: &AddrStream| {
             // todo one context one connection
             let appself = appself.clone();
-            let address = (conn.local_addr(), conn.remote_addr());
-
-            println!("addr {}", address.1.to_string());
+            let connection = Arc::new(Connection::from((conn.local_addr(), conn.remote_addr())));
 
             async move {
                 Ok::<_, Infallible>(service_fn(move |req| {
-                    println!("req {}", req.uri().to_string());
-
                     let appself = appself.clone();
                     let request = Request::from(req);
-                    let context = Context::new(appself.clone(), request);
+                    let context = Context::from((appself.clone(), connection.clone(), request));
 
                     async move { Ok::<_, FibraError>(appself.handle(context).await?.into()) }
                 }))
