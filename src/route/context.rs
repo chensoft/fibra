@@ -15,13 +15,13 @@ pub struct Context {
     req: Request,
 
     /// The named params after path matching
-    param: IndexMap<String, String>,
+    params: IndexMap<String, String>,
 
     /// The query string of the Uri
-    query: IndexMap<String, String>,
+    queries: IndexMap<String, String>,
 
     /// Internal routing stack
-    route: Vec<(*const dyn Handler, usize)>,
+    routes: Vec<(*const dyn Handler, usize)>,
 }
 
 unsafe impl Send for Context {}
@@ -100,6 +100,10 @@ impl Context {
         self.req.authority()
     }
 
+    pub fn domain(&self) -> &str {
+        self.req.domain()
+    }
+
     pub fn subdomain(&self) -> &str {
         self.req.subdomain()
     }
@@ -121,24 +125,20 @@ impl Context {
     // /// ```
     // /// use fibra::{Request, Uri};
     // ///
-    // /// assert_eq!(Request::default().query("nonce"), "");
-    // /// assert_eq!(Request::default().uri(Uri::from_static("http://chensoft.com")).query("nonce"), "");
-    // /// assert_eq!(Request::default().uri(Uri::from_static("http://chensoft.com/")).query("nonce"), "");
-    // /// assert_eq!(Request::default().uri(Uri::from_static("http://chensoft.com/blog")).query("nonce"), "");
-    // /// assert_eq!(Request::default().uri(Uri::from_static("http://chensoft.com/blog?")).query("nonce"), "");
-    // /// assert_eq!(Request::default().uri(Uri::from_static("http://chensoft.com/blog?nonce=1a2b3c")).query("nonce"), "1a2b3c");
-    // /// assert_eq!(Request::default().uri(Uri::from_static("http://chensoft.com/blog?nonce=1a2b3c&signature=abcde")).query("nonce"), "1a2b3c");
+    // /// assert_eq!(Request::default().queries("nonce"), "");
+    // /// assert_eq!(Request::default().uri(Uri::from_static("http://chensoft.com")).queries("nonce"), "");
+    // /// assert_eq!(Request::default().uri(Uri::from_static("http://chensoft.com/")).queries("nonce"), "");
+    // /// assert_eq!(Request::default().uri(Uri::from_static("http://chensoft.com/blog")).queries("nonce"), "");
+    // /// assert_eq!(Request::default().uri(Uri::from_static("http://chensoft.com/blog?")).queries("nonce"), "");
+    // /// assert_eq!(Request::default().uri(Uri::from_static("http://chensoft.com/blog?nonce=1a2b3c")).queries("nonce"), "1a2b3c");
+    // /// assert_eq!(Request::default().uri(Uri::from_static("http://chensoft.com/blog?nonce=1a2b3c&signature=abcde")).queries("nonce"), "1a2b3c");
     // /// ```
-    // pub fn query(&self, key: &str) -> &str {
-    //     // todo performance
-    //     self.query.get(key).map(|v| v.as_str()).unwrap_or("")
-    // }
     pub fn query(&self, key: &str) -> &str {
-        self.query.get(key).map(|v| v.as_str()).unwrap_or("")
+        self.queries.get(key).map(|v| v.as_str()).unwrap_or("")
     }
 
     pub fn queries(&self) -> &IndexMap<String, String> {
-        &self.query
+        &self.queries
     }
 
     pub fn href(&self) -> String {
@@ -169,21 +169,21 @@ impl Context {
         self.req.headers_ref()
     }
 
-    pub fn header(&self, key: impl header::AsHeaderName) -> Option<&HeaderValue> {
+    pub fn header(&self, key: impl AsHeaderName) -> Option<&HeaderValue> {
         self.req.header_ref(key)
     }
 
     pub fn params(&self) -> &IndexMap<String, String> {
-        &self.param
+        &self.params
     }
 
-    pub fn param(&self, _key: &str) -> &str {
-        todo!()
+    pub fn param(&self, key: &str) -> &str {
+        self.params.get(key).map(|v| v.as_str()).unwrap_or("")
     }
 }
 
 impl Context {
-    // todo check cqueues
+    // todo body content-length & length limit
     pub async fn read(&mut self) {
         todo!()
     }
@@ -196,9 +196,15 @@ impl Context {
         todo!()
     }
 
+    pub async fn read_exact(&mut self) {
+        todo!()
+    }
+
     pub async fn save(&mut self, _path: &str) {
         todo!()
     }
+
+    // todo uncompress
 
     // todo peek
 }
@@ -206,16 +212,16 @@ impl Context {
 impl Context {
     #[inline]
     pub fn push(&mut self, cur: *const dyn Handler) {
-        self.route.push((cur, 0));
+        self.routes.push((cur, 0));
     }
 
     #[inline]
     pub fn pop(&mut self) {
-        self.route.pop();
+        self.routes.pop();
     }
 
     pub async fn next(mut self) -> FibraResult<Response> {
-        while let Some((cur, idx)) = self.route.last_mut() {
+        while let Some((cur, idx)) = self.routes.last_mut() {
             let top = unsafe { &**cur };
             let cld = match top.nested(*idx) {
                 Some(obj) => obj,
@@ -257,7 +263,7 @@ impl Context {
 
 impl From<(Arc<Fibra>, Arc<Connection>, Request)> for Context {
     fn from((app, conn, req): (Arc<Fibra>, Arc<Connection>, Request)) -> Self {
-        let query = form_urlencoded::parse(req.query().as_bytes()).into_owned().collect();
-        Self { app, conn, req, param: IndexMap::new(), query, route: vec![] }
+        let queries = form_urlencoded::parse(req.query().as_bytes()).into_owned().collect();
+        Self { app, conn, req, params: IndexMap::new(), queries, routes: vec![] }
     }
 }
