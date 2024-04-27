@@ -183,30 +183,27 @@ impl Context {
 }
 
 impl Context {
-    // todo body content-length & length limit
-    pub async fn read(&mut self) {
-        todo!()
+    pub async fn read_all(&mut self) -> BufList {
+        let mut list = BufList::new();
+        while let Some(bytes) = self.read_chunk().await {
+            list.push_chunk(bytes);
+        }
+        list
     }
 
-    pub async fn read_line(&mut self) {
-        todo!()
+    pub async fn read_chunk(&mut self) -> Option<Bytes> {
+        // todo body length limit
+        use hyper::body::HttpBody;
+        self.req.body_mut().data().await.map(|r| r.ok()).flatten()
     }
 
-    pub async fn read_until(&mut self) {
-        todo!()
-    }
-
-    pub async fn read_exact(&mut self) {
+    pub fn decode(&mut self) {
         todo!()
     }
 
     pub async fn save(&mut self, _path: &str) {
         todo!()
     }
-
-    // todo uncompress
-
-    // todo peek
 }
 
 impl Context {

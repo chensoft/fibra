@@ -20,6 +20,8 @@ pub struct Response {
 impl Response {
     /// Get the http version
     ///
+    /// # Examples
+    /// 
     /// ```
     /// use fibra::{Response, Version};
     ///
@@ -31,6 +33,8 @@ impl Response {
 
     /// Get/Set the http version
     ///
+    /// # Examples
+    /// 
     /// ```
     /// use fibra::{Response, Version};
     ///
@@ -44,6 +48,8 @@ impl Response {
 
     /// Set the http version
     ///
+    /// # Examples
+    /// 
     /// ```
     /// use fibra::{Response, Version};
     ///
@@ -57,6 +63,8 @@ impl Response {
 
     /// Get the status code
     ///
+    /// # Examples
+    /// 
     /// ```
     /// use fibra::{Response, Status};
     ///
@@ -68,6 +76,8 @@ impl Response {
 
     /// Get/Set the status code
     ///
+    /// # Examples
+    /// 
     /// ```
     /// use fibra::{Response, Status};
     ///
@@ -81,6 +91,8 @@ impl Response {
 
     /// Set the status code
     ///
+    /// # Examples
+    /// 
     /// ```
     /// use fibra::{Response, Status};
     ///
@@ -94,6 +106,8 @@ impl Response {
 
     /// Get the response headers
     ///
+    /// # Examples
+    /// 
     /// ```
     /// use fibra::{Response};
     ///
@@ -105,6 +119,8 @@ impl Response {
 
     /// Get/Set the response headers
     ///
+    /// # Examples
+    /// 
     /// ```
     /// use fibra::{Response, header::{self, IntoHeaderValue}};
     ///
@@ -118,6 +134,8 @@ impl Response {
 
     /// Set the response headers
     ///
+    /// # Examples
+    /// 
     /// ```
     /// use fibra::{Response, header::{self, HeaderMap, IntoHeaderValue}};
     ///
@@ -136,6 +154,8 @@ impl Response {
 
     /// Get a response header's value
     ///
+    /// # Examples
+    /// 
     /// ```
     /// use fibra::{Response, header};
     ///
@@ -150,6 +170,8 @@ impl Response {
 
     /// Get/Set a response header's value
     ///
+    /// # Examples
+    /// 
     /// ```
     /// use fibra::{Response, header::{self, IntoHeaderValue}};
     ///
@@ -164,6 +186,8 @@ impl Response {
 
     /// Set a response header's value
     ///
+    /// # Examples
+    /// 
     /// ```
     /// use fibra::{Response, header};
     ///
@@ -178,6 +202,8 @@ impl Response {
 
     /// Get the http body
     ///
+    /// # Examples
+    /// 
     /// ```
     /// use fibra::{Response};
     ///
@@ -189,6 +215,8 @@ impl Response {
 
     /// Get/Set the http body
     ///
+    /// # Examples
+    /// 
     /// ```
     /// use bytes::Bytes;
     /// use fibra::{Response, FibraResult, body};
@@ -206,6 +234,8 @@ impl Response {
 
     /// Set the http body without predefined content-type
     ///
+    /// # Examples
+    /// 
     /// ```
     /// use bytes::Bytes;
     /// use fibra::{Response, FibraResult, body};
@@ -224,6 +254,8 @@ impl Response {
 
     /// Set JSON response with correct content-type header
     ///
+    /// # Examples
+    /// 
     /// ```
     /// use bytes::Bytes;
     /// use indexmap::indexmap;
@@ -252,6 +284,8 @@ impl Response {
 
     /// Set JSONP response with a callback name
     ///
+    /// # Examples
+    /// 
     /// ```
     /// use bytes::Bytes;
     /// use indexmap::indexmap;
@@ -284,6 +318,8 @@ impl Response {
 
     /// Set plain text response with TEXT_PLAIN_UTF_8 content-type header
     ///
+    /// # Examples
+    /// 
     /// ```
     /// use bytes::Bytes;
     /// use fibra::{Response, FibraResult, header, body};
@@ -304,6 +340,8 @@ impl Response {
 
     /// Set plain text response with TEXT_HTML_UTF_8 content-type header
     ///
+    /// # Examples
+    /// 
     /// ```
     /// use bytes::Bytes;
     /// use fibra::{Response, FibraResult, header, body};
@@ -331,6 +369,8 @@ impl Response {
 
     /// Set raw byte stream response with APPLICATION_OCTET_STREAM
     ///
+    /// # Examples
+    /// 
     /// ```
     /// use bytes::Bytes;
     /// use fibra::{Response, FibraResult, header, body};
@@ -351,6 +391,8 @@ impl Response {
 
     /// Set custom stream response without predefined content-type
     ///
+    /// # Examples
+    /// 
     /// ```
     /// use bytes::Bytes;
     /// use futures::Stream;

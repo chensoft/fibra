@@ -23,6 +23,8 @@ pub struct Connection {
 impl Connection {
     /// Get the unique identifier of this connection
     ///
+    /// # Examples
+    /// 
     /// ```
     /// use fibra::{Connection};
     ///
@@ -34,6 +36,8 @@ impl Connection {
 
     /// Get/Set the unique identifier of this connection
     ///
+    /// # Examples
+    /// 
     /// ```
     /// use fibra::{Connection};
     ///
@@ -48,6 +52,8 @@ impl Connection {
 
     /// Set the unique identifier of this connection
     ///
+    /// # Examples
+    /// 
     /// ```
     /// use fibra::{Connection};
     ///
@@ -60,6 +66,8 @@ impl Connection {
 
     /// Get the created time of this connection
     ///
+    /// # Examples
+    /// 
     /// ```
     /// use chrono::Local;
     /// use fibra::{Connection};
@@ -72,6 +80,8 @@ impl Connection {
 
     /// Get/Set the created time of this connection
     ///
+    /// # Examples
+    /// 
     /// ```
     /// use chrono::Local;
     /// use fibra::{Connection};
@@ -88,6 +98,8 @@ impl Connection {
 
     /// Set the created time of this connection
     ///
+    /// # Examples
+    /// 
     /// ```
     /// use chrono::Local;
     /// use fibra::{Connection};
@@ -104,6 +116,8 @@ impl Connection {
 
     /// Get the count of requests processed
     ///
+    /// # Examples
+    /// 
     /// ```
     /// use fibra::{Connection};
     ///
@@ -115,6 +129,8 @@ impl Connection {
 
     /// Get/Set the count of requests processed
     ///
+    /// # Examples
+    /// 
     /// ```
     /// use fibra::{Connection};
     ///
@@ -129,6 +145,8 @@ impl Connection {
 
     /// Set the count of requests processed
     ///
+    /// # Examples
+    /// 
     /// ```
     /// use fibra::{Connection};
     ///
@@ -141,6 +159,8 @@ impl Connection {
 
     /// Get the local address
     ///
+    /// # Examples
+    /// 
     /// ```
     /// use fibra::{Connection};
     /// use std::net::SocketAddr;
@@ -153,6 +173,8 @@ impl Connection {
 
     /// Get/Set the local address
     ///
+    /// # Examples
+    /// 
     /// ```
     /// use fibra::{Connection};
     /// use std::net::SocketAddr;
@@ -168,6 +190,8 @@ impl Connection {
 
     /// Set the local address
     ///
+    /// # Examples
+    /// 
     /// ```
     /// use fibra::{Connection};
     /// use std::net::SocketAddr;
@@ -181,6 +205,8 @@ impl Connection {
 
     /// Get the remote address
     ///
+    /// # Examples
+    /// 
     /// ```
     /// use fibra::{Connection};
     /// use std::net::SocketAddr;
@@ -193,6 +219,8 @@ impl Connection {
 
     /// Get/Set the remote address
     ///
+    /// # Examples
+    /// 
     /// ```
     /// use fibra::{Connection};
     /// use std::net::SocketAddr;
@@ -208,6 +236,8 @@ impl Connection {
 
     /// Set the remote address
     ///
+    /// # Examples
+    /// 
     /// ```
     /// use fibra::{Connection};
     /// use std::net::SocketAddr;
