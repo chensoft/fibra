@@ -195,9 +195,9 @@ impl Request {
     /// use fibra::{Request, Uri};
     ///
     /// let mut req = Request::default();
-    /// *req.uri_mut() = Uri::from_static("http://chensoft.com");
+    /// *req.uri_mut() = Uri::from_static("http://example.com");
     ///
-    /// assert_eq!(req.uri_ref(), "http://chensoft.com/");
+    /// assert_eq!(req.uri_ref(), "http://example.com/");
     /// ```
     pub fn uri_mut(&mut self) -> &mut Uri {
         &mut self.uri
@@ -210,7 +210,7 @@ impl Request {
     /// ```
     /// use fibra::{Request, Uri};
     ///
-    /// assert_eq!(Request::default().uri(Uri::from_static("http://chensoft.com")).uri_ref(), "http://chensoft.com/");
+    /// assert_eq!(Request::default().uri(Uri::from_static("http://example.com")).uri_ref(), "http://example.com/");
     /// ```
     pub fn uri(mut self, val: impl Into<Uri>) -> Self {
         self.uri = val.into();
@@ -410,9 +410,9 @@ impl Request {
     /// ```
     /// use fibra::{Request, Scheme, Uri};
     ///
-    /// assert_eq!(Request::default().uri(Uri::from_static("chensoft.com")).scheme(), &Scheme::Unknown);
-    /// assert_eq!(Request::default().uri(Uri::from_static("http://chensoft.com")).scheme(), &Scheme::HTTP);
-    /// assert_eq!(Request::default().uri(Uri::from_static("https://chensoft.com")).scheme(), &Scheme::HTTPS);
+    /// assert_eq!(Request::default().uri(Uri::from_static("example.com")).scheme(), &Scheme::Unknown);
+    /// assert_eq!(Request::default().uri(Uri::from_static("http://example.com")).scheme(), &Scheme::HTTP);
+    /// assert_eq!(Request::default().uri(Uri::from_static("https://example.com")).scheme(), &Scheme::HTTPS);
     /// ```
     pub fn scheme(&self) -> &Scheme {
         // todo check tls socket, scheme is none when self comes from hyper connection
@@ -436,7 +436,7 @@ impl Request {
     /// ```
     /// use fibra::{Request, Uri, Authority};
     ///
-    /// assert_eq!(Request::default().uri(Uri::from_static("http://user:pass@chensoft.com")).authority(), Some(&Authority::from_static("user:pass@chensoft.com")));
+    /// assert_eq!(Request::default().uri(Uri::from_static("http://user:pass@example.com")).authority(), Some(&Authority::from_static("user:pass@example.com")));
     /// ```
     pub fn authority(&self) -> Option<&Authority> {
         self.uri.authority()
@@ -450,9 +450,9 @@ impl Request {
     /// use fibra::{Request, Uri};
     ///
     /// assert_eq!(Request::default().domain(), "");
-    /// assert_eq!(Request::default().uri(Uri::from_static("http://chensoft.com")).domain(), "chensoft.com");
-    /// assert_eq!(Request::default().uri(Uri::from_static("http://www.chensoft.com")).domain(), "chensoft.com");
-    /// assert_eq!(Request::default().uri(Uri::from_static("http://fibra.api.chensoft.com")).domain(), "chensoft.com");
+    /// assert_eq!(Request::default().uri(Uri::from_static("http://example.com")).domain(), "example.com");
+    /// assert_eq!(Request::default().uri(Uri::from_static("http://www.example.com")).domain(), "example.com");
+    /// assert_eq!(Request::default().uri(Uri::from_static("http://fibra.api.example.com")).domain(), "example.com");
     /// assert_eq!(Request::default().uri(Uri::from_static("https://www.google.com.hk")).domain(), "google.com.hk");
     /// ```
     pub fn domain(&self) -> &str {
@@ -470,9 +470,9 @@ impl Request {
     /// use fibra::{Request, Uri};
     ///
     /// assert_eq!(Request::default().subdomain(), "");
-    /// assert_eq!(Request::default().uri(Uri::from_static("http://chensoft.com")).subdomain(), "");
-    /// assert_eq!(Request::default().uri(Uri::from_static("http://www.chensoft.com")).subdomain(), "www");
-    /// assert_eq!(Request::default().uri(Uri::from_static("http://fibra.api.chensoft.com")).subdomain(), "fibra.api");
+    /// assert_eq!(Request::default().uri(Uri::from_static("http://example.com")).subdomain(), "");
+    /// assert_eq!(Request::default().uri(Uri::from_static("http://www.example.com")).subdomain(), "www");
+    /// assert_eq!(Request::default().uri(Uri::from_static("http://fibra.api.example.com")).subdomain(), "fibra.api");
     /// assert_eq!(Request::default().uri(Uri::from_static("https://www.google.com.hk")).subdomain(), "www");
     /// ```
     pub fn subdomain(&self) -> &str {
@@ -496,9 +496,9 @@ impl Request {
     /// use fibra::{Request, Uri};
     ///
     /// assert_eq!(Request::default().host(), "");
-    /// assert_eq!(Request::default().uri(Uri::from_static("http://chensoft.com")).host(), "chensoft.com");
-    /// assert_eq!(Request::default().uri(Uri::from_static("http://www.chensoft.com")).host(), "www.chensoft.com");
-    /// assert_eq!(Request::default().uri(Uri::from_static("http://fibra.api.chensoft.com")).host(), "fibra.api.chensoft.com");
+    /// assert_eq!(Request::default().uri(Uri::from_static("http://example.com")).host(), "example.com");
+    /// assert_eq!(Request::default().uri(Uri::from_static("http://www.example.com")).host(), "www.example.com");
+    /// assert_eq!(Request::default().uri(Uri::from_static("http://fibra.api.example.com")).host(), "fibra.api.example.com");
     /// ```
     pub fn host(&self) -> &str {
         self.uri.host().unwrap_or("")
@@ -512,11 +512,11 @@ impl Request {
     /// use fibra::{Request, Uri};
     ///
     /// assert_eq!(Request::default().port(), 0);
-    /// assert_eq!(Request::default().uri(Uri::from_static("http://chensoft.com")).port(), 80);
-    /// assert_eq!(Request::default().uri(Uri::from_static("http://chensoft.com:3000")).port(), 3000);
-    /// assert_eq!(Request::default().uri(Uri::from_static("http://chensoft.com:3000/blog")).port(), 3000);
-    /// assert_eq!(Request::default().uri(Uri::from_static("https://chensoft.com")).port(), 443);
-    /// assert_eq!(Request::default().uri(Uri::from_static("https://www.chensoft.com:8443")).port(), 8443);
+    /// assert_eq!(Request::default().uri(Uri::from_static("http://example.com")).port(), 80);
+    /// assert_eq!(Request::default().uri(Uri::from_static("http://example.com:3000")).port(), 3000);
+    /// assert_eq!(Request::default().uri(Uri::from_static("http://example.com:3000/blog")).port(), 3000);
+    /// assert_eq!(Request::default().uri(Uri::from_static("https://example.com")).port(), 443);
+    /// assert_eq!(Request::default().uri(Uri::from_static("https://www.example.com:8443")).port(), 8443);
     /// ```
     pub fn port(&self) -> u16 {
         match self.uri.port_u16() {
@@ -537,14 +537,14 @@ impl Request {
     /// use fibra::{Request, Uri};
     ///
     /// assert_eq!(Request::default().path(), "/");
-    /// assert_eq!(Request::default().uri(Uri::from_static("http://chensoft.com")).path(), "/");
-    /// assert_eq!(Request::default().uri(Uri::from_static("http://chensoft.com/")).path(), "/");
-    /// assert_eq!(Request::default().uri(Uri::from_static("http://chensoft.com/blog")).path(), "/blog");
-    /// assert_eq!(Request::default().uri(Uri::from_static("http://chensoft.com/blog/2024")).path(), "/blog/2024");
-    /// assert_eq!(Request::default().uri(Uri::from_static("http://chensoft.com:3000")).path(), "/");
-    /// assert_eq!(Request::default().uri(Uri::from_static("http://chensoft.com:3000/")).path(), "/");
-    /// assert_eq!(Request::default().uri(Uri::from_static("http://chensoft.com:3000/blog")).path(), "/blog");
-    /// assert_eq!(Request::default().uri(Uri::from_static("http://chensoft.com:3000/blog/2024")).path(), "/blog/2024");
+    /// assert_eq!(Request::default().uri(Uri::from_static("http://example.com")).path(), "/");
+    /// assert_eq!(Request::default().uri(Uri::from_static("http://example.com/")).path(), "/");
+    /// assert_eq!(Request::default().uri(Uri::from_static("http://example.com/blog")).path(), "/blog");
+    /// assert_eq!(Request::default().uri(Uri::from_static("http://example.com/blog/2024")).path(), "/blog/2024");
+    /// assert_eq!(Request::default().uri(Uri::from_static("http://example.com:3000")).path(), "/");
+    /// assert_eq!(Request::default().uri(Uri::from_static("http://example.com:3000/")).path(), "/");
+    /// assert_eq!(Request::default().uri(Uri::from_static("http://example.com:3000/blog")).path(), "/blog");
+    /// assert_eq!(Request::default().uri(Uri::from_static("http://example.com:3000/blog/2024")).path(), "/blog/2024");
     /// ```
     pub fn path(&self) -> &str {
         self.uri.path()
@@ -558,12 +558,12 @@ impl Request {
     /// use fibra::{Request, Uri};
     ///
     /// assert_eq!(Request::default().query(), "");
-    /// assert_eq!(Request::default().uri(Uri::from_static("http://chensoft.com")).query(), "");
-    /// assert_eq!(Request::default().uri(Uri::from_static("http://chensoft.com/")).query(), "");
-    /// assert_eq!(Request::default().uri(Uri::from_static("http://chensoft.com/blog")).query(), "");
-    /// assert_eq!(Request::default().uri(Uri::from_static("http://chensoft.com/blog?")).query(), "");
-    /// assert_eq!(Request::default().uri(Uri::from_static("http://chensoft.com/blog?nonce=1a2b3c")).query(), "nonce=1a2b3c");
-    /// assert_eq!(Request::default().uri(Uri::from_static("http://chensoft.com/blog?nonce=1a2b3c&signature=abcde")).query(), "nonce=1a2b3c&signature=abcde");
+    /// assert_eq!(Request::default().uri(Uri::from_static("http://example.com")).query(), "");
+    /// assert_eq!(Request::default().uri(Uri::from_static("http://example.com/")).query(), "");
+    /// assert_eq!(Request::default().uri(Uri::from_static("http://example.com/blog")).query(), "");
+    /// assert_eq!(Request::default().uri(Uri::from_static("http://example.com/blog?")).query(), "");
+    /// assert_eq!(Request::default().uri(Uri::from_static("http://example.com/blog?nonce=1a2b3c")).query(), "nonce=1a2b3c");
+    /// assert_eq!(Request::default().uri(Uri::from_static("http://example.com/blog?nonce=1a2b3c&signature=abcde")).query(), "nonce=1a2b3c&signature=abcde");
     /// ```
     pub fn query(&self) -> &str {
         self.uri.query().unwrap_or("")
@@ -577,12 +577,12 @@ impl Request {
     /// use fibra::{Request, Uri};
     ///
     /// assert_eq!(Request::default().href(), "/");
-    /// assert_eq!(Request::default().uri(Uri::from_static("http://chensoft.com")).href(), "http://chensoft.com/");
-    /// assert_eq!(Request::default().uri(Uri::from_static("http://chensoft.com/")).href(), "http://chensoft.com/");
-    /// assert_eq!(Request::default().uri(Uri::from_static("http://chensoft.com/blog")).href(), "http://chensoft.com/blog");
-    /// assert_eq!(Request::default().uri(Uri::from_static("http://chensoft.com/blog?")).href(), "http://chensoft.com/blog?");
-    /// assert_eq!(Request::default().uri(Uri::from_static("http://chensoft.com/blog?nonce=1a2b3c")).href(), "http://chensoft.com/blog?nonce=1a2b3c");
-    /// assert_eq!(Request::default().uri(Uri::from_static("http://chensoft.com/blog?nonce=1a2b3c&signature=abcde")).href(), "http://chensoft.com/blog?nonce=1a2b3c&signature=abcde");
+    /// assert_eq!(Request::default().uri(Uri::from_static("http://example.com")).href(), "http://example.com/");
+    /// assert_eq!(Request::default().uri(Uri::from_static("http://example.com/")).href(), "http://example.com/");
+    /// assert_eq!(Request::default().uri(Uri::from_static("http://example.com/blog")).href(), "http://example.com/blog");
+    /// assert_eq!(Request::default().uri(Uri::from_static("http://example.com/blog?")).href(), "http://example.com/blog?");
+    /// assert_eq!(Request::default().uri(Uri::from_static("http://example.com/blog?nonce=1a2b3c")).href(), "http://example.com/blog?nonce=1a2b3c");
+    /// assert_eq!(Request::default().uri(Uri::from_static("http://example.com/blog?nonce=1a2b3c&signature=abcde")).href(), "http://example.com/blog?nonce=1a2b3c&signature=abcde");
     /// ```
     pub fn href(&self) -> String {
         self.uri.to_string()

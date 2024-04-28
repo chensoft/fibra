@@ -13,7 +13,7 @@ pub struct Connection {
     /// The count of requests processed
     count: u64,
 
-    /// The local address that is connected
+    /// The endpoint on the local machine for the connection
     sockaddr: SocketAddr,
 
     /// The remote address that the connection comes from

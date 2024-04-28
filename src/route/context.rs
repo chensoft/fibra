@@ -3,7 +3,7 @@ use crate::fibra::*;
 use crate::route::*;
 use crate::types::*;
 
-/// Context which hold the connection and request
+/// Context which holds the connection and request
 pub struct Context {
     /// The root app instance
     app: Arc<Fibra>,
@@ -44,7 +44,7 @@ impl Context {
     ///
     /// ```
     /// use std::sync::Arc;
-    /// use fibra::{Fibra, Context, Connection, Request};
+    /// use fibra::{Context, Fibra, Connection, Request};
     ///
     /// let app = Arc::new(Fibra::default());
     /// let con = Arc::new(Connection::default());
@@ -64,13 +64,15 @@ impl Context {
     /// ```
     /// use chrono::Local;
     /// use std::sync::Arc;
-    /// use fibra::{Fibra, Context, Connection, Request};
+    /// use fibra::{Context, Fibra, Connection, Request};
     ///
+    /// let old = Local::now();
     /// let app = Arc::new(Fibra::default());
     /// let con = Arc::new(Connection::default());
     /// let req = Request::default();
     /// let ctx = Context::from((app, con, req));
     ///
+    /// assert_eq!(ctx.established() >= &old, true);
     /// assert_eq!(ctx.established() <= &Local::now(), true);
     /// ```
     pub fn established(&self) -> &DateTime<Local> {
@@ -83,7 +85,7 @@ impl Context {
     ///
     /// ```
     /// use std::sync::Arc;
-    /// use fibra::{Fibra, Context, Connection, Request};
+    /// use fibra::{Context, Fibra, Connection, Request};
     ///
     /// let app = Arc::new(Fibra::default());
     /// let con = Arc::new(Connection::default().count(5));
@@ -96,14 +98,14 @@ impl Context {
         *self.conn.count_ref()
     }
 
-    /// The local address that is connected
+    /// The endpoint on the local machine for the connection
     ///
     /// # Examples
     ///
     /// ```
     /// use std::sync::Arc;
     /// use std::net::SocketAddr;
-    /// use fibra::{Fibra, Context, Connection, Request};
+    /// use fibra::{Context, Fibra, Connection, Request};
     ///
     /// let app = Arc::new(Fibra::default());
     /// let con = Arc::new(Connection::from((SocketAddr::from(([127, 0, 0, 1], 3000)), SocketAddr::from(([8, 8, 8, 8], 80)))));
@@ -124,7 +126,7 @@ impl Context {
     /// ```
     /// use std::sync::Arc;
     /// use std::net::SocketAddr;
-    /// use fibra::{Fibra, Context, Connection, Request};
+    /// use fibra::{Context, Fibra, Connection, Request};
     ///
     /// let app = Arc::new(Fibra::default());
     /// let con = Arc::new(Connection::from((SocketAddr::from(([127, 0, 0, 1], 3000)), SocketAddr::from(([8, 8, 8, 8], 80)))));
@@ -140,117 +142,424 @@ impl Context {
 }
 
 impl Context {
+    /// Current request object
     pub fn req(&self) -> &Request {
         &self.req
     }
 
+    /// Request's unique id
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use std::sync::Arc;
+    /// use fibra::{Context, Fibra, Connection, Request};
+    ///
+    /// let app = Arc::new(Fibra::default());
+    /// let con = Arc::new(Connection::default());
+    /// let req = Request::default();
+    /// let ctx = Context::from((app, con, req));
+    ///
+    /// assert_eq!(ctx.reqid() > 0, true);
+    /// assert_ne!(ctx.reqid(), ctx.connid());
+    /// ```
     pub fn reqid(&self) -> u128 {
         *self.req.id_ref()
     }
 
+    /// Request's created time
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use chrono::Local;
+    /// use std::sync::Arc;
+    /// use fibra::{Context, Fibra, Connection, Request};
+    ///
+    /// let old = Local::now();
+    /// let app = Arc::new(Fibra::default());
+    /// let con = Arc::new(Connection::default());
+    /// let req = Request::default();
+    /// let ctx = Context::from((app, con, req));
+    ///
+    /// assert_eq!(ctx.created() >= &old, true);
+    /// assert_eq!(ctx.created() <= &Local::now(), true);
+    /// ```
     pub fn created(&self) -> &DateTime<Local> {
         self.req.created_ref()
     }
 
+    /// Request's method
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use chrono::Local;
+    /// use std::sync::Arc;
+    /// use fibra::{Context, Fibra, Connection, Request, Method};
+    ///
+    /// let app = Arc::new(Fibra::default());
+    /// let con = Arc::new(Connection::default());
+    /// let req = Request::default().method(Method::PUT);
+    /// let ctx = Context::from((app, con, req));
+    ///
+    /// assert_eq!(ctx.method(), &Method::PUT);
+    /// assert_eq!(ctx.is_get(), false);
+    /// assert_eq!(ctx.is_post(), false);
+    /// assert_eq!(ctx.is_put(), true);
+    /// assert_eq!(ctx.is_delete(), false);
+    /// assert_eq!(ctx.is_patch(), false);
+    /// ```
     pub fn method(&self) -> &Method {
         self.req.method_ref()
     }
 
+    /// Check method
     pub fn is_get(&self) -> bool {
         self.method() == &Method::GET
     }
 
+    /// Check method
     pub fn is_post(&self) -> bool {
         self.method() == &Method::POST
     }
 
-    // todo more methods
+    /// Check method
+    pub fn is_put(&self) -> bool {
+        self.method() == &Method::PUT
+    }
 
+    /// Check method
+    pub fn is_delete(&self) -> bool {
+        self.method() == &Method::DELETE
+    }
+
+    /// Check method
+    pub fn is_patch(&self) -> bool {
+        self.method() == &Method::PATCH
+    }
+
+    /// Request's uri
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use chrono::Local;
+    /// use std::sync::Arc;
+    /// use fibra::{Context, Fibra, Connection, Request, Uri};
+    ///
+    /// let app = Arc::new(Fibra::default());
+    /// let con = Arc::new(Connection::default());
+    /// let req = Request::default().uri(Uri::from_static("http://example.com"));
+    /// let ctx = Context::from((app, con, req));
+    ///
+    /// assert_eq!(ctx.uri(), "http://example.com/");
+    /// ```
     pub fn uri(&self) -> &Uri {
         self.req.uri_ref()
     }
 
+    /// Request's scheme
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use chrono::Local;
+    /// use std::sync::Arc;
+    /// use fibra::{Context, Fibra, Connection, Request, Uri, Scheme};
+    ///
+    /// let app = Arc::new(Fibra::default());
+    /// let con = Arc::new(Connection::default());
+    /// let req = Request::default().uri(Uri::from_static("https://example.com"));
+    /// let ctx = Context::from((app, con, req));
+    ///
+    /// assert_eq!(ctx.scheme(), &Scheme::HTTPS);
+    /// assert_eq!(ctx.is_secure(), true);
+    /// ```
     pub fn scheme(&self) -> &Scheme {
         self.req.scheme()
     }
 
+    /// Check the scheme
     pub fn is_secure(&self) -> bool {
         self.req.scheme() == &Scheme::HTTPS
     }
 
+    /// Request's authority
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use chrono::Local;
+    /// use std::sync::Arc;
+    /// use fibra::{Context, Fibra, Connection, Request, Uri, Authority};
+    ///
+    /// let app = Arc::new(Fibra::default());
+    /// let con = Arc::new(Connection::default());
+    /// let req = Request::default().uri(Uri::from_static("http://user:pass@example.com"));
+    /// let ctx = Context::from((app, con, req));
+    ///
+    /// assert_eq!(ctx.authority(), Some(&Authority::from_static("user:pass@example.com")));
+    /// ```
     pub fn authority(&self) -> Option<&Authority> {
         self.req.authority()
     }
 
+    /// Request's domain
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use chrono::Local;
+    /// use std::sync::Arc;
+    /// use fibra::{Context, Fibra, Connection, Request, Uri};
+    ///
+    /// let app = Arc::new(Fibra::default());
+    /// let con = Arc::new(Connection::default());
+    /// let req = Request::default().uri(Uri::from_static("http://user:pass@example.com"));
+    /// let ctx = Context::from((app, con, req));
+    ///
+    /// assert_eq!(ctx.domain(), "example.com");
+    /// ```
     pub fn domain(&self) -> &str {
         self.req.domain()
     }
 
+    /// Request's subdomain
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use chrono::Local;
+    /// use std::sync::Arc;
+    /// use fibra::{Context, Fibra, Connection, Request, Uri};
+    ///
+    /// let app = Arc::new(Fibra::default());
+    /// let con = Arc::new(Connection::default());
+    /// let req = Request::default().uri(Uri::from_static("http://user:pass@git.example.com"));
+    /// let ctx = Context::from((app, con, req));
+    ///
+    /// assert_eq!(ctx.subdomain(), "git");
+    /// ```
     pub fn subdomain(&self) -> &str {
         self.req.subdomain()
     }
 
+    /// Request's host
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use chrono::Local;
+    /// use std::sync::Arc;
+    /// use fibra::{Context, Fibra, Connection, Request, Uri};
+    ///
+    /// let app = Arc::new(Fibra::default());
+    /// let con = Arc::new(Connection::default());
+    /// let req = Request::default().uri(Uri::from_static("http://user:pass@git.example.com"));
+    /// let ctx = Context::from((app, con, req));
+    ///
+    /// assert_eq!(ctx.host(), "git.example.com");
+    /// ```
     pub fn host(&self) -> &str {
         self.req.host()
     }
 
+    /// Request's port
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use chrono::Local;
+    /// use std::sync::Arc;
+    /// use fibra::{Context, Fibra, Connection, Request, Uri};
+    ///
+    /// let app = Arc::new(Fibra::default());
+    /// let con = Arc::new(Connection::default());
+    /// let req = Request::default().uri(Uri::from_static("http://example.com:3000"));
+    /// let ctx = Context::from((app, con, req));
+    ///
+    /// assert_eq!(ctx.port(), 3000);
+    /// ```
     pub fn port(&self) -> u16 {
         self.req.port()
     }
 
+    /// Request's path
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use chrono::Local;
+    /// use std::sync::Arc;
+    /// use fibra::{Context, Fibra, Connection, Request, Uri};
+    ///
+    /// let app = Arc::new(Fibra::default());
+    /// let con = Arc::new(Connection::default());
+    /// let req = Request::default().uri(Uri::from_static("http://example.com/repo/fibra"));
+    /// let ctx = Context::from((app, con, req));
+    ///
+    /// assert_eq!(ctx.path(), "/repo/fibra");
+    /// ```
     pub fn path(&self) -> &str {
         self.req.path()
     }
 
-    // /// Get a query value
-    // ///
-    // /// ```
-    // /// use fibra::{Request, Uri};
-    // ///
-    // /// assert_eq!(Request::default().queries("nonce"), "");
-    // /// assert_eq!(Request::default().uri(Uri::from_static("http://chensoft.com")).queries("nonce"), "");
-    // /// assert_eq!(Request::default().uri(Uri::from_static("http://chensoft.com/")).queries("nonce"), "");
-    // /// assert_eq!(Request::default().uri(Uri::from_static("http://chensoft.com/blog")).queries("nonce"), "");
-    // /// assert_eq!(Request::default().uri(Uri::from_static("http://chensoft.com/blog?")).queries("nonce"), "");
-    // /// assert_eq!(Request::default().uri(Uri::from_static("http://chensoft.com/blog?nonce=1a2b3c")).queries("nonce"), "1a2b3c");
-    // /// assert_eq!(Request::default().uri(Uri::from_static("http://chensoft.com/blog?nonce=1a2b3c&signature=abcde")).queries("nonce"), "1a2b3c");
-    // /// ```
+    /// Request's query value
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use chrono::Local;
+    /// use std::sync::Arc;
+    /// use fibra::{Context, Fibra, Connection, Request, Uri};
+    ///
+    /// let app = Arc::new(Fibra::default());
+    /// let con = Arc::new(Connection::default());
+    /// let req = Request::default().uri(Uri::from_static("http://example.com/?foo=bar"));
+    /// let ctx = Context::from((app, con, req));
+    ///
+    /// assert_eq!(ctx.query("foo"), "bar");
+    /// assert_eq!(ctx.query("key"), "");
+    /// ```
     pub fn query(&self, key: &str) -> &str {
         self.queries.get(key).map(|v| v.as_str()).unwrap_or("")
     }
 
+    /// Request's query string
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use chrono::Local;
+    /// use std::sync::Arc;
+    /// use fibra::{Context, Fibra, Connection, Request, Uri};
+    ///
+    /// let app = Arc::new(Fibra::default());
+    /// let con = Arc::new(Connection::default());
+    /// let req = Request::default().uri(Uri::from_static("http://example.com/?foo=bar&key=%E4%BD%A0%E5%A5%BD"));
+    /// let ctx = Context::from((app, con, req));
+    ///
+    /// assert_eq!(ctx.query("foo"), "bar");
+    /// assert_eq!(ctx.query("key"), "你好"); // url decoded
+    /// assert_eq!(ctx.queries(), &indexmap::indexmap! { "foo".to_string() => "bar".to_string(), "key".to_string() => "你好".to_string() });
+    /// ```
     pub fn queries(&self) -> &IndexMap<String, String> {
         &self.queries
     }
 
+    /// Request's whole uri
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use chrono::Local;
+    /// use std::sync::Arc;
+    /// use fibra::{Context, Fibra, Connection, Request, Uri};
+    ///
+    /// let app = Arc::new(Fibra::default());
+    /// let con = Arc::new(Connection::default());
+    /// let req = Request::default().uri(Uri::from_static("http://user:pass@git.example.com/repo/fibra?foo=bar&key=%E4%BD%A0%E5%A5%BD"));
+    /// let ctx = Context::from((app, con, req));
+    ///
+    /// assert_eq!(ctx.href(), "http://user:pass@git.example.com/repo/fibra?foo=bar&key=%E4%BD%A0%E5%A5%BD".to_string());
+    /// ```
     pub fn href(&self) -> String {
         self.req.href()
     }
 
+    /// Request's version
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use chrono::Local;
+    /// use std::sync::Arc;
+    /// use fibra::{Context, Fibra, Connection, Request, Version};
+    ///
+    /// let app = Arc::new(Fibra::default());
+    /// let con = Arc::new(Connection::default());
+    /// let req = Request::default().version(Version::HTTP_10);
+    /// let ctx = Context::from((app, con, req));
+    ///
+    /// assert_eq!(ctx.version(), &Version::HTTP_10);
+    /// assert_eq!(ctx.is_http10(), true);
+    /// assert_eq!(ctx.is_http11(), false);
+    /// assert_eq!(ctx.is_http1x(), true);
+    /// assert_eq!(ctx.is_http2(), false);
+    /// assert_eq!(ctx.is_http3(), false);
+    /// ```
     pub fn version(&self) -> &Version {
         self.req.version_ref()
     }
 
+    /// Check http version
+    pub fn is_http1x(&self) -> bool {
+        self.is_http10() || self.is_http11()
+    }
+
+    /// Check http version
     pub fn is_http10(&self) -> bool {
         self.version() == &Version::HTTP_10
     }
 
+    /// Check http version
     pub fn is_http11(&self) -> bool {
         self.version() == &Version::HTTP_11
     }
 
+    /// Check http version
     pub fn is_http2(&self) -> bool {
         self.version() == &Version::HTTP_2
     }
 
+    /// Check http version
     pub fn is_http3(&self) -> bool {
         self.version() == &Version::HTTP_3
     }
 
+    /// Request's headers
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use chrono::Local;
+    /// use std::sync::Arc;
+    /// use fibra::{Context, Fibra, Connection, Request};
+    ///
+    /// let app = Arc::new(Fibra::default());
+    /// let con = Arc::new(Connection::default());
+    /// let req = Request::default().header("content-type", "application/json").header("cache-control", "no-cache");
+    /// let ctx = Context::from((app, con, req));
+    ///
+    /// let headers = ctx.headers();
+    ///
+    /// assert_eq!(headers.get("content-type").map(|v| v.as_bytes()), Some("application/json".as_bytes()));
+    /// assert_eq!(headers.get("cache-control").map(|v| v.as_bytes()), Some("no-cache".as_bytes()));
+    /// assert_eq!(headers.get("accept-encoding"), None);
+    /// ```
     pub fn headers(&self) -> &HeaderMap {
         self.req.headers_ref()
     }
 
+    /// Request's header value
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use chrono::Local;
+    /// use std::sync::Arc;
+    /// use fibra::{Context, Fibra, Connection, Request};
+    ///
+    /// let app = Arc::new(Fibra::default());
+    /// let con = Arc::new(Connection::default());
+    /// let req = Request::default().header("content-type", "application/json").header("cache-control", "no-cache");
+    /// let ctx = Context::from((app, con, req));
+    ///
+    /// assert_eq!(ctx.header("content-type").map(|v| v.as_bytes()), Some("application/json".as_bytes()));
+    /// assert_eq!(ctx.header("cache-control").map(|v| v.as_bytes()), Some("no-cache".as_bytes()));
+    /// assert_eq!(ctx.header("accept-encoding"), None);
+    /// ```
     pub fn header(&self, key: impl AsHeaderName) -> Option<&HeaderValue> {
         self.req.header_ref(key)
     }
