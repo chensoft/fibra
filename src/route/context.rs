@@ -21,37 +21,119 @@ pub struct Context {
     queries: IndexMap<String, String>,
 
     /// Internal routing stack
-    routes: Vec<(*const dyn Handler, usize)>,
+    routing: Vec<(*const dyn Handler, usize)>,
 }
 
 unsafe impl Send for Context {}
 unsafe impl Sync for Context {}
 
 impl Context {
+    /// The root app instance
     pub fn app(&self) -> &Fibra {
         &self.app
     }
 
+    /// Current connection, multiple requests may belong to a single connection
     pub fn conn(&self) -> &Connection {
         &self.conn
     }
 
+    /// Current connection's unique id
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use std::sync::Arc;
+    /// use fibra::{Fibra, Context, Connection, Request};
+    ///
+    /// let app = Arc::new(Fibra::default());
+    /// let con = Arc::new(Connection::default());
+    /// let req = Request::default();
+    /// let ctx = Context::from((app, con, req));
+    ///
+    /// assert_eq!(ctx.connid() > 0, true);
+    /// ```
     pub fn connid(&self) -> u128 {
         *self.conn.id_ref()
     }
 
+    /// Current connection's established time
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use chrono::Local;
+    /// use std::sync::Arc;
+    /// use fibra::{Fibra, Context, Connection, Request};
+    ///
+    /// let app = Arc::new(Fibra::default());
+    /// let con = Arc::new(Connection::default());
+    /// let req = Request::default();
+    /// let ctx = Context::from((app, con, req));
+    ///
+    /// assert_eq!(ctx.established() <= &Local::now(), true);
+    /// ```
     pub fn established(&self) -> &DateTime<Local> {
         self.conn.created_ref()
     }
 
+    /// The number of requests served by a connection
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use std::sync::Arc;
+    /// use fibra::{Fibra, Context, Connection, Request};
+    ///
+    /// let app = Arc::new(Fibra::default());
+    /// let con = Arc::new(Connection::default().count(5));
+    /// let req = Request::default();
+    /// let ctx = Context::from((app, con, req));
+    ///
+    /// assert_eq!(ctx.served(), 5);
+    /// ```
     pub fn served(&self) -> u64 {
         *self.conn.count_ref()
     }
 
+    /// The local address that is connected
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use std::sync::Arc;
+    /// use std::net::SocketAddr;
+    /// use fibra::{Fibra, Context, Connection, Request};
+    ///
+    /// let app = Arc::new(Fibra::default());
+    /// let con = Arc::new(Connection::from((SocketAddr::from(([127, 0, 0, 1], 3000)), SocketAddr::from(([8, 8, 8, 8], 80)))));
+    /// let req = Request::default();
+    /// let ctx = Context::from((app, con, req));
+    ///
+    /// assert_eq!(ctx.local().to_string(), "127.0.0.1:3000");
+    /// assert_eq!(ctx.remote().to_string(), "8.8.8.8:80");
+    /// ```
     pub fn local(&self) -> &SocketAddr {
         self.conn.sockaddr_ref()
     }
 
+    /// The remote address that the connection comes from
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use std::sync::Arc;
+    /// use std::net::SocketAddr;
+    /// use fibra::{Fibra, Context, Connection, Request};
+    ///
+    /// let app = Arc::new(Fibra::default());
+    /// let con = Arc::new(Connection::from((SocketAddr::from(([127, 0, 0, 1], 3000)), SocketAddr::from(([8, 8, 8, 8], 80)))));
+    /// let req = Request::default();
+    /// let ctx = Context::from((app, con, req));
+    ///
+    /// assert_eq!(ctx.local().to_string(), "127.0.0.1:3000");
+    /// assert_eq!(ctx.remote().to_string(), "8.8.8.8:80");
+    /// ```
     pub fn remote(&self) -> &SocketAddr {
         self.conn.peeraddr_ref()
     }
@@ -209,16 +291,16 @@ impl Context {
 impl Context {
     #[inline]
     pub fn push(&mut self, cur: *const dyn Handler) {
-        self.routes.push((cur, 0));
+        self.routing.push((cur, 0));
     }
 
     #[inline]
     pub fn pop(&mut self) {
-        self.routes.pop();
+        self.routing.pop();
     }
 
     pub async fn next(mut self) -> FibraResult<Response> {
-        while let Some((cur, idx)) = self.routes.last_mut() {
+        while let Some((cur, idx)) = self.routing.last_mut() {
             let top = unsafe { &**cur };
             let cld = match top.nested(*idx) {
                 Some(obj) => obj,
@@ -261,6 +343,6 @@ impl Context {
 impl From<(Arc<Fibra>, Arc<Connection>, Request)> for Context {
     fn from((app, conn, req): (Arc<Fibra>, Arc<Connection>, Request)) -> Self {
         let queries = form_urlencoded::parse(req.query().as_bytes()).into_owned().collect();
-        Self { app, conn, req, params: IndexMap::new(), queries, routes: vec![] }
+        Self { app, conn, req, params: IndexMap::new(), queries, routing: vec![] }
     }
 }
