@@ -11,7 +11,7 @@ pub struct Connection {
     created: DateTime<Local>,
 
     /// The count of requests processed
-    count: u64,
+    count: AtomicUsize,
 
     /// The endpoint on the local machine for the connection
     sockaddr: SocketAddr,
@@ -120,10 +120,11 @@ impl Connection {
     /// 
     /// ```
     /// use fibra::{Connection};
+    /// use std::sync::atomic::{AtomicUsize, Ordering};
     ///
-    /// assert_eq!(*Connection::default().count_ref(), 0);
+    /// assert_eq!(Connection::default().count_ref().load(Ordering::Relaxed), 0);
     /// ```
-    pub fn count_ref(&self) -> &u64 {
+    pub fn count_ref(&self) -> &AtomicUsize {
         &self.count
     }
 
@@ -133,13 +134,14 @@ impl Connection {
     /// 
     /// ```
     /// use fibra::{Connection};
+    /// use std::sync::atomic::{AtomicUsize, Ordering};
     ///
     /// let mut con = Connection::default();
-    /// *con.count_mut() = 12345;
+    /// *con.count_mut() = AtomicUsize::new(12345);
     ///
-    /// assert_eq!(con.count_ref(), &12345);
+    /// assert_eq!(con.count_ref().load(Ordering::Relaxed), 12345);
     /// ```
-    pub fn count_mut(&mut self) -> &mut u64 {
+    pub fn count_mut(&mut self) -> &mut AtomicUsize {
         &mut self.count
     }
 
@@ -149,11 +151,12 @@ impl Connection {
     /// 
     /// ```
     /// use fibra::{Connection};
+    /// use std::sync::atomic::{Ordering};
     ///
-    /// assert_eq!(Connection::default().count(12345).count_ref(), &12345);
+    /// assert_eq!(Connection::default().count(12345).count_ref().load(Ordering::Relaxed), 12345);
     /// ```
-    pub fn count(mut self, val: u64) -> Self {
-        self.count = val;
+    pub fn count(mut self, val: usize) -> Self {
+        self.count = AtomicUsize::new(val);
         self
     }
 
@@ -260,6 +263,6 @@ impl Default for Connection {
 /// Create a new connection
 impl<S: Into<SocketAddr>, P: Into<SocketAddr>> From<(S, P)> for Connection {
     fn from((sock, peer): (S, P)) -> Self {
-        Self { id: Ulid::new().0, count: 0, created: Local::now(), sockaddr: sock.into(), peeraddr: peer.into() }
+        Self { id: Ulid::new().0, count: 0.into(), created: Local::now(), sockaddr: sock.into(), peeraddr: peer.into() }
     }
 }

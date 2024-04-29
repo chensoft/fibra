@@ -94,8 +94,8 @@ impl Context {
     ///
     /// assert_eq!(ctx.served(), 5);
     /// ```
-    pub fn served(&self) -> u64 {
-        *self.conn.count_ref()
+    pub fn served(&self) -> usize {
+        self.conn.count_ref().load(atomic::Ordering::Relaxed)
     }
 
     /// The endpoint on the local machine for the connection
@@ -487,7 +487,6 @@ impl Context {
     /// assert_eq!(ctx.is_http11(), false);
     /// assert_eq!(ctx.is_http1x(), true);
     /// assert_eq!(ctx.is_http2(), false);
-    /// assert_eq!(ctx.is_http3(), false);
     /// ```
     pub fn version(&self) -> &Version {
         self.req.version_ref()
@@ -511,11 +510,6 @@ impl Context {
     /// Check http version
     pub fn is_http2(&self) -> bool {
         self.version() == &Version::HTTP_2
-    }
-
-    /// Check http version
-    pub fn is_http3(&self) -> bool {
-        self.version() == &Version::HTTP_3
     }
 
     /// Request's headers

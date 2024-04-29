@@ -49,19 +49,23 @@ impl Fibra {
         use hyper::service::{make_service_fn, service_fn};
 
         let mut sockets = std::mem::take(&mut self.sockets);
-        let appself = Arc::new(self);
-        let service = make_service_fn(|conn: &AddrStream| {
-            // todo one context one connection
-            let appself = appself.clone();
-            let connection = Arc::new(Connection::from((conn.local_addr(), conn.remote_addr())));
+        let app = Arc::new(self);
+        let srv = make_service_fn(|conn: &AddrStream| {
+            let app = app.clone();
+            let con = Arc::new(Connection::from((conn.local_addr(), conn.remote_addr())));
 
             async move {
                 Ok::<_, Infallible>(service_fn(move |req| {
-                    let appself = appself.clone();
-                    let request = Request::from(req);
-                    let context = Context::from((appself.clone(), connection.clone(), request));
+                    // simply incr the count because no concurrent requests
+                    con.count_ref().fetch_add(1, atomic::Ordering::Relaxed);
 
-                    async move { Ok::<_, FibraError>(appself.handle(context).await?.into()) }
+                    // construct our own context object for each request
+                    let app = app.clone();
+                    let req = Request::from(req);
+                    let ctx = Context::from((app.clone(), con.clone(), req));
+
+                    // processing the request from the root's handle method
+                    async move { Ok::<_, FibraError>(app.handle(ctx).await?.into()) }
                 }))
             }
         });
@@ -69,7 +73,7 @@ impl Fibra {
         let mut servers = vec![];
 
         while let Some(socket) = sockets.pop() {
-            servers.push(Server::from_tcp(socket.into())?.serve(service));
+            servers.push(Server::from_tcp(socket.into())?.serve(srv));
         }
 
         futures::future::join_all(servers).await;
