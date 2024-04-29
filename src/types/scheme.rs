@@ -13,7 +13,9 @@ pub enum Scheme {
     Unknown,
 }
 
+/// Default trait
 impl Default for Scheme {
+    #[inline]
     fn default() -> Self {
         Self::Unknown
     }

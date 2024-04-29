@@ -47,6 +47,7 @@ impl Request {
     ///
     /// assert_eq!(*Request::default().id_ref() > 0, true);
     /// ```
+    #[inline]
     pub fn id_ref(&self) -> &u128 {
         &self.id
     }
@@ -63,6 +64,7 @@ impl Request {
     ///
     /// assert_eq!(req.id_ref(), &12345);
     /// ```
+    #[inline]
     pub fn id_mut(&mut self) -> &mut u128 {
         &mut self.id
     }
@@ -76,6 +78,7 @@ impl Request {
     ///
     /// assert_eq!(Request::default().id(12345).id_ref(), &12345);
     /// ```
+    #[inline]
     pub fn id(mut self, val: u128) -> Self {
         self.id = val;
         self
@@ -91,6 +94,7 @@ impl Request {
     ///
     /// assert_eq!(Request::default().created_ref() <= &Local::now(), true);
     /// ```
+    #[inline]
     pub fn created_ref(&self) -> &DateTime<Local> {
         &self.created
     }
@@ -109,6 +113,7 @@ impl Request {
     ///
     /// assert_eq!(req.created_ref(), &now);
     /// ```
+    #[inline]
     pub fn created_mut(&mut self) -> &mut DateTime<Local> {
         &mut self.created
     }
@@ -126,6 +131,7 @@ impl Request {
     ///
     /// assert_eq!(req.created_ref(), &now);
     /// ```
+    #[inline]
     pub fn created(mut self, val: impl Into<DateTime<Local>>) -> Self {
         self.created = val.into();
         self
@@ -140,6 +146,7 @@ impl Request {
     ///
     /// assert_eq!(Request::default().method_ref(), &Method::GET);
     /// ```
+    #[inline]
     pub fn method_ref(&self) -> &Method {
         &self.method
     }
@@ -156,6 +163,7 @@ impl Request {
     ///
     /// assert_eq!(req.method_ref(), &Method::PUT);
     /// ```
+    #[inline]
     pub fn method_mut(&mut self) -> &mut Method {
         &mut self.method
     }
@@ -169,6 +177,7 @@ impl Request {
     ///
     /// assert_eq!(Request::default().method(Method::PUT).method_ref(), &Method::PUT);
     /// ```
+    #[inline]
     pub fn method(mut self, val: impl Into<Method>) -> Self {
         self.method = val.into();
         self
@@ -183,6 +192,7 @@ impl Request {
     ///
     /// assert_eq!(Request::default().uri_ref(), "/");
     /// ```
+    #[inline]
     pub fn uri_ref(&self) -> &Uri {
         &self.uri
     }
@@ -199,6 +209,7 @@ impl Request {
     ///
     /// assert_eq!(req.uri_ref(), "http://example.com/");
     /// ```
+    #[inline]
     pub fn uri_mut(&mut self) -> &mut Uri {
         &mut self.uri
     }
@@ -212,6 +223,7 @@ impl Request {
     ///
     /// assert_eq!(Request::default().uri(Uri::from_static("http://example.com")).uri_ref(), "http://example.com/");
     /// ```
+    #[inline]
     pub fn uri(mut self, val: impl Into<Uri>) -> Self {
         self.uri = val.into();
         self
@@ -226,6 +238,7 @@ impl Request {
     ///
     /// assert_eq!(Request::default().version_ref(), &Version::HTTP_11);
     /// ```
+    #[inline]
     pub fn version_ref(&self) -> &Version {
         &self.version
     }
@@ -242,6 +255,7 @@ impl Request {
     ///
     /// assert_eq!(req.version_ref(), &Version::HTTP_2);
     /// ```
+    #[inline]
     pub fn version_mut(&mut self) -> &mut Version {
         &mut self.version
     }
@@ -255,6 +269,7 @@ impl Request {
     ///
     /// assert_eq!(Request::default().version(Version::HTTP_2).version_ref(), &Version::HTTP_2);
     /// ```
+    #[inline]
     pub fn version(mut self, val: impl Into<Version>) -> Self {
         self.version = val.into();
         self
@@ -269,6 +284,7 @@ impl Request {
     ///
     /// assert_eq!(Request::default().headers_ref().is_empty(), true);
     /// ```
+    #[inline]
     pub fn headers_ref(&self) -> &HeaderMap {
         &self.headers
     }
@@ -285,6 +301,7 @@ impl Request {
     ///
     /// assert_eq!(req.headers_ref().get(header::CACHE_CONTROL).map(|v| v.as_bytes()), Some("no-cache".as_bytes()));
     /// ```
+    #[inline]
     pub fn headers_mut(&mut self) -> &mut HeaderMap {
         &mut self.headers
     }
@@ -303,6 +320,7 @@ impl Request {
     ///
     /// assert_eq!(req.headers_ref().get(header::CACHE_CONTROL).map(|v| v.as_bytes()), Some("no-cache".as_bytes()));
     /// ```
+    #[inline]
     pub fn headers(mut self, val: impl Into<HeaderMap>) -> Self {
         self.headers = val.into();
         self
@@ -317,6 +335,7 @@ impl Request {
     ///
     /// assert_eq!(Request::default().header_ref(header::ACCEPT_ENCODING).is_none(), true);
     /// ```
+    #[inline]
     pub fn header_ref(&self, key: impl AsHeaderName) -> Option<&HeaderValue> {
         self.headers.get(key)
     }
@@ -330,6 +349,7 @@ impl Request {
     ///
     /// assert_eq!(Request::default().header_mut(header::ACCEPT_ENCODING).is_none(), true);
     /// ```
+    #[inline]
     pub fn header_mut(&mut self, key: impl AsHeaderName) -> Option<&mut HeaderValue> {
         self.headers.get_mut(key)
     }
@@ -345,6 +365,7 @@ impl Request {
     ///
     /// assert_eq!(req.header_ref(header::ACCEPT_ENCODING).map(|v| v.as_bytes()), Some("gzip, deflate".as_bytes()));
     /// ```
+    #[inline]
     pub fn header(mut self, key: impl IntoHeaderName, val: impl IntoHeaderValue) -> Self {
         self.headers.insert(key, val.into_value());
         self
@@ -359,6 +380,7 @@ impl Request {
     ///
     /// Request::default().body_ref();
     /// ```
+    #[inline]
     pub fn body_ref(&self) -> &Body {
         &self.body
     }
@@ -378,6 +400,7 @@ impl Request {
     ///     Ok(())
     /// }
     /// ```
+    #[inline]
     pub fn body_mut(&mut self) -> &mut Body {
         &mut self.body
     }
@@ -396,6 +419,7 @@ impl Request {
     ///     Ok(())
     /// }
     /// ```
+    #[inline]
     pub fn body(mut self, val: impl Into<Body>) -> Self {
         self.body = val.into();
         self
@@ -414,6 +438,7 @@ impl Request {
     /// assert_eq!(Request::default().uri(Uri::from_static("http://example.com")).scheme(), &Scheme::HTTP);
     /// assert_eq!(Request::default().uri(Uri::from_static("https://example.com")).scheme(), &Scheme::HTTPS);
     /// ```
+    #[inline]
     pub fn scheme(&self) -> &Scheme {
         // todo check tls socket, scheme is none when self comes from hyper connection
         let scheme = self.uri.scheme();
@@ -438,6 +463,7 @@ impl Request {
     ///
     /// assert_eq!(Request::default().uri(Uri::from_static("http://user:pass@example.com")).authority(), Some(&Authority::from_static("user:pass@example.com")));
     /// ```
+    #[inline]
     pub fn authority(&self) -> Option<&Authority> {
         self.uri.authority()
     }
@@ -455,6 +481,7 @@ impl Request {
     /// assert_eq!(Request::default().uri(Uri::from_static("http://fibra.api.example.com")).domain(), "example.com");
     /// assert_eq!(Request::default().uri(Uri::from_static("https://www.google.com.hk")).domain(), "google.com.hk");
     /// ```
+    #[inline]
     pub fn domain(&self) -> &str {
         match psl::domain(self.host().as_bytes()) {
             Some(d) => unsafe { std::str::from_utf8_unchecked(d.as_bytes()) },
@@ -475,6 +502,7 @@ impl Request {
     /// assert_eq!(Request::default().uri(Uri::from_static("http://fibra.api.example.com")).subdomain(), "fibra.api");
     /// assert_eq!(Request::default().uri(Uri::from_static("https://www.google.com.hk")).subdomain(), "www");
     /// ```
+    #[inline]
     pub fn subdomain(&self) -> &str {
         let host = self.host();
         let domain = match psl::domain(host.as_bytes()) {
@@ -500,6 +528,7 @@ impl Request {
     /// assert_eq!(Request::default().uri(Uri::from_static("http://www.example.com")).host(), "www.example.com");
     /// assert_eq!(Request::default().uri(Uri::from_static("http://fibra.api.example.com")).host(), "fibra.api.example.com");
     /// ```
+    #[inline]
     pub fn host(&self) -> &str {
         self.uri.host().unwrap_or("")
     }
@@ -518,6 +547,7 @@ impl Request {
     /// assert_eq!(Request::default().uri(Uri::from_static("https://example.com")).port(), 443);
     /// assert_eq!(Request::default().uri(Uri::from_static("https://www.example.com:8443")).port(), 8443);
     /// ```
+    #[inline]
     pub fn port(&self) -> u16 {
         match self.uri.port_u16() {
             Some(port) => port,
@@ -546,6 +576,7 @@ impl Request {
     /// assert_eq!(Request::default().uri(Uri::from_static("http://example.com:3000/blog")).path(), "/blog");
     /// assert_eq!(Request::default().uri(Uri::from_static("http://example.com:3000/blog/2024")).path(), "/blog/2024");
     /// ```
+    #[inline]
     pub fn path(&self) -> &str {
         self.uri.path()
     }
@@ -565,6 +596,7 @@ impl Request {
     /// assert_eq!(Request::default().uri(Uri::from_static("http://example.com/blog?nonce=1a2b3c")).query(), "nonce=1a2b3c");
     /// assert_eq!(Request::default().uri(Uri::from_static("http://example.com/blog?nonce=1a2b3c&signature=abcde")).query(), "nonce=1a2b3c&signature=abcde");
     /// ```
+    #[inline]
     pub fn query(&self) -> &str {
         self.uri.query().unwrap_or("")
     }
@@ -584,6 +616,7 @@ impl Request {
     /// assert_eq!(Request::default().uri(Uri::from_static("http://example.com/blog?nonce=1a2b3c")).href(), "http://example.com/blog?nonce=1a2b3c");
     /// assert_eq!(Request::default().uri(Uri::from_static("http://example.com/blog?nonce=1a2b3c&signature=abcde")).href(), "http://example.com/blog?nonce=1a2b3c&signature=abcde");
     /// ```
+    #[inline]
     pub fn href(&self) -> String {
         self.uri.to_string()
     }
@@ -591,6 +624,7 @@ impl Request {
 
 /// Default trait
 impl Default for Request {
+    #[inline]
     fn default() -> Self {
         Self::from(hyper::Request::default())
     }
@@ -598,6 +632,7 @@ impl Default for Request {
 
 /// Create a new Request based on hyper's Request
 impl From<hyper::Request<Body>> for Request {
+    #[inline]
     fn from(from: hyper::Request<Body>) -> Self {
         let (head, body) = from.into_parts();
         Self {

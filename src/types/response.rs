@@ -27,6 +27,7 @@ impl Response {
     ///
     /// assert_eq!(Response::default().version_ref(), &Version::HTTP_11);
     /// ```
+    #[inline]
     pub fn version_ref(&self) -> &Version {
         &self.version
     }
@@ -42,6 +43,7 @@ impl Response {
     /// *res.version_mut() = Version::HTTP_10;
     /// assert_eq!(res.version_mut(), &Version::HTTP_10);
     /// ```
+    #[inline]
     pub fn version_mut(&mut self) -> &mut Version {
         &mut self.version
     }
@@ -56,6 +58,7 @@ impl Response {
     /// let mut res = Response::default().version(Version::HTTP_10);
     /// assert_eq!(res.version_mut(), &Version::HTTP_10);
     /// ```
+    #[inline]
     pub fn version(mut self, val: impl Into<Version>) -> Self {
         self.version = val.into();
         self
@@ -70,6 +73,7 @@ impl Response {
     ///
     /// assert_eq!(Response::default().status_ref(), &Status::OK);
     /// ```
+    #[inline]
     pub fn status_ref(&self) -> &Status {
         &self.status
     }
@@ -85,6 +89,7 @@ impl Response {
     /// *res.status_mut() = Status::NOT_FOUND;
     /// assert_eq!(res.status_mut(), &Status::NOT_FOUND);
     /// ```
+    #[inline]
     pub fn status_mut(&mut self) -> &mut Status {
         &mut self.status
     }
@@ -99,6 +104,7 @@ impl Response {
     /// let mut res = Response::default().status(Status::NOT_FOUND);
     /// assert_eq!(res.status_mut(), &Status::NOT_FOUND);
     /// ```
+    #[inline]
     pub fn status(mut self, val: impl Into<Status>) -> Self {
         self.status = val.into();
         self
@@ -113,6 +119,7 @@ impl Response {
     ///
     /// assert_eq!(Response::default().headers_ref().len(), 0);
     /// ```
+    #[inline]
     pub fn headers_ref(&self) -> &HeaderMap {
         &self.headers
     }
@@ -128,6 +135,7 @@ impl Response {
     /// res.headers_mut().insert(header::CONTENT_TYPE, mime::APPLICATION_JSON.into_value());
     /// assert_eq!(res.headers_mut()[header::CONTENT_TYPE], mime::APPLICATION_JSON.as_ref());
     /// ```
+    #[inline]
     pub fn headers_mut(&mut self) -> &mut HeaderMap {
         &mut self.headers
     }
@@ -147,6 +155,7 @@ impl Response {
     ///
     /// assert_eq!(res.headers_mut()[header::CONTENT_TYPE], mime::APPLICATION_JSON.as_ref());
     /// ```
+    #[inline]
     pub fn headers(mut self, val: impl Into<HeaderMap>) -> Self {
         self.headers = val.into();
         self
@@ -164,6 +173,7 @@ impl Response {
     ///
     /// assert_eq!(res.header_ref(header::CONTENT_TYPE).map(|v| v.as_bytes()), Some(mime::APPLICATION_JSON.as_ref().as_bytes()));
     /// ```
+    #[inline]
     pub fn header_ref(&self, key: impl AsHeaderName) -> Option<&HeaderValue> {
         self.headers.get(key)
     }
@@ -180,6 +190,7 @@ impl Response {
     ///
     /// assert_eq!(res.header_ref(header::CONTENT_TYPE).map(|v| v.as_bytes()), Some(mime::TEXT_PLAIN_UTF_8.as_ref().as_bytes()));
     /// ```
+    #[inline]
     pub fn header_mut(&mut self, key: impl AsHeaderName) -> Option<&mut HeaderValue> {
         self.headers.get_mut(key)
     }
@@ -195,6 +206,7 @@ impl Response {
     ///
     /// assert_eq!(res.header_ref(header::CONTENT_TYPE).map(|v| v.as_bytes()), Some(mime::TEXT_HTML_UTF_8.as_ref().as_bytes()));
     /// ```
+    #[inline]
     pub fn header(mut self, key: impl IntoHeaderName, val: impl IntoHeaderValue) -> Self {
         self.headers.insert(key, val.into_value());
         self
@@ -209,6 +221,7 @@ impl Response {
     ///
     /// Response::default().body_ref();
     /// ```
+    #[inline]
     pub fn body_ref(&self) -> &Body {
         &self.body
     }
@@ -228,6 +241,7 @@ impl Response {
     ///     Ok(())
     /// }
     /// ```
+    #[inline]
     pub fn body_mut(&mut self) -> &mut Body {
         &mut self.body
     }
@@ -247,6 +261,7 @@ impl Response {
     ///     Ok(())
     /// }
     /// ```
+    #[inline]
     pub fn body(mut self, val: impl Into<Body>) -> Self {
         self.body = val.into();
         self
@@ -276,6 +291,7 @@ impl Response {
     ///     Ok(())
     /// }
     /// ```
+    #[inline]
     pub fn json(self, val: impl encoder::json::Encode) -> Self {
         let mut buf = vec![];
         val.encode(&mut buf);
@@ -306,6 +322,7 @@ impl Response {
     ///     Ok(())
     /// }
     /// ```
+    #[inline]
     pub fn jsonp(self, val: impl encoder::json::Encode, callback: &str) -> Self {
         let mut buf = vec![];
         buf.extend(callback.as_bytes());
@@ -334,6 +351,7 @@ impl Response {
     ///     Ok(())
     /// }
     /// ```
+    #[inline]
     pub fn text(self, val: impl Into<String>) -> Self {
         self.header(header::CONTENT_TYPE, mime::TEXT_PLAIN_UTF_8).body(val.into())
     }
@@ -356,6 +374,7 @@ impl Response {
     ///     Ok(())
     /// }
     /// ```
+    #[inline]
     pub fn html(self, val: impl Into<Body>) -> Self {
         self.header(header::CONTENT_TYPE, mime::TEXT_HTML_UTF_8).body(val.into())
     }
@@ -385,6 +404,7 @@ impl Response {
     ///     Ok(())
     /// }
     /// ```
+    #[inline]
     pub fn bytes(self, val: impl Into<Body>) -> Self {
         self.header(header::CONTENT_TYPE, mime::APPLICATION_OCTET_STREAM).body(val)
     }
@@ -434,6 +454,7 @@ impl Response {
     ///     Ok(())
     /// }
     /// ```
+    #[inline]
     pub fn stream<S, O>(self, val: S) -> Self
         where
             S: Stream<Item = FibraResult<O>> + Send + 'static,
@@ -463,6 +484,7 @@ impl Response {
 impl<T> From<(Status, Mime, T)> for Response
     where T: Into<Body>
 {
+    #[inline]
     fn from((status, mime, body): (Status, Mime, T)) -> Self {
         Self::default().status(status).header(header::CONTENT_TYPE, mime).body(body)
     }
@@ -486,6 +508,7 @@ impl<T> From<(Status, Mime, T)> for Response
 /// }
 /// ```
 impl From<(Status, &'static str)> for Response {
+    #[inline]
     fn from((status, body): (Status, &'static str)) -> Self {
         (status, mime::TEXT_PLAIN_UTF_8, body).into()
     }
@@ -509,6 +532,7 @@ impl From<(Status, &'static str)> for Response {
 /// }
 /// ```
 impl From<(Status, String)> for Response {
+    #[inline]
     fn from((status, body): (Status, String)) -> Self {
         (status, mime::TEXT_PLAIN_UTF_8, body).into()
     }
@@ -532,6 +556,7 @@ impl From<(Status, String)> for Response {
 /// }
 /// ```
 impl From<(Status, &'static [u8])> for Response {
+    #[inline]
     fn from((status, body): (Status, &'static [u8])) -> Self {
         (status, mime::APPLICATION_OCTET_STREAM, body).into()
     }
@@ -555,6 +580,7 @@ impl From<(Status, &'static [u8])> for Response {
 /// }
 /// ```
 impl From<(Status, Vec<u8>)> for Response {
+    #[inline]
     fn from((status, body): (Status, Vec<u8>)) -> Self {
         (status, mime::APPLICATION_OCTET_STREAM, body).into()
     }
@@ -578,6 +604,7 @@ impl From<(Status, Vec<u8>)> for Response {
 /// }
 /// ```
 impl From<()> for Response {
+    #[inline]
     fn from(_: ()) -> Self {
         (Status::OK, mime::TEXT_PLAIN_UTF_8, "").into()
     }
@@ -601,6 +628,7 @@ impl From<()> for Response {
 /// }
 /// ```
 impl From<Status> for Response {
+    #[inline]
     fn from(status: Status) -> Self {
         (status, mime::TEXT_PLAIN_UTF_8, "").into()
     }
@@ -624,6 +652,7 @@ impl From<Status> for Response {
 /// }
 /// ```
 impl From<&'static str> for Response {
+    #[inline]
     fn from(body: &'static str) -> Self {
         (Status::OK, mime::TEXT_PLAIN_UTF_8, body).into()
     }
@@ -647,6 +676,7 @@ impl From<&'static str> for Response {
 /// }
 /// ```
 impl From<String> for Response {
+    #[inline]
     fn from(body: String) -> Self {
         (Status::OK, mime::TEXT_PLAIN_UTF_8, body).into()
     }
@@ -670,6 +700,7 @@ impl From<String> for Response {
 /// }
 /// ```
 impl From<&'static [u8]> for Response {
+    #[inline]
     fn from(body: &'static [u8]) -> Self {
         (Status::OK, mime::APPLICATION_OCTET_STREAM, body).into()
     }
@@ -693,6 +724,7 @@ impl From<&'static [u8]> for Response {
 /// }
 /// ```
 impl From<Vec<u8>> for Response {
+    #[inline]
     fn from(body: Vec<u8>) -> Self {
         (Status::OK, mime::APPLICATION_OCTET_STREAM, body).into()
     }
@@ -717,6 +749,7 @@ impl From<Vec<u8>> for Response {
 /// }
 /// ```
 impl From<Response> for hyper::Response<Body> {
+    #[inline]
     fn from(value: Response) -> Self {
         let mut res = hyper::Response::default();
         *res.version_mut() = value.version;

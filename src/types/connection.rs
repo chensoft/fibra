@@ -30,6 +30,7 @@ impl Connection {
     ///
     /// assert_eq!(*Connection::default().id_ref() > 0, true);
     /// ```
+    #[inline]
     pub fn id_ref(&self) -> &u128 {
         &self.id
     }
@@ -46,6 +47,7 @@ impl Connection {
     ///
     /// assert_eq!(con.id_ref(), &12345);
     /// ```
+    #[inline]
     pub fn id_mut(&mut self) -> &mut u128 {
         &mut self.id
     }
@@ -59,6 +61,7 @@ impl Connection {
     ///
     /// assert_eq!(Connection::default().id(12345).id_ref(), &12345);
     /// ```
+    #[inline]
     pub fn id(mut self, val: u128) -> Self {
         self.id = val;
         self
@@ -74,6 +77,7 @@ impl Connection {
     ///
     /// assert_eq!(Connection::default().created_ref() <= &Local::now(), true);
     /// ```
+    #[inline]
     pub fn created_ref(&self) -> &DateTime<Local> {
         &self.created
     }
@@ -92,6 +96,7 @@ impl Connection {
     ///
     /// assert_eq!(con.created_ref(), &now);
     /// ```
+    #[inline]
     pub fn created_mut(&mut self) -> &mut DateTime<Local> {
         &mut self.created
     }
@@ -109,6 +114,7 @@ impl Connection {
     ///
     /// assert_eq!(con.created_ref(), &now);
     /// ```
+    #[inline]
     pub fn created(mut self, val: impl Into<DateTime<Local>>) -> Self {
         self.created = val.into();
         self
@@ -124,6 +130,7 @@ impl Connection {
     ///
     /// assert_eq!(Connection::default().count_ref().load(Ordering::Relaxed), 0);
     /// ```
+    #[inline]
     pub fn count_ref(&self) -> &AtomicUsize {
         &self.count
     }
@@ -141,6 +148,7 @@ impl Connection {
     ///
     /// assert_eq!(con.count_ref().load(Ordering::Relaxed), 12345);
     /// ```
+    #[inline]
     pub fn count_mut(&mut self) -> &mut AtomicUsize {
         &mut self.count
     }
@@ -155,6 +163,7 @@ impl Connection {
     ///
     /// assert_eq!(Connection::default().count(12345).count_ref().load(Ordering::Relaxed), 12345);
     /// ```
+    #[inline]
     pub fn count(mut self, val: usize) -> Self {
         self.count = AtomicUsize::new(val);
         self
@@ -170,6 +179,7 @@ impl Connection {
     ///
     /// assert_eq!(Connection::default().sockaddr_ref(), &SocketAddr::from(([0, 0, 0, 0], 0)));
     /// ```
+    #[inline]
     pub fn sockaddr_ref(&self) -> &SocketAddr {
         &self.sockaddr
     }
@@ -187,6 +197,7 @@ impl Connection {
     ///
     /// assert_eq!(con.sockaddr_ref(), &SocketAddr::from(([127, 0, 0, 1], 3000)));
     /// ```
+    #[inline]
     pub fn sockaddr_mut(&mut self) -> &mut SocketAddr {
         &mut self.sockaddr
     }
@@ -201,6 +212,7 @@ impl Connection {
     ///
     /// assert_eq!(Connection::default().sockaddr(([127, 0, 0, 1], 3000)).sockaddr_ref(), &SocketAddr::from(([127, 0, 0, 1], 3000)));
     /// ```
+    #[inline]
     pub fn sockaddr(mut self, val: impl Into<SocketAddr>) -> Self {
         self.sockaddr = val.into();
         self
@@ -216,6 +228,7 @@ impl Connection {
     ///
     /// assert_eq!(Connection::default().peeraddr_ref(), &SocketAddr::from(([0, 0, 0, 0], 0)));
     /// ```
+    #[inline]
     pub fn peeraddr_ref(&self) -> &SocketAddr {
         &self.peeraddr
     }
@@ -233,6 +246,7 @@ impl Connection {
     ///
     /// assert_eq!(con.peeraddr_ref(), &SocketAddr::from(([127, 0, 0, 1], 3000)));
     /// ```
+    #[inline]
     pub fn peeraddr_mut(&mut self) -> &mut SocketAddr {
         &mut self.peeraddr
     }
@@ -247,6 +261,7 @@ impl Connection {
     ///
     /// assert_eq!(Connection::default().peeraddr(([127, 0, 0, 1], 3000)).peeraddr_ref(), &SocketAddr::from(([127, 0, 0, 1], 3000)));
     /// ```
+    #[inline]
     pub fn peeraddr(mut self, val: impl Into<SocketAddr>) -> Self {
         self.peeraddr = val.into();
         self
@@ -255,6 +270,7 @@ impl Connection {
 
 /// Default trait
 impl Default for Connection {
+    #[inline]
     fn default() -> Self {
         Self::from((([0, 0, 0, 0], 0), ([0, 0, 0, 0], 0)))
     }
@@ -262,6 +278,7 @@ impl Default for Connection {
 
 /// Create a new connection
 impl<S: Into<SocketAddr>, P: Into<SocketAddr>> From<(S, P)> for Connection {
+    #[inline]
     fn from((sock, peer): (S, P)) -> Self {
         Self { id: Ulid::new().0, count: 0.into(), created: Local::now(), sockaddr: sock.into(), peeraddr: peer.into() }
     }

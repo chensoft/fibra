@@ -19,7 +19,7 @@
 
 ### Performance
 
-- form decode
+- form decode, use decoder
 - reuse ctx, req, res, con
 - lru cache serve hottest path, map to handler directly, record handlers call chain
 
