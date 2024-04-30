@@ -32,7 +32,7 @@
 
 ### Features
 
-- fibra config
+- bolt config
 - tls support with tls info, ver, sni
 - h2 support
 - content type, referer, user agent, is keepalive, content encoding, accepts, length, type...

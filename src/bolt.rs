@@ -1,18 +1,18 @@
 use crate::route::*;
 use crate::types::*;
 
-pub struct Fibra {
+pub struct Bolt {
     mounted: Package,
     sockets: Vec<socket2::Socket>,
 }
 
-impl Fibra {
-    pub fn route(&mut self, pattern: &'static str, handler: impl Handler) -> FibraResult<&mut Routine> {
+impl Bolt {
+    pub fn route(&mut self, pattern: &'static str, handler: impl Handler) -> BoltResult<&mut Routine> {
         self.force::<Matcher>().add(pattern, handler)
     }
 
-    pub fn group(&mut self, pattern: &'static str) -> FibraResult<&mut Fibra> {
-        Ok(self.route(pattern, Fibra::default())?.trust())
+    pub fn group(&mut self, pattern: &'static str) -> BoltResult<&mut Bolt> {
+        Ok(self.route(pattern, Bolt::default())?.trust())
     }
 
     pub fn limit(&mut self) -> &mut Limiter {
@@ -27,7 +27,7 @@ impl Fibra {
         self.mounted.ensure()
     }
 
-    pub fn catch(&mut self, handler: impl Fn(&Catcher, FibraError) -> Response + Send + Sync + 'static) {
+    pub fn catch(&mut self, handler: impl Fn(&Catcher, BoltError) -> Response + Send + Sync + 'static) {
         match self.mounted.first::<Catcher>() {
             Some(obj) => obj.handler = Box::new(handler),
             _ => unreachable!()
@@ -38,12 +38,12 @@ impl Fibra {
         self.mounted.bundle.iter()
     }
 
-    pub fn bind(&mut self, addr: impl ToSocketAddrs) -> FibraResult<&mut socket2::Socket> {
+    pub fn bind(&mut self, addr: impl ToSocketAddrs) -> BoltResult<&mut socket2::Socket> {
         self.sockets.push(StdTcpListener::bind(addr)?.into());
         Ok(self.sockets.last_mut().unwrap_or_else(|| unreachable!()))
     }
 
-    pub async fn run(mut self) -> FibraResult<()> {
+    pub async fn run(mut self) -> BoltResult<()> {
         use hyper::Server;
         use hyper::server::conn::AddrStream;
         use hyper::service::{make_service_fn, service_fn};
@@ -65,7 +65,7 @@ impl Fibra {
                     let ctx = Context::from((app.clone(), con.clone(), req));
 
                     // processing the request from the root's handle method
-                    async move { Ok::<_, FibraError>(app.handle(ctx).await?.into()) }
+                    async move { Ok::<_, BoltError>(app.handle(ctx).await?.into()) }
                 }))
             }
         });
@@ -82,15 +82,15 @@ impl Fibra {
     }
 }
 
-impl Default for Fibra {
+impl Default for Bolt {
     fn default() -> Self {
         Self { mounted: Package::new(vec![Catcher::default()]), sockets: vec![] }
     }
 }
 
 #[async_trait]
-impl Handler for Fibra {
-    async fn handle(&self, ctx: Context) -> FibraResult<Response> {
+impl Handler for Bolt {
+    async fn handle(&self, ctx: Context) -> BoltResult<Response> {
         self.mounted.handle(ctx).await
     }
 }

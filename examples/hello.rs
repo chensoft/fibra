@@ -1,9 +1,9 @@
-use fibra::*;
+use bolt::*;
 
 #[tokio::main]
-async fn main() -> FibraResult<()> {
+async fn main() -> BoltResult<()> {
     // create a main router with a predefined logger
-    let mut app = Fibra::default();
+    let mut app = Bolt::default();
     app.mount(addon::Logger::default());
     app.route("/", app_root)?;
     app.route("/index.html", |ctx: Context| async { ctx.rewrite("/", b"todo".into()).await })?;
@@ -28,26 +28,26 @@ async fn main() -> FibraResult<()> {
     app.run().await
 }
 
-async fn app_root(_ctx: Context) -> FibraResult<Response> {
+async fn app_root(_ctx: Context) -> BoltResult<Response> {
     Ok("It Works!".into())
 }
 
-async fn api_root(_ctx: Context) -> FibraResult<Response> {
+async fn api_root(_ctx: Context) -> BoltResult<Response> {
     Ok("".into())
 }
 
-async fn v1_root(_ctx: Context) -> FibraResult<Response> {
+async fn v1_root(_ctx: Context) -> BoltResult<Response> {
     Ok("".into())
 }
 
-async fn v1_user(_ctx: Context) -> FibraResult<Response> {
+async fn v1_user(_ctx: Context) -> BoltResult<Response> {
     Ok("".into())
 }
 
-async fn v2_root(_ctx: Context) -> FibraResult<Response> {
+async fn v2_root(_ctx: Context) -> BoltResult<Response> {
     Ok("".into())
 }
 
-async fn v2_user(_ctx: Context) -> FibraResult<Response> {
+async fn v2_user(_ctx: Context) -> BoltResult<Response> {
     Ok("".into())
 }

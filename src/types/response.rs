@@ -23,7 +23,7 @@ impl Response {
     /// # Examples
     /// 
     /// ```
-    /// use fibra::{Response, Version};
+    /// use bolt::{Response, Version};
     ///
     /// assert_eq!(Response::default().version_ref(), &Version::HTTP_11);
     /// ```
@@ -37,7 +37,7 @@ impl Response {
     /// # Examples
     /// 
     /// ```
-    /// use fibra::{Response, Version};
+    /// use bolt::{Response, Version};
     ///
     /// let mut res = Response::default();
     /// *res.version_mut() = Version::HTTP_10;
@@ -53,7 +53,7 @@ impl Response {
     /// # Examples
     /// 
     /// ```
-    /// use fibra::{Response, Version};
+    /// use bolt::{Response, Version};
     ///
     /// let mut res = Response::default().version(Version::HTTP_10);
     /// assert_eq!(res.version_mut(), &Version::HTTP_10);
@@ -69,7 +69,7 @@ impl Response {
     /// # Examples
     /// 
     /// ```
-    /// use fibra::{Response, Status};
+    /// use bolt::{Response, Status};
     ///
     /// assert_eq!(Response::default().status_ref(), &Status::OK);
     /// ```
@@ -83,7 +83,7 @@ impl Response {
     /// # Examples
     /// 
     /// ```
-    /// use fibra::{Response, Status};
+    /// use bolt::{Response, Status};
     ///
     /// let mut res = Response::default();
     /// *res.status_mut() = Status::NOT_FOUND;
@@ -99,7 +99,7 @@ impl Response {
     /// # Examples
     /// 
     /// ```
-    /// use fibra::{Response, Status};
+    /// use bolt::{Response, Status};
     ///
     /// let mut res = Response::default().status(Status::NOT_FOUND);
     /// assert_eq!(res.status_mut(), &Status::NOT_FOUND);
@@ -115,7 +115,7 @@ impl Response {
     /// # Examples
     /// 
     /// ```
-    /// use fibra::{Response};
+    /// use bolt::{Response};
     ///
     /// assert_eq!(Response::default().headers_ref().len(), 0);
     /// ```
@@ -129,7 +129,7 @@ impl Response {
     /// # Examples
     /// 
     /// ```
-    /// use fibra::{Response, header::{self, IntoHeaderValue}};
+    /// use bolt::{Response, header::{self, IntoHeaderValue}};
     ///
     /// let mut res = Response::default();
     /// res.headers_mut().insert(header::CONTENT_TYPE, mime::APPLICATION_JSON.into_value());
@@ -145,7 +145,7 @@ impl Response {
     /// # Examples
     /// 
     /// ```
-    /// use fibra::{Response, header::{self, HeaderMap, IntoHeaderValue}};
+    /// use bolt::{Response, header::{self, HeaderMap, IntoHeaderValue}};
     ///
     /// let mut map = HeaderMap::new();
     /// let mut res = Response::default();
@@ -166,7 +166,7 @@ impl Response {
     /// # Examples
     /// 
     /// ```
-    /// use fibra::{Response, header};
+    /// use bolt::{Response, header};
     ///
     /// let mut res = Response::default();
     /// res = res.header(header::CONTENT_TYPE, mime::APPLICATION_JSON);
@@ -183,7 +183,7 @@ impl Response {
     /// # Examples
     /// 
     /// ```
-    /// use fibra::{Response, header::{self, IntoHeaderValue}};
+    /// use bolt::{Response, header::{self, IntoHeaderValue}};
     ///
     /// let mut res = Response::default().header(header::CONTENT_TYPE, mime::APPLICATION_JSON);
     /// res.header_mut(header::CONTENT_TYPE).map(|v| *v = mime::TEXT_PLAIN_UTF_8.into_value());
@@ -200,7 +200,7 @@ impl Response {
     /// # Examples
     /// 
     /// ```
-    /// use fibra::{Response, header};
+    /// use bolt::{Response, header};
     ///
     /// let mut res = Response::default().header(header::CONTENT_TYPE, mime::TEXT_HTML_UTF_8);
     ///
@@ -217,7 +217,7 @@ impl Response {
     /// # Examples
     /// 
     /// ```
-    /// use fibra::{Response};
+    /// use bolt::{Response};
     ///
     /// Response::default().body_ref();
     /// ```
@@ -232,10 +232,10 @@ impl Response {
     /// 
     /// ```
     /// use bytes::Bytes;
-    /// use fibra::{Response, FibraResult, body};
+    /// use bolt::{Response, BoltResult, body};
     ///
     /// #[tokio::main]
-    /// async fn main() -> FibraResult<()> {
+    /// async fn main() -> BoltResult<()> {
     ///     let mut res = Response::default().body("Hello World!");
     ///     assert_eq!(body::to_bytes(res.body_mut()).await?, Bytes::from("Hello World!"));
     ///     Ok(())
@@ -252,10 +252,10 @@ impl Response {
     /// 
     /// ```
     /// use bytes::Bytes;
-    /// use fibra::{Response, FibraResult, body};
+    /// use bolt::{Response, BoltResult, body};
     ///
     /// #[tokio::main]
-    /// async fn main() -> FibraResult<()> {
+    /// async fn main() -> BoltResult<()> {
     ///     let mut res = Response::default().body("Hello World!");
     ///     assert_eq!(body::to_bytes(res.body_mut()).await?, Bytes::from("Hello World!"));
     ///     Ok(())
@@ -274,10 +274,10 @@ impl Response {
     /// ```
     /// use bytes::Bytes;
     /// use indexmap::indexmap;
-    /// use fibra::{Response, FibraResult, header, body};
+    /// use bolt::{Response, BoltResult, header, body};
     ///
     /// #[tokio::main]
-    /// async fn main() -> FibraResult<()> {
+    /// async fn main() -> BoltResult<()> {
     ///     let map = indexmap!(
     ///         "a" => 1,
     ///         "b" => 2,
@@ -305,10 +305,10 @@ impl Response {
     /// ```
     /// use bytes::Bytes;
     /// use indexmap::indexmap;
-    /// use fibra::{Response, FibraResult, header, body};
+    /// use bolt::{Response, BoltResult, header, body};
     ///
     /// #[tokio::main]
-    /// async fn main() -> FibraResult<()> {
+    /// async fn main() -> BoltResult<()> {
     ///     let map = indexmap!(
     ///         "a" => 1,
     ///         "b" => 2,
@@ -339,10 +339,10 @@ impl Response {
     /// 
     /// ```
     /// use bytes::Bytes;
-    /// use fibra::{Response, FibraResult, header, body};
+    /// use bolt::{Response, BoltResult, header, body};
     ///
     /// #[tokio::main]
-    /// async fn main() -> FibraResult<()> {
+    /// async fn main() -> BoltResult<()> {
     ///     let mut res = Response::default().text("It Works!");
     ///
     ///     assert_eq!(res.header_ref(header::CONTENT_TYPE).map(|v| v.as_bytes()), Some(mime::TEXT_PLAIN_UTF_8.as_ref().as_bytes()));
@@ -362,10 +362,10 @@ impl Response {
     /// 
     /// ```
     /// use bytes::Bytes;
-    /// use fibra::{Response, FibraResult, header, body};
+    /// use bolt::{Response, BoltResult, header, body};
     ///
     /// #[tokio::main]
-    /// async fn main() -> FibraResult<()> {
+    /// async fn main() -> BoltResult<()> {
     ///     let mut res = Response::default().html("<html><body>It Works!</body></html>");
     ///
     ///     assert_eq!(res.header_ref(header::CONTENT_TYPE).map(|v| v.as_bytes()), Some(mime::TEXT_HTML_UTF_8.as_ref().as_bytes()));
@@ -392,10 +392,10 @@ impl Response {
     /// 
     /// ```
     /// use bytes::Bytes;
-    /// use fibra::{Response, FibraResult, header, body};
+    /// use bolt::{Response, BoltResult, header, body};
     ///
     /// #[tokio::main]
-    /// async fn main() -> FibraResult<()> {
+    /// async fn main() -> BoltResult<()> {
     ///     let mut res = Response::default().bytes(b"abc".to_vec());
     ///
     ///     assert_eq!(res.header_ref(header::CONTENT_TYPE).map(|v| v.as_bytes()), Some(mime::APPLICATION_OCTET_STREAM.as_ref().as_bytes()));
@@ -418,19 +418,19 @@ impl Response {
     /// use futures::Stream;
     /// use std::task::Poll;
     /// use std::io::{BufReader, Read};
-    /// use fibra::{Response, FibraResult, body};
+    /// use bolt::{Response, BoltResult, body};
     ///
     /// struct FileStream(BufReader<std::fs::File>);
     ///
     /// impl FileStream {
-    ///     pub fn new() -> FibraResult<Self> {
+    ///     pub fn new() -> BoltResult<Self> {
     ///         std::fs::write(std::env::temp_dir().join("sample.txt"), "Actions speak louder than words")?;
     ///         Ok(Self(BufReader::new(std::fs::File::open(std::env::temp_dir().join("sample.txt"))?)))
     ///     }
     /// }
     ///
     /// impl Stream for FileStream {
-    ///     type Item = FibraResult<Bytes>;
+    ///     type Item = BoltResult<Bytes>;
     ///
     ///     fn poll_next(mut self: std::pin::Pin<&mut Self>, _cx: &mut std::task::Context<'_>) -> Poll<Option<Self::Item>> {
     ///         let mut buffer = vec![0; 10];
@@ -446,7 +446,7 @@ impl Response {
     /// }
     ///
     /// #[tokio::main]
-    /// async fn main() -> FibraResult<()> {
+    /// async fn main() -> BoltResult<()> {
     ///     let mut res = Response::default().stream(FileStream::new()?);
     ///
     ///     assert_eq!(body::to_bytes(res.body_mut()).await?, Bytes::from("Actions speak louder than words"));
@@ -457,7 +457,7 @@ impl Response {
     #[inline]
     pub fn stream<S, O>(self, val: S) -> Self
         where
-            S: Stream<Item = FibraResult<O>> + Send + 'static,
+            S: Stream<Item = BoltResult<O>> + Send + 'static,
             O: Into<Bytes> + 'static,
     {
         self.body(Body::wrap_stream(val))
@@ -468,10 +468,10 @@ impl Response {
 ///
 /// ```
 /// use bytes::Bytes;
-/// use fibra::{Response, Status, FibraResult, header, body, mime};
+/// use bolt::{Response, Status, BoltResult, header, body, mime};
 ///
 /// #[tokio::main]
-/// async fn main() -> FibraResult<()> {
+/// async fn main() -> BoltResult<()> {
 ///     let mut res: Response = (Status::NOT_FOUND, mime::TEXT_PLAIN_UTF_8, Status::NOT_FOUND.canonical_reason().unwrap_or("")).into();
 ///
 ///     assert_eq!(res.status_ref(), &Status::NOT_FOUND);
@@ -494,10 +494,10 @@ impl<T> From<(Status, Mime, T)> for Response
 ///
 /// ```
 /// use bytes::Bytes;
-/// use fibra::{Response, Status, FibraResult, header, body, mime};
+/// use bolt::{Response, Status, BoltResult, header, body, mime};
 ///
 /// #[tokio::main]
-/// async fn main() -> FibraResult<()> {
+/// async fn main() -> BoltResult<()> {
 ///     let mut res: Response = (Status::NOT_FOUND, "Not Found").into();
 ///
 ///     assert_eq!(res.status_ref(), &Status::NOT_FOUND);
@@ -518,10 +518,10 @@ impl From<(Status, &'static str)> for Response {
 ///
 /// ```
 /// use bytes::Bytes;
-/// use fibra::{Response, Status, FibraResult, header, body, mime};
+/// use bolt::{Response, Status, BoltResult, header, body, mime};
 ///
 /// #[tokio::main]
-/// async fn main() -> FibraResult<()> {
+/// async fn main() -> BoltResult<()> {
 ///     let mut res: Response = (Status::NOT_FOUND, "Not Found".to_string()).into();
 ///
 ///     assert_eq!(res.status_ref(), &Status::NOT_FOUND);
@@ -542,10 +542,10 @@ impl From<(Status, String)> for Response {
 ///
 /// ```
 /// use bytes::Bytes;
-/// use fibra::{Response, Status, FibraResult, header, body, mime};
+/// use bolt::{Response, Status, BoltResult, header, body, mime};
 ///
 /// #[tokio::main]
-/// async fn main() -> FibraResult<()> {
+/// async fn main() -> BoltResult<()> {
 ///     let mut res: Response = (Status::FORBIDDEN, b"Forbidden".as_slice()).into();
 ///
 ///     assert_eq!(res.status_ref(), &Status::FORBIDDEN);
@@ -566,10 +566,10 @@ impl From<(Status, &'static [u8])> for Response {
 ///
 /// ```
 /// use bytes::Bytes;
-/// use fibra::{Response, Status, FibraResult, header, body, mime};
+/// use bolt::{Response, Status, BoltResult, header, body, mime};
 ///
 /// #[tokio::main]
-/// async fn main() -> FibraResult<()> {
+/// async fn main() -> BoltResult<()> {
 ///     let mut res: Response = (Status::FORBIDDEN, b"Forbidden".to_vec()).into();
 ///
 ///     assert_eq!(res.status_ref(), &Status::FORBIDDEN);
@@ -590,10 +590,10 @@ impl From<(Status, Vec<u8>)> for Response {
 ///
 /// ```
 /// use bytes::Bytes;
-/// use fibra::{Response, Status, FibraResult, header, body, mime};
+/// use bolt::{Response, Status, BoltResult, header, body, mime};
 ///
 /// #[tokio::main]
-/// async fn main() -> FibraResult<()> {
+/// async fn main() -> BoltResult<()> {
 ///     let mut res: Response = ().into();
 ///
 ///     assert_eq!(res.status_ref(), &Status::OK);
@@ -614,10 +614,10 @@ impl From<()> for Response {
 ///
 /// ```
 /// use bytes::Bytes;
-/// use fibra::{Response, Status, FibraResult, header, body, mime};
+/// use bolt::{Response, Status, BoltResult, header, body, mime};
 ///
 /// #[tokio::main]
-/// async fn main() -> FibraResult<()> {
+/// async fn main() -> BoltResult<()> {
 ///     let mut res: Response = Status::INTERNAL_SERVER_ERROR.into();
 ///
 ///     assert_eq!(res.status_ref(), &Status::INTERNAL_SERVER_ERROR);
@@ -638,10 +638,10 @@ impl From<Status> for Response {
 ///
 /// ```
 /// use bytes::Bytes;
-/// use fibra::{Response, Status, FibraResult, header, body, mime};
+/// use bolt::{Response, Status, BoltResult, header, body, mime};
 ///
 /// #[tokio::main]
-/// async fn main() -> FibraResult<()> {
+/// async fn main() -> BoltResult<()> {
 ///     let mut res: Response = "Hello World!".into();
 ///
 ///     assert_eq!(res.status_ref(), &Status::OK);
@@ -662,10 +662,10 @@ impl From<&'static str> for Response {
 ///
 /// ```
 /// use bytes::Bytes;
-/// use fibra::{Response, Status, FibraResult, header, body, mime};
+/// use bolt::{Response, Status, BoltResult, header, body, mime};
 ///
 /// #[tokio::main]
-/// async fn main() -> FibraResult<()> {
+/// async fn main() -> BoltResult<()> {
 ///     let mut res: Response = "Hello World!".to_string().into();
 ///
 ///     assert_eq!(res.status_ref(), &Status::OK);
@@ -686,10 +686,10 @@ impl From<String> for Response {
 ///
 /// ```
 /// use bytes::Bytes;
-/// use fibra::{Response, Status, FibraResult, header, body, mime};
+/// use bolt::{Response, Status, BoltResult, header, body, mime};
 ///
 /// #[tokio::main]
-/// async fn main() -> FibraResult<()> {
+/// async fn main() -> BoltResult<()> {
 ///     let mut res: Response = b"Hello World!".as_slice().into();
 ///
 ///     assert_eq!(res.status_ref(), &Status::OK);
@@ -710,10 +710,10 @@ impl From<&'static [u8]> for Response {
 ///
 /// ```
 /// use bytes::Bytes;
-/// use fibra::{Response, Status, FibraResult, header, body, mime};
+/// use bolt::{Response, Status, BoltResult, header, body, mime};
 ///
 /// #[tokio::main]
-/// async fn main() -> FibraResult<()> {
+/// async fn main() -> BoltResult<()> {
 ///     let mut res: Response = b"Hello World!".to_vec().into();
 ///
 ///     assert_eq!(res.status_ref(), &Status::OK);
@@ -734,10 +734,10 @@ impl From<Vec<u8>> for Response {
 ///
 /// ```
 /// use bytes::Bytes;
-/// use fibra::{Response, Status, FibraResult, header, body, mime};
+/// use bolt::{Response, Status, BoltResult, header, body, mime};
 ///
 /// #[tokio::main]
-/// async fn main() -> FibraResult<()> {
+/// async fn main() -> BoltResult<()> {
 ///     let raw: Response = (Status::NOT_FOUND, mime::TEXT_PLAIN_UTF_8, Status::NOT_FOUND.canonical_reason().unwrap_or("")).into();
 ///     let mut res: hyper::Response<hyper::Body> = raw.into();
 ///

@@ -1,12 +1,12 @@
 //! Request Context
-use crate::fibra::*;
+use crate::bolt::*;
 use crate::route::*;
 use crate::types::*;
 
 /// Context which holds the connection and request
 pub struct Context {
     /// The root app instance
-    app: Arc<Fibra>,
+    app: Arc<Bolt>,
 
     /// Current connection ref
     conn: Arc<Connection>,
@@ -29,7 +29,7 @@ unsafe impl Sync for Context {}
 
 impl Context {
     /// The root app instance
-    pub fn app(&self) -> &Fibra {
+    pub fn app(&self) -> &Bolt {
         &self.app
     }
 
@@ -44,9 +44,9 @@ impl Context {
     ///
     /// ```
     /// use std::sync::Arc;
-    /// use fibra::{Context, Fibra, Connection, Request};
+    /// use bolt::{Context, Bolt, Connection, Request};
     ///
-    /// let app = Arc::new(Fibra::default());
+    /// let app = Arc::new(Bolt::default());
     /// let con = Arc::new(Connection::default());
     /// let req = Request::default();
     /// let ctx = Context::from((app, con, req));
@@ -64,10 +64,10 @@ impl Context {
     /// ```
     /// use chrono::Local;
     /// use std::sync::Arc;
-    /// use fibra::{Context, Fibra, Connection, Request};
+    /// use bolt::{Context, Bolt, Connection, Request};
     ///
     /// let old = Local::now();
-    /// let app = Arc::new(Fibra::default());
+    /// let app = Arc::new(Bolt::default());
     /// let con = Arc::new(Connection::default());
     /// let req = Request::default();
     /// let ctx = Context::from((app, con, req));
@@ -85,9 +85,9 @@ impl Context {
     ///
     /// ```
     /// use std::sync::Arc;
-    /// use fibra::{Context, Fibra, Connection, Request};
+    /// use bolt::{Context, Bolt, Connection, Request};
     ///
-    /// let app = Arc::new(Fibra::default());
+    /// let app = Arc::new(Bolt::default());
     /// let con = Arc::new(Connection::default().count(5));
     /// let req = Request::default();
     /// let ctx = Context::from((app, con, req));
@@ -105,9 +105,9 @@ impl Context {
     /// ```
     /// use std::sync::Arc;
     /// use std::net::SocketAddr;
-    /// use fibra::{Context, Fibra, Connection, Request};
+    /// use bolt::{Context, Bolt, Connection, Request};
     ///
-    /// let app = Arc::new(Fibra::default());
+    /// let app = Arc::new(Bolt::default());
     /// let con = Arc::new(Connection::from((SocketAddr::from(([127, 0, 0, 1], 3000)), SocketAddr::from(([8, 8, 8, 8], 80)))));
     /// let req = Request::default();
     /// let ctx = Context::from((app, con, req));
@@ -126,9 +126,9 @@ impl Context {
     /// ```
     /// use std::sync::Arc;
     /// use std::net::SocketAddr;
-    /// use fibra::{Context, Fibra, Connection, Request};
+    /// use bolt::{Context, Bolt, Connection, Request};
     ///
-    /// let app = Arc::new(Fibra::default());
+    /// let app = Arc::new(Bolt::default());
     /// let con = Arc::new(Connection::from((SocketAddr::from(([127, 0, 0, 1], 3000)), SocketAddr::from(([8, 8, 8, 8], 80)))));
     /// let req = Request::default();
     /// let ctx = Context::from((app, con, req));
@@ -153,9 +153,9 @@ impl Context {
     ///
     /// ```
     /// use std::sync::Arc;
-    /// use fibra::{Context, Fibra, Connection, Request};
+    /// use bolt::{Context, Bolt, Connection, Request};
     ///
-    /// let app = Arc::new(Fibra::default());
+    /// let app = Arc::new(Bolt::default());
     /// let con = Arc::new(Connection::default());
     /// let req = Request::default();
     /// let ctx = Context::from((app, con, req));
@@ -174,10 +174,10 @@ impl Context {
     /// ```
     /// use chrono::Local;
     /// use std::sync::Arc;
-    /// use fibra::{Context, Fibra, Connection, Request};
+    /// use bolt::{Context, Bolt, Connection, Request};
     ///
     /// let old = Local::now();
-    /// let app = Arc::new(Fibra::default());
+    /// let app = Arc::new(Bolt::default());
     /// let con = Arc::new(Connection::default());
     /// let req = Request::default();
     /// let ctx = Context::from((app, con, req));
@@ -196,9 +196,9 @@ impl Context {
     /// ```
     /// use chrono::Local;
     /// use std::sync::Arc;
-    /// use fibra::{Context, Fibra, Connection, Request, Method};
+    /// use bolt::{Context, Bolt, Connection, Request, Method};
     ///
-    /// let app = Arc::new(Fibra::default());
+    /// let app = Arc::new(Bolt::default());
     /// let con = Arc::new(Connection::default());
     /// let req = Request::default().method(Method::PUT);
     /// let ctx = Context::from((app, con, req));
@@ -246,9 +246,9 @@ impl Context {
     /// ```
     /// use chrono::Local;
     /// use std::sync::Arc;
-    /// use fibra::{Context, Fibra, Connection, Request, Uri};
+    /// use bolt::{Context, Bolt, Connection, Request, Uri};
     ///
-    /// let app = Arc::new(Fibra::default());
+    /// let app = Arc::new(Bolt::default());
     /// let con = Arc::new(Connection::default());
     /// let req = Request::default().uri(Uri::from_static("http://example.com"));
     /// let ctx = Context::from((app, con, req));
@@ -266,9 +266,9 @@ impl Context {
     /// ```
     /// use chrono::Local;
     /// use std::sync::Arc;
-    /// use fibra::{Context, Fibra, Connection, Request, Uri, Scheme};
+    /// use bolt::{Context, Bolt, Connection, Request, Uri, Scheme};
     ///
-    /// let app = Arc::new(Fibra::default());
+    /// let app = Arc::new(Bolt::default());
     /// let con = Arc::new(Connection::default());
     /// let req = Request::default().uri(Uri::from_static("https://example.com"));
     /// let ctx = Context::from((app, con, req));
@@ -292,9 +292,9 @@ impl Context {
     /// ```
     /// use chrono::Local;
     /// use std::sync::Arc;
-    /// use fibra::{Context, Fibra, Connection, Request, Uri, Authority};
+    /// use bolt::{Context, Bolt, Connection, Request, Uri, Authority};
     ///
-    /// let app = Arc::new(Fibra::default());
+    /// let app = Arc::new(Bolt::default());
     /// let con = Arc::new(Connection::default());
     /// let req = Request::default().uri(Uri::from_static("http://user:pass@example.com"));
     /// let ctx = Context::from((app, con, req));
@@ -312,9 +312,9 @@ impl Context {
     /// ```
     /// use chrono::Local;
     /// use std::sync::Arc;
-    /// use fibra::{Context, Fibra, Connection, Request, Uri};
+    /// use bolt::{Context, Bolt, Connection, Request, Uri};
     ///
-    /// let app = Arc::new(Fibra::default());
+    /// let app = Arc::new(Bolt::default());
     /// let con = Arc::new(Connection::default());
     /// let req = Request::default().uri(Uri::from_static("http://user:pass@example.com"));
     /// let ctx = Context::from((app, con, req));
@@ -332,9 +332,9 @@ impl Context {
     /// ```
     /// use chrono::Local;
     /// use std::sync::Arc;
-    /// use fibra::{Context, Fibra, Connection, Request, Uri};
+    /// use bolt::{Context, Bolt, Connection, Request, Uri};
     ///
-    /// let app = Arc::new(Fibra::default());
+    /// let app = Arc::new(Bolt::default());
     /// let con = Arc::new(Connection::default());
     /// let req = Request::default().uri(Uri::from_static("http://user:pass@git.example.com"));
     /// let ctx = Context::from((app, con, req));
@@ -352,9 +352,9 @@ impl Context {
     /// ```
     /// use chrono::Local;
     /// use std::sync::Arc;
-    /// use fibra::{Context, Fibra, Connection, Request, Uri};
+    /// use bolt::{Context, Bolt, Connection, Request, Uri};
     ///
-    /// let app = Arc::new(Fibra::default());
+    /// let app = Arc::new(Bolt::default());
     /// let con = Arc::new(Connection::default());
     /// let req = Request::default().uri(Uri::from_static("http://user:pass@git.example.com"));
     /// let ctx = Context::from((app, con, req));
@@ -372,9 +372,9 @@ impl Context {
     /// ```
     /// use chrono::Local;
     /// use std::sync::Arc;
-    /// use fibra::{Context, Fibra, Connection, Request, Uri};
+    /// use bolt::{Context, Bolt, Connection, Request, Uri};
     ///
-    /// let app = Arc::new(Fibra::default());
+    /// let app = Arc::new(Bolt::default());
     /// let con = Arc::new(Connection::default());
     /// let req = Request::default().uri(Uri::from_static("http://example.com:3000"));
     /// let ctx = Context::from((app, con, req));
@@ -392,14 +392,14 @@ impl Context {
     /// ```
     /// use chrono::Local;
     /// use std::sync::Arc;
-    /// use fibra::{Context, Fibra, Connection, Request, Uri};
+    /// use bolt::{Context, Bolt, Connection, Request, Uri};
     ///
-    /// let app = Arc::new(Fibra::default());
+    /// let app = Arc::new(Bolt::default());
     /// let con = Arc::new(Connection::default());
-    /// let req = Request::default().uri(Uri::from_static("http://example.com/repo/fibra"));
+    /// let req = Request::default().uri(Uri::from_static("http://example.com/repo/bolt"));
     /// let ctx = Context::from((app, con, req));
     ///
-    /// assert_eq!(ctx.path(), "/repo/fibra");
+    /// assert_eq!(ctx.path(), "/repo/bolt");
     /// ```
     pub fn path(&self) -> &str {
         self.req.path()
@@ -412,9 +412,9 @@ impl Context {
     /// ```
     /// use chrono::Local;
     /// use std::sync::Arc;
-    /// use fibra::{Context, Fibra, Connection, Request, Uri};
+    /// use bolt::{Context, Bolt, Connection, Request, Uri};
     ///
-    /// let app = Arc::new(Fibra::default());
+    /// let app = Arc::new(Bolt::default());
     /// let con = Arc::new(Connection::default());
     /// let req = Request::default().uri(Uri::from_static("http://example.com/?foo=bar"));
     /// let ctx = Context::from((app, con, req));
@@ -433,9 +433,9 @@ impl Context {
     /// ```
     /// use chrono::Local;
     /// use std::sync::Arc;
-    /// use fibra::{Context, Fibra, Connection, Request, Uri};
+    /// use bolt::{Context, Bolt, Connection, Request, Uri};
     ///
-    /// let app = Arc::new(Fibra::default());
+    /// let app = Arc::new(Bolt::default());
     /// let con = Arc::new(Connection::default());
     /// let req = Request::default().uri(Uri::from_static("http://example.com/?foo=bar&key=%E4%BD%A0%E5%A5%BD"));
     /// let ctx = Context::from((app, con, req));
@@ -455,14 +455,14 @@ impl Context {
     /// ```
     /// use chrono::Local;
     /// use std::sync::Arc;
-    /// use fibra::{Context, Fibra, Connection, Request, Uri};
+    /// use bolt::{Context, Bolt, Connection, Request, Uri};
     ///
-    /// let app = Arc::new(Fibra::default());
+    /// let app = Arc::new(Bolt::default());
     /// let con = Arc::new(Connection::default());
-    /// let req = Request::default().uri(Uri::from_static("http://user:pass@git.example.com/repo/fibra?foo=bar&key=%E4%BD%A0%E5%A5%BD"));
+    /// let req = Request::default().uri(Uri::from_static("http://user:pass@git.example.com/repo/bolt?foo=bar&key=%E4%BD%A0%E5%A5%BD"));
     /// let ctx = Context::from((app, con, req));
     ///
-    /// assert_eq!(ctx.href(), "http://user:pass@git.example.com/repo/fibra?foo=bar&key=%E4%BD%A0%E5%A5%BD".to_string());
+    /// assert_eq!(ctx.href(), "http://user:pass@git.example.com/repo/bolt?foo=bar&key=%E4%BD%A0%E5%A5%BD".to_string());
     /// ```
     pub fn href(&self) -> String {
         self.req.href()
@@ -475,9 +475,9 @@ impl Context {
     /// ```
     /// use chrono::Local;
     /// use std::sync::Arc;
-    /// use fibra::{Context, Fibra, Connection, Request, Version};
+    /// use bolt::{Context, Bolt, Connection, Request, Version};
     ///
-    /// let app = Arc::new(Fibra::default());
+    /// let app = Arc::new(Bolt::default());
     /// let con = Arc::new(Connection::default());
     /// let req = Request::default().version(Version::HTTP_10);
     /// let ctx = Context::from((app, con, req));
@@ -519,9 +519,9 @@ impl Context {
     /// ```
     /// use chrono::Local;
     /// use std::sync::Arc;
-    /// use fibra::{Context, Fibra, Connection, Request};
+    /// use bolt::{Context, Bolt, Connection, Request};
     ///
-    /// let app = Arc::new(Fibra::default());
+    /// let app = Arc::new(Bolt::default());
     /// let con = Arc::new(Connection::default());
     /// let req = Request::default().header("content-type", "application/json").header("cache-control", "no-cache");
     /// let ctx = Context::from((app, con, req));
@@ -543,9 +543,9 @@ impl Context {
     /// ```
     /// use chrono::Local;
     /// use std::sync::Arc;
-    /// use fibra::{Context, Fibra, Connection, Request};
+    /// use bolt::{Context, Bolt, Connection, Request};
     ///
-    /// let app = Arc::new(Fibra::default());
+    /// let app = Arc::new(Bolt::default());
     /// let con = Arc::new(Connection::default());
     /// let req = Request::default().header("content-type", "application/json").header("cache-control", "no-cache");
     /// let ctx = Context::from((app, con, req));
@@ -602,7 +602,7 @@ impl Context {
         self.routing.pop();
     }
 
-    pub async fn next(mut self) -> FibraResult<Response> {
+    pub async fn next(mut self) -> BoltResult<Response> {
         while let Some((cur, idx)) = self.routing.last_mut() {
             let top = unsafe { &**cur };
             let cld = match top.nested(*idx) {
@@ -621,11 +621,11 @@ impl Context {
         Ok(Response::default())
     }
 
-    pub async fn reject(self, status: Option<Status>) -> FibraResult<Response> {
+    pub async fn reject(self, status: Option<Status>) -> BoltResult<Response> {
         Ok(Response::default().status(status.unwrap_or(Status::FORBIDDEN)))
     }
 
-    pub async fn rewrite(mut self, to: &'static str, _body: Vec<u8>) -> FibraResult<Response> {
+    pub async fn rewrite(mut self, to: &'static str, _body: Vec<u8>) -> BoltResult<Response> {
         // todo no body
         self.req = self.req.uri(Uri::from_static(to)); // todo right?
         // self.req.body_mut() = ;
@@ -636,15 +636,15 @@ impl Context {
         app.handle(ctx).await
     }
 
-    pub async fn redirect(self, to: Uri, status: Option<Status>) -> FibraResult<Response> {
+    pub async fn redirect(self, to: Uri, status: Option<Status>) -> BoltResult<Response> {
         Ok(Response::default()
             .status(status.unwrap_or(Status::TEMPORARY_REDIRECT))
             .header(header::LOCATION, HeaderValue::from_str(to.to_string().as_str())?))
     }
 }
 
-impl From<(Arc<Fibra>, Arc<Connection>, Request)> for Context {
-    fn from((app, conn, req): (Arc<Fibra>, Arc<Connection>, Request)) -> Self {
+impl From<(Arc<Bolt>, Arc<Connection>, Request)> for Context {
+    fn from((app, conn, req): (Arc<Bolt>, Arc<Connection>, Request)) -> Self {
         let queries = form_urlencoded::parse(req.query().as_bytes()).into_owned().collect();
         Self { app, conn, req, params: IndexMap::new(), queries, routing: vec![] }
     }

@@ -1,14 +1,14 @@
 [package]
-name = "fibra"
+name = "bolt"
 version = "0.1.0"
 authors = ["Jian Chen <admin@chensoft.com>"]
 edition = "2021"
 description = "Fast and Powerful HTTP router written in Rust"
-documentation = "https://docs.rs/fibra"
+documentation = "https://docs.rs/bolt"
 readme = "README.md"
-repository = "https://github.com/chensoft/fibra"
+repository = "https://github.com/chensoft/bolt"
 license = "MIT"
-keywords = ["fibra", "http", "router", "web", "server"]
+keywords = ["bolt", "http", "router", "web", "server"]
 
 [dependencies]
 psl = "2.1"

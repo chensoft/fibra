@@ -7,7 +7,7 @@ pub struct Matcher {
 }
 
 impl Matcher {
-    pub fn add(&mut self, pattern: &'static str, handler: impl Handler) -> FibraResult<&mut Routine> {
+    pub fn add(&mut self, pattern: &'static str, handler: impl Handler) -> BoltResult<&mut Routine> {
         if !self.routes.contains_key(pattern) {
             self.routes.insert(pattern, Package::default())?;
         }
@@ -21,7 +21,7 @@ impl Matcher {
 
 #[async_trait]
 impl Handler for Matcher {
-    async fn handle(&self, _ctx: Context) -> FibraResult<Response> {
+    async fn handle(&self, _ctx: Context) -> BoltResult<Response> {
         // match self.preway.get(&Pattern) {
         //     Some(pkg) => pkg.handle(ctx).await,
         //     None => ctx.next().await

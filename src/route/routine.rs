@@ -22,7 +22,7 @@ impl Routine {
 
 #[async_trait]
 impl Handler for Routine {
-    async fn handle(&self, ctx: Context) -> FibraResult<Response> {
+    async fn handle(&self, ctx: Context) -> BoltResult<Response> {
         let status = self.limiter.pass(&ctx);
         match status == Status::OK {
             true => self.handler.handle(ctx).await,

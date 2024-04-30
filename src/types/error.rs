@@ -4,7 +4,7 @@ use crate::types::*;
 /// Error Codes
 #[allow(missing_docs)]
 #[derive(Debug, Error)]
-pub enum FibraError {
+pub enum BoltError {
     #[error("{0}")]
     PanicError(String),
 
@@ -25,4 +25,4 @@ pub enum FibraError {
 }
 
 /// Custom Result
-pub type FibraResult<T> = Result<T, FibraError>;
+pub type BoltResult<T> = Result<T, BoltError>;

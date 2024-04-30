@@ -7,7 +7,7 @@ pub struct Normalize;
 
 #[async_trait]
 impl Handler for Normalize {
-    async fn handle(&self, _ctx: Context) -> FibraResult<Response> {
+    async fn handle(&self, _ctx: Context) -> BoltResult<Response> {
         todo!()
     }
 }

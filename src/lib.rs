@@ -6,12 +6,12 @@
 #[macro_use] extern crate thiserror;
 #[macro_use] extern crate async_trait;
 
-mod fibra;
+mod bolt;
 mod route;
 mod types;
 
 pub mod addon;
 
-pub use fibra::*;
+pub use bolt::*;
 pub use route::*;
 pub use types::*;
