@@ -1,3 +1,3 @@
-pub struct Resource {
-    
-}
+// pub struct Resource {
+//     
+// }

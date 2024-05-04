@@ -15,7 +15,7 @@ psl = "2.1"
 mime = "0.3"
 ulid = "1.1"
 bytes = "1.6"
-tokio = { version = "1.35", features = ["full"] }
+tokio = { version = "1.37", features = ["full"] }
 hyper = { version = "0.14", features = ["full"] }
 logkit = "0.3"
 chrono = "0.4"
@@ -23,7 +23,7 @@ encoder = "0.2"
 socket2 = "0.5"
 futures = "0.3"
 indexmap = "2.2"
-radixmap = "0.1"
+radixmap = "0.2"
 buf-list = "1.0"
 thiserror = "1.0"
 async-trait = "0.1"

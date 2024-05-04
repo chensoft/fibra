@@ -1,15 +1,24 @@
+//! Handler Trait
 use crate::route::*;
 use crate::types::*;
 
+/// The HTTP Handler trait, handler must implement this to process http requests
 #[async_trait]
 pub trait Handler: AnyHandler + Send + Sync + 'static {
+    /// Impl this function to handle http requests, a context contains a connection object and
+    /// a current request object, multiple requests may resides on one connection, and these
+    /// requests will be handled one by one on different context objects
+    async fn handle(&self, ctx: Context) -> BoltResult<Response>;
+
+    /// Internal method to get the child handler of its parent
     #[allow(unused_variables)]
-    fn nested(&self, idx: usize) -> Option<&BoxHandler> {
+    fn child(&self, idx: usize) -> Option<&BoxHandler> {
         None
     }
-
-    async fn handle(&self, ctx: Context) -> BoltResult<Response>;
 }
+
+/// Box Handler
+pub type BoxHandler = Box<dyn Handler>;
 
 /// Any support
 pub trait AnyHandler: Any {
@@ -32,13 +41,39 @@ impl<T: Any> AnyHandler for T {
     }
 }
 
-/// Box Handler
-pub type BoxHandler = Box<dyn Handler>;
-
 /// As Handler
+///
+/// # Examples
+///
+/// ```
+/// use async_trait::async_trait;
+/// use bolt::{Handler, AsHandler, Context, Response, BoltResult};
+///
+/// struct HandlerA;
+/// struct HandlerB;
+///
+/// #[async_trait]
+/// impl Handler for HandlerA { async fn handle(&self, _ctx: Context) -> BoltResult<Response> { unimplemented!() } }
+/// impl Handler for HandlerB { async fn handle(&self, _ctx: Context) -> BoltResult<Response> { unimplemented!() } }
+///
+/// let mut handler_a: Box<dyn Handler> = Box::new(HandlerA);
+/// let mut handler_b: Box<dyn Handler> = Box::new(HandlerB);
+///
+/// assert_eq!(handler_a.as_handler::<HandlerA>().is_some(), true);
+/// assert_eq!(handler_a.as_handler::<HandlerB>().is_some(), false);
+/// assert_eq!(handler_b.as_handler::<HandlerA>().is_some(), false);
+/// assert_eq!(handler_b.as_handler::<HandlerB>().is_some(), true);
+///
+/// assert_eq!(handler_a.as_handler_mut::<HandlerA>().is_some(), true);
+/// assert_eq!(handler_a.as_handler_mut::<HandlerB>().is_some(), false);
+/// assert_eq!(handler_b.as_handler_mut::<HandlerA>().is_some(), false);
+/// assert_eq!(handler_b.as_handler_mut::<HandlerB>().is_some(), true);
+/// ```
 pub trait AsHandler<'a> {
+    /// Convert handler if possible
     fn as_handler<T: Handler>(&'a self) -> Option<&'a T>;
 
+    /// Convert handler if possible
     fn as_handler_mut<T: Handler>(&'a mut self) -> Option<&'a mut T>;
 }
 
@@ -52,7 +87,23 @@ impl<'a> AsHandler<'a> for BoxHandler {
     }
 }
 
-// todo give example like `move |ctx| { MOVE async { Ok(Response) } }`
+/// Impl Handler for functions
+///
+/// # Examples
+///
+/// ```
+/// use bolt::{Handler, Context, Response, BoltResult};
+///
+/// async fn free_function(_ctx: Context) -> BoltResult<Response> {
+///     Ok("It Works!".into())
+/// }
+///
+/// let handler_closure: dyn Handler = |_ctx: Context| async { b"It Works!".into() };
+/// let handler_function: dyn Handler = free_function;
+///
+/// assert_eq!(handler_closure(), Ok(Response::from("It Works!")));
+/// assert_eq!(handler_function(), Ok(Response::from("It Works!")));
+/// ```
 #[async_trait]
 impl<F, R> Handler for F
     where

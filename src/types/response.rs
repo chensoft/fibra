@@ -465,6 +465,8 @@ impl Response {
 }
 
 /// Conversion
+/// 
+/// # Examples
 ///
 /// ```
 /// use bytes::Bytes;
@@ -491,6 +493,8 @@ impl<T> From<(Status, Mime, T)> for Response
 }
 
 /// Conversion
+/// 
+/// # Examples
 ///
 /// ```
 /// use bytes::Bytes;
@@ -515,6 +519,8 @@ impl From<(Status, &'static str)> for Response {
 }
 
 /// Conversion
+/// 
+/// # Examples
 ///
 /// ```
 /// use bytes::Bytes;
@@ -539,6 +545,8 @@ impl From<(Status, String)> for Response {
 }
 
 /// Conversion
+/// 
+/// # Examples
 ///
 /// ```
 /// use bytes::Bytes;
@@ -563,6 +571,8 @@ impl From<(Status, &'static [u8])> for Response {
 }
 
 /// Conversion
+/// 
+/// # Examples
 ///
 /// ```
 /// use bytes::Bytes;
@@ -587,6 +597,8 @@ impl From<(Status, Vec<u8>)> for Response {
 }
 
 /// Conversion
+/// 
+/// # Examples
 ///
 /// ```
 /// use bytes::Bytes;
@@ -611,6 +623,8 @@ impl From<()> for Response {
 }
 
 /// Conversion
+/// 
+/// # Examples
 ///
 /// ```
 /// use bytes::Bytes;
@@ -635,6 +649,8 @@ impl From<Status> for Response {
 }
 
 /// Conversion
+/// 
+/// # Examples
 ///
 /// ```
 /// use bytes::Bytes;
@@ -659,6 +675,8 @@ impl From<&'static str> for Response {
 }
 
 /// Conversion
+/// 
+/// # Examples
 ///
 /// ```
 /// use bytes::Bytes;
@@ -683,6 +701,8 @@ impl From<String> for Response {
 }
 
 /// Conversion
+/// 
+/// # Examples
 ///
 /// ```
 /// use bytes::Bytes;
@@ -707,6 +727,8 @@ impl From<&'static [u8]> for Response {
 }
 
 /// Conversion
+/// 
+/// # Examples
 ///
 /// ```
 /// use bytes::Bytes;
@@ -731,6 +753,8 @@ impl From<Vec<u8>> for Response {
 }
 
 /// Conversion
+/// 
+/// # Examples
 ///
 /// ```
 /// use bytes::Bytes;
