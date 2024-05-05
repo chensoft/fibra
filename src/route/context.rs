@@ -42,15 +42,9 @@ impl Context {
     /// # Examples
     ///
     /// ```
-    /// use std::sync::Arc;
-    /// use bolt::{Context, Router, Connection, Request};
+    /// use bolt::{Context, Request};
     ///
-    /// let app = Arc::new(Router::default());
-    /// let con = Arc::new(Connection::default());
-    /// let req = Request::default();
-    /// let ctx = Context::from((app, con, req));
-    ///
-    /// assert_eq!(ctx.connid() > 0, true);
+    /// assert_eq!(Context::from(Request::default()).connid() > 0, true);
     /// ```
     pub fn connid(&self) -> u128 {
         *self.conn.id_ref()
@@ -62,14 +56,10 @@ impl Context {
     ///
     /// ```
     /// use chrono::Local;
-    /// use std::sync::Arc;
-    /// use bolt::{Context, Router, Connection, Request};
+    /// use bolt::{Context, Request};
     ///
     /// let old = Local::now();
-    /// let app = Arc::new(Router::default());
-    /// let con = Arc::new(Connection::default());
-    /// let req = Request::default();
-    /// let ctx = Context::from((app, con, req));
+    /// let ctx = Context::from(Request::default());
     ///
     /// assert_eq!(ctx.established() >= &old, true);
     /// assert_eq!(ctx.established() <= &Local::now(), true);
@@ -83,15 +73,9 @@ impl Context {
     /// # Examples
     ///
     /// ```
-    /// use std::sync::Arc;
-    /// use bolt::{Context, Router, Connection, Request};
+    /// use bolt::{Context, Request};
     ///
-    /// let app = Arc::new(Router::default());
-    /// let con = Arc::new(Connection::default().count(5));
-    /// let req = Request::default();
-    /// let ctx = Context::from((app, con, req));
-    ///
-    /// assert_eq!(ctx.served(), 5);
+    /// assert_eq!(Context::from(Request::default()).served(), 5);
     /// ```
     pub fn served(&self) -> usize {
         self.conn.count_ref().load(atomic::Ordering::Relaxed)
@@ -151,16 +135,12 @@ impl Context {
     /// # Examples
     ///
     /// ```
-    /// use std::sync::Arc;
-    /// use bolt::{Context, Router, Connection, Request};
+    /// use bolt::{Context, Request};
     ///
-    /// let app = Arc::new(Router::default());
-    /// let con = Arc::new(Connection::default());
-    /// let req = Request::default();
-    /// let ctx = Context::from((app, con, req));
+    /// let ctx = Context::from(Request::default());
     ///
-    /// assert_eq!(ctx.reqid() > 0, true);
-    /// assert_ne!(ctx.reqid(), ctx.connid());
+    /// assert_eq!(Context::from(Request::default()).reqid() > 0, true);
+    /// assert_ne!(Context::from(Request::default()).reqid(), ctx.connid());
     /// ```
     pub fn reqid(&self) -> u128 {
         *self.req.id_ref()
@@ -172,14 +152,10 @@ impl Context {
     ///
     /// ```
     /// use chrono::Local;
-    /// use std::sync::Arc;
-    /// use bolt::{Context, Router, Connection, Request};
+    /// use bolt::{Context, Request};
     ///
     /// let old = Local::now();
-    /// let app = Arc::new(Router::default());
-    /// let con = Arc::new(Connection::default());
-    /// let req = Request::default();
-    /// let ctx = Context::from((app, con, req));
+    /// let ctx = Context::from(Request::default());
     ///
     /// assert_eq!(ctx.created() >= &old, true);
     /// assert_eq!(ctx.created() <= &Local::now(), true);
@@ -193,14 +169,10 @@ impl Context {
     /// # Examples
     ///
     /// ```
-    /// use chrono::Local;
-    /// use std::sync::Arc;
-    /// use bolt::{Context, Router, Connection, Request, Method};
+    /// use bolt::{Context, Request, Method};
     ///
-    /// let app = Arc::new(Router::default());
-    /// let con = Arc::new(Connection::default());
-    /// let req = Request::default().method(Method::PUT);
-    /// let ctx = Context::from((app, con, req));
+    /// let req = Request::default();
+    /// let ctx = Context::from(Request::default().method(Method::PUT));
     ///
     /// assert_eq!(ctx.method(), &Method::PUT);
     /// assert_eq!(ctx.is_get(), false);
@@ -243,14 +215,9 @@ impl Context {
     /// # Examples
     ///
     /// ```
-    /// use chrono::Local;
-    /// use std::sync::Arc;
-    /// use bolt::{Context, Router, Connection, Request, Uri};
+    /// use bolt::{Context, Request, Uri};
     ///
-    /// let app = Arc::new(Router::default());
-    /// let con = Arc::new(Connection::default());
-    /// let req = Request::default().uri(Uri::from_static("http://example.com"));
-    /// let ctx = Context::from((app, con, req));
+    /// let ctx = Context::from(Request::default().uri(Uri::from_static("http://example.com")));
     ///
     /// assert_eq!(ctx.uri(), "http://example.com/");
     /// ```
@@ -263,14 +230,9 @@ impl Context {
     /// # Examples
     ///
     /// ```
-    /// use chrono::Local;
-    /// use std::sync::Arc;
-    /// use bolt::{Context, Router, Connection, Request, Uri, Scheme};
+    /// use bolt::{Context, Request, Uri, Scheme};
     ///
-    /// let app = Arc::new(Router::default());
-    /// let con = Arc::new(Connection::default());
-    /// let req = Request::default().uri(Uri::from_static("https://example.com"));
-    /// let ctx = Context::from((app, con, req));
+    /// let ctx = Context::from(Request::default().uri(Uri::from_static("https://example.com")));
     ///
     /// assert_eq!(ctx.scheme(), &Scheme::HTTPS);
     /// assert_eq!(ctx.is_secure(), true);
@@ -289,14 +251,9 @@ impl Context {
     /// # Examples
     ///
     /// ```
-    /// use chrono::Local;
-    /// use std::sync::Arc;
-    /// use bolt::{Context, Router, Connection, Request, Uri, Authority};
+    /// use bolt::{Context, Request, Uri, Authority};
     ///
-    /// let app = Arc::new(Router::default());
-    /// let con = Arc::new(Connection::default());
-    /// let req = Request::default().uri(Uri::from_static("http://user:pass@example.com"));
-    /// let ctx = Context::from((app, con, req));
+    /// let ctx = Context::from(Request::default().uri(Uri::from_static("http://user:pass@example.com")));
     ///
     /// assert_eq!(ctx.authority(), Some(&Authority::from_static("user:pass@example.com")));
     /// ```
@@ -309,14 +266,9 @@ impl Context {
     /// # Examples
     ///
     /// ```
-    /// use chrono::Local;
-    /// use std::sync::Arc;
-    /// use bolt::{Context, Router, Connection, Request, Uri};
+    /// use bolt::{Context, Request, Uri};
     ///
-    /// let app = Arc::new(Router::default());
-    /// let con = Arc::new(Connection::default());
-    /// let req = Request::default().uri(Uri::from_static("http://user:pass@example.com"));
-    /// let ctx = Context::from((app, con, req));
+    /// let ctx = Context::from(Request::default().uri(Uri::from_static("http://user:pass@example.com")));
     ///
     /// assert_eq!(ctx.domain(), "example.com");
     /// ```
@@ -329,14 +281,9 @@ impl Context {
     /// # Examples
     ///
     /// ```
-    /// use chrono::Local;
-    /// use std::sync::Arc;
-    /// use bolt::{Context, Router, Connection, Request, Uri};
+    /// use bolt::{Context, Request, Uri};
     ///
-    /// let app = Arc::new(Router::default());
-    /// let con = Arc::new(Connection::default());
-    /// let req = Request::default().uri(Uri::from_static("http://user:pass@git.example.com"));
-    /// let ctx = Context::from((app, con, req));
+    /// let ctx = Context::from(Request::default().uri(Uri::from_static("http://user:pass@git.example.com")));
     ///
     /// assert_eq!(ctx.subdomain(), "git");
     /// ```
@@ -349,14 +296,9 @@ impl Context {
     /// # Examples
     ///
     /// ```
-    /// use chrono::Local;
-    /// use std::sync::Arc;
-    /// use bolt::{Context, Router, Connection, Request, Uri};
+    /// use bolt::{Context, Request, Uri};
     ///
-    /// let app = Arc::new(Router::default());
-    /// let con = Arc::new(Connection::default());
-    /// let req = Request::default().uri(Uri::from_static("http://user:pass@git.example.com"));
-    /// let ctx = Context::from((app, con, req));
+    /// let ctx = Context::from(Request::default().uri(Uri::from_static("http://user:pass@git.example.com")));
     ///
     /// assert_eq!(ctx.host(), "git.example.com");
     /// ```
@@ -369,14 +311,9 @@ impl Context {
     /// # Examples
     ///
     /// ```
-    /// use chrono::Local;
-    /// use std::sync::Arc;
-    /// use bolt::{Context, Router, Connection, Request, Uri};
+    /// use bolt::{Context, Request, Uri};
     ///
-    /// let app = Arc::new(Router::default());
-    /// let con = Arc::new(Connection::default());
-    /// let req = Request::default().uri(Uri::from_static("http://example.com:3000"));
-    /// let ctx = Context::from((app, con, req));
+    /// let ctx = Context::from(Request::default().uri(Uri::from_static("http://example.com:3000")));
     ///
     /// assert_eq!(ctx.port(), 3000);
     /// ```
@@ -389,14 +326,9 @@ impl Context {
     /// # Examples
     ///
     /// ```
-    /// use chrono::Local;
-    /// use std::sync::Arc;
-    /// use bolt::{Context, Router, Connection, Request, Uri};
+    /// use bolt::{Context, Request, Uri};
     ///
-    /// let app = Arc::new(Router::default());
-    /// let con = Arc::new(Connection::default());
-    /// let req = Request::default().uri(Uri::from_static("http://example.com/repo/bolt"));
-    /// let ctx = Context::from((app, con, req));
+    /// let ctx = Context::from(Request::default().uri(Uri::from_static("http://example.com/repo/bolt")));
     ///
     /// assert_eq!(ctx.path(), "/repo/bolt");
     /// ```
@@ -409,14 +341,9 @@ impl Context {
     /// # Examples
     ///
     /// ```
-    /// use chrono::Local;
-    /// use std::sync::Arc;
-    /// use bolt::{Context, Router, Connection, Request, Uri};
+    /// use bolt::{Context, Request, Uri};
     ///
-    /// let app = Arc::new(Router::default());
-    /// let con = Arc::new(Connection::default());
-    /// let req = Request::default().uri(Uri::from_static("http://example.com/?foo=bar"));
-    /// let ctx = Context::from((app, con, req));
+    /// let ctx = Context::from(Request::default().uri(Uri::from_static("http://example.com/?foo=bar")));
     ///
     /// assert_eq!(ctx.query("foo"), "bar");
     /// assert_eq!(ctx.query("key"), "");
@@ -430,14 +357,9 @@ impl Context {
     /// # Examples
     ///
     /// ```
-    /// use chrono::Local;
-    /// use std::sync::Arc;
-    /// use bolt::{Context, Router, Connection, Request, Uri};
+    /// use bolt::{Context, Request, Uri};
     ///
-    /// let app = Arc::new(Router::default());
-    /// let con = Arc::new(Connection::default());
-    /// let req = Request::default().uri(Uri::from_static("http://example.com/?foo=bar&key=%E4%BD%A0%E5%A5%BD"));
-    /// let ctx = Context::from((app, con, req));
+    /// let ctx = Context::from(Request::default().uri(Uri::from_static("http://example.com/?foo=bar&key=%E4%BD%A0%E5%A5%BD")));
     ///
     /// assert_eq!(ctx.query("foo"), "bar");
     /// assert_eq!(ctx.query("key"), "你好"); // url decoded
@@ -452,14 +374,9 @@ impl Context {
     /// # Examples
     ///
     /// ```
-    /// use chrono::Local;
-    /// use std::sync::Arc;
-    /// use bolt::{Context, Router, Connection, Request, Uri};
+    /// use bolt::{Context, Request, Uri};
     ///
-    /// let app = Arc::new(Router::default());
-    /// let con = Arc::new(Connection::default());
-    /// let req = Request::default().uri(Uri::from_static("http://user:pass@git.example.com/repo/bolt?foo=bar&key=%E4%BD%A0%E5%A5%BD"));
-    /// let ctx = Context::from((app, con, req));
+    /// let ctx = Context::from(Request::default().uri(Uri::from_static("http://user:pass@git.example.com/repo/bolt?foo=bar&key=%E4%BD%A0%E5%A5%BD")));
     ///
     /// assert_eq!(ctx.href(), "http://user:pass@git.example.com/repo/bolt?foo=bar&key=%E4%BD%A0%E5%A5%BD".to_string());
     /// ```
@@ -472,14 +389,9 @@ impl Context {
     /// # Examples
     ///
     /// ```
-    /// use chrono::Local;
-    /// use std::sync::Arc;
-    /// use bolt::{Context, Router, Connection, Request, Version};
+    /// use bolt::{Context, Request, Version};
     ///
-    /// let app = Arc::new(Router::default());
-    /// let con = Arc::new(Connection::default());
-    /// let req = Request::default().version(Version::HTTP_10);
-    /// let ctx = Context::from((app, con, req));
+    /// let ctx = Context::from(Request::default().version(Version::HTTP_10));
     ///
     /// assert_eq!(ctx.version(), &Version::HTTP_10);
     /// assert_eq!(ctx.is_http10(), true);
@@ -516,14 +428,9 @@ impl Context {
     /// # Examples
     ///
     /// ```
-    /// use chrono::Local;
-    /// use std::sync::Arc;
-    /// use bolt::{Context, Router, Connection, Request};
+    /// use bolt::{Context, Request};
     ///
-    /// let app = Arc::new(Router::default());
-    /// let con = Arc::new(Connection::default());
-    /// let req = Request::default().header("content-type", "application/json").header("cache-control", "no-cache");
-    /// let ctx = Context::from((app, con, req));
+    /// let ctx = Context::from(Request::default().header("content-type", "application/json").header("cache-control", "no-cache"));
     ///
     /// let headers = ctx.headers();
     ///
@@ -540,14 +447,9 @@ impl Context {
     /// # Examples
     ///
     /// ```
-    /// use chrono::Local;
-    /// use std::sync::Arc;
-    /// use bolt::{Context, Router, Connection, Request};
+    /// use bolt::{Context, Request};
     ///
-    /// let app = Arc::new(Router::default());
-    /// let con = Arc::new(Connection::default());
-    /// let req = Request::default().header("content-type", "application/json").header("cache-control", "no-cache");
-    /// let ctx = Context::from((app, con, req));
+    /// let ctx = Context::from(Request::default().header("content-type", "application/json").header("cache-control", "no-cache"));
     ///
     /// assert_eq!(ctx.header("content-type").map(|v| v.as_bytes()), Some("application/json".as_bytes()));
     /// assert_eq!(ctx.header("cache-control").map(|v| v.as_bytes()), Some("no-cache".as_bytes()));
@@ -642,6 +544,7 @@ impl Context {
     }
 }
 
+/// Construct from client request
 impl From<(Arc<Router>, Arc<Connection>, Request)> for Context {
     fn from((app, conn, req): (Arc<Router>, Arc<Connection>, Request)) -> Self {
         let queries = form_urlencoded::parse(req.query().as_bytes()).into_owned().collect();
@@ -649,4 +552,11 @@ impl From<(Arc<Router>, Arc<Connection>, Request)> for Context {
     }
 }
 
-// todo mock context
+/// For mock use only
+impl From<Request> for Context {
+    fn from(req: Request) -> Self {
+        let app = Arc::new(Router::default());
+        let con = Arc::new(Connection::default());
+        (app, con, req).into()
+    }
+}
