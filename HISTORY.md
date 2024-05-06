@@ -43,3 +43,4 @@
 - session support
 - Swagger & OpenAPI
 - bench: https://www.techempower.com/benchmarks/#section=intro&test=fortune
+- example: simple downloader and indexer, httpbin-like tools

@@ -6,13 +6,13 @@ use crate::types::*;
 #[async_trait]
 pub trait Handler: AnyHandler + Send + Sync + 'static {
     /// Impl this function to handle http requests, a context contains a connection object and
-    /// a current request object, multiple requests may resides on one connection, and these
+    /// a current request object, multiple requests may reside on one connection, and these
     /// requests will be handled one by one on different context objects
     async fn handle(&self, ctx: Context) -> BoltResult<Response>;
 
     /// Internal method to get the child handler of its parent
     #[allow(unused_variables)]
-    fn child(&self, idx: usize) -> Option<&BoxHandler> {
+    fn select(&self, idx: usize) -> Option<&BoxHandler> {
         None
     }
 }

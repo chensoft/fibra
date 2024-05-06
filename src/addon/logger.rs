@@ -1,3 +1,4 @@
+// todo more config and log hook print start, settings, compact
 // use crate::route::*;
 // use crate::types::*;
 // 

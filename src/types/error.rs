@@ -21,6 +21,9 @@ pub enum BoltError {
     HttpError(#[from] hyper::http::Error),
 
     #[error("{0}")]
+    UriInvalid(#[from] hyper::http::uri::InvalidUri),
+
+    #[error("{0}")]
     HeaderInvalid(#[from] header::InvalidHeaderValue),
 }
 

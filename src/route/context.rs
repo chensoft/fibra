@@ -5,7 +5,7 @@ use crate::types::*;
 /// Context which holds the connection and request
 pub struct Context {
     /// The root app instance
-    app: Arc<Router>,
+    app: Arc<Bolt>,
 
     /// Current connection ref
     conn: Arc<Connection>,
@@ -28,11 +28,11 @@ unsafe impl Sync for Context {}
 
 impl Context {
     /// The root app instance
-    pub fn app(&self) -> &Router {
+    pub fn app(&self) -> &Bolt {
         &self.app
     }
 
-    /// Current connection, multiple requests may belong to a single connection
+    /// Current connection, multiple requests may belong to one connection
     pub fn conn(&self) -> &Connection {
         &self.conn
     }
@@ -88,9 +88,9 @@ impl Context {
     /// ```
     /// use std::sync::Arc;
     /// use std::net::SocketAddr;
-    /// use bolt::{Context, Router, Connection, Request};
+    /// use bolt::{Context, Bolt, Connection, Request};
     ///
-    /// let app = Arc::new(Router::default());
+    /// let app = Arc::new(Bolt::default());
     /// let con = Arc::new(Connection::from((SocketAddr::from(([127, 0, 0, 1], 3000)), SocketAddr::from(([8, 8, 8, 8], 80)))));
     /// let req = Request::default();
     /// let ctx = Context::from((app, con, req));
@@ -109,9 +109,9 @@ impl Context {
     /// ```
     /// use std::sync::Arc;
     /// use std::net::SocketAddr;
-    /// use bolt::{Context, Router, Connection, Request};
+    /// use bolt::{Context, Bolt, Connection, Request};
     ///
-    /// let app = Arc::new(Router::default());
+    /// let app = Arc::new(Bolt::default());
     /// let con = Arc::new(Connection::from((SocketAddr::from(([127, 0, 0, 1], 3000)), SocketAddr::from(([8, 8, 8, 8], 80)))));
     /// let req = Request::default();
     /// let ctx = Context::from((app, con, req));
@@ -139,8 +139,8 @@ impl Context {
     ///
     /// let ctx = Context::from(Request::default());
     ///
-    /// assert_eq!(Context::from(Request::default()).reqid() > 0, true);
-    /// assert_ne!(Context::from(Request::default()).reqid(), ctx.connid());
+    /// assert_eq!(ctx.reqid() > 0, true);
+    /// assert_ne!(ctx.reqid(), Context::from(Request::default()).reqid()); // reqid is unique
     /// ```
     pub fn reqid(&self) -> u128 {
         *self.req.id_ref()
@@ -487,7 +487,7 @@ impl Context {
         todo!()
     }
 
-    pub async fn save(&mut self, _path: &str) {
+    pub async fn save(&mut self, _path: impl Into<PathBuf>) {
         todo!()
     }
 }
@@ -506,7 +506,7 @@ impl Context {
     pub async fn next(mut self) -> BoltResult<Response> {
         while let Some((cur, idx)) = self.routing.last_mut() {
             let top = unsafe { &**cur };
-            let cld = match top.child(*idx) {
+            let cld = match top.select(*idx) {
                 Some(obj) => obj,
                 None => {
                     self.pop();
@@ -526,27 +526,22 @@ impl Context {
         Ok(Response::default().status(status.unwrap_or(Status::FORBIDDEN)))
     }
 
-    pub async fn rewrite(mut self, to: &'static str, _body: Vec<u8>) -> BoltResult<Response> {
-        // todo no body
-        self.req = self.req.uri(Uri::from_static(to)); // todo right?
-        // self.req.body_mut() = ;
-
-        let app = self.app;
-        let ctx = Context::from((app.clone(), self.conn, self.req));
-
-        app.handle(ctx).await
+    pub async fn rewrite(self, to: impl Into<Uri>, body: impl Into<Body>) -> BoltResult<Response> {
+        let ctx = Context::from((self.app, self.conn, self.req.uri(to).body(body)));
+        ctx.next().await
     }
 
-    pub async fn redirect(self, to: Uri, status: Option<Status>) -> BoltResult<Response> {
+    pub async fn redirect(self, to: impl Into<Uri>, status: Option<Status>) -> BoltResult<Response> {
         Ok(Response::default()
             .status(status.unwrap_or(Status::TEMPORARY_REDIRECT))
-            .header(header::LOCATION, HeaderValue::from_str(to.to_string().as_str())?))
+            .header(header::LOCATION, HeaderValue::from_str(to.into().to_string().as_str())?))
     }
 }
 
 /// Construct from client request
-impl From<(Arc<Router>, Arc<Connection>, Request)> for Context {
-    fn from((app, conn, req): (Arc<Router>, Arc<Connection>, Request)) -> Self {
+impl From<(Arc<Bolt>, Arc<Connection>, Request)> for Context {
+    fn from((app, conn, req): (Arc<Bolt>, Arc<Connection>, Request)) -> Self {
+        // todo push root to routing
         let queries = form_urlencoded::parse(req.query().as_bytes()).into_owned().collect();
         Self { app, conn, req, params: IndexMap::new(), queries, routing: vec![] }
     }
@@ -555,8 +550,6 @@ impl From<(Arc<Router>, Arc<Connection>, Request)> for Context {
 /// For mock use only
 impl From<Request> for Context {
     fn from(req: Request) -> Self {
-        let app = Arc::new(Router::default());
-        let con = Arc::new(Connection::default());
-        (app, con, req).into()
+        (Arc::new(Bolt::default()), Arc::new(Connection::default()), req).into()
     }
 }
