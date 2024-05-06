@@ -26,7 +26,7 @@ impl Connection {
     /// # Examples
     /// 
     /// ```
-    /// use bolt::{Connection};
+    /// use bolt::*;
     ///
     /// assert_eq!(*Connection::default().id_ref() > 0, true);
     /// ```
@@ -40,7 +40,7 @@ impl Connection {
     /// # Examples
     /// 
     /// ```
-    /// use bolt::{Connection};
+    /// use bolt::*;
     ///
     /// let mut con = Connection::default();
     /// *con.id_mut() = 12345;
@@ -57,7 +57,7 @@ impl Connection {
     /// # Examples
     /// 
     /// ```
-    /// use bolt::{Connection};
+    /// use bolt::*;
     ///
     /// assert_eq!(Connection::default().id(12345).id_ref(), &12345);
     /// ```
@@ -72,8 +72,8 @@ impl Connection {
     /// # Examples
     /// 
     /// ```
+    /// use bolt::*;
     /// use chrono::Local;
-    /// use bolt::{Connection};
     ///
     /// assert_eq!(Connection::default().created_ref() <= &Local::now(), true);
     /// ```
@@ -87,8 +87,8 @@ impl Connection {
     /// # Examples
     /// 
     /// ```
+    /// use bolt::*;
     /// use chrono::Local;
-    /// use bolt::{Connection};
     ///
     /// let now = Local::now();
     /// let mut con = Connection::default();
@@ -106,8 +106,8 @@ impl Connection {
     /// # Examples
     /// 
     /// ```
+    /// use bolt::*;
     /// use chrono::Local;
-    /// use bolt::{Connection};
     ///
     /// let now = Local::now();
     /// let con = Connection::default().created(now);
@@ -125,7 +125,7 @@ impl Connection {
     /// # Examples
     /// 
     /// ```
-    /// use bolt::{Connection};
+    /// use bolt::*;
     /// use std::sync::atomic::{AtomicUsize, Ordering};
     ///
     /// assert_eq!(Connection::default().count_ref().load(Ordering::Relaxed), 0);
@@ -140,7 +140,7 @@ impl Connection {
     /// # Examples
     /// 
     /// ```
-    /// use bolt::{Connection};
+    /// use bolt::*;
     /// use std::sync::atomic::{AtomicUsize, Ordering};
     ///
     /// let mut con = Connection::default();
@@ -158,7 +158,7 @@ impl Connection {
     /// # Examples
     /// 
     /// ```
-    /// use bolt::{Connection};
+    /// use bolt::*;
     /// use std::sync::atomic::{Ordering};
     ///
     /// assert_eq!(Connection::default().count(12345).count_ref().load(Ordering::Relaxed), 12345);
@@ -174,7 +174,7 @@ impl Connection {
     /// # Examples
     /// 
     /// ```
-    /// use bolt::{Connection};
+    /// use bolt::*;
     /// use std::net::SocketAddr;
     ///
     /// assert_eq!(Connection::default().sockaddr_ref(), &SocketAddr::from(([0, 0, 0, 0], 0)));
@@ -189,7 +189,7 @@ impl Connection {
     /// # Examples
     /// 
     /// ```
-    /// use bolt::{Connection};
+    /// use bolt::*;
     /// use std::net::SocketAddr;
     ///
     /// let mut con = Connection::default();
@@ -207,7 +207,7 @@ impl Connection {
     /// # Examples
     /// 
     /// ```
-    /// use bolt::{Connection};
+    /// use bolt::*;
     /// use std::net::SocketAddr;
     ///
     /// assert_eq!(Connection::default().sockaddr(([127, 0, 0, 1], 3000)).sockaddr_ref(), &SocketAddr::from(([127, 0, 0, 1], 3000)));
@@ -223,7 +223,7 @@ impl Connection {
     /// # Examples
     /// 
     /// ```
-    /// use bolt::{Connection};
+    /// use bolt::*;
     /// use std::net::SocketAddr;
     ///
     /// assert_eq!(Connection::default().peeraddr_ref(), &SocketAddr::from(([0, 0, 0, 0], 0)));
@@ -238,7 +238,7 @@ impl Connection {
     /// # Examples
     /// 
     /// ```
-    /// use bolt::{Connection};
+    /// use bolt::*;
     /// use std::net::SocketAddr;
     ///
     /// let mut con = Connection::default();
@@ -256,7 +256,7 @@ impl Connection {
     /// # Examples
     /// 
     /// ```
-    /// use bolt::{Connection};
+    /// use bolt::*;
     /// use std::net::SocketAddr;
     ///
     /// assert_eq!(Connection::default().peeraddr(([127, 0, 0, 1], 3000)).peeraddr_ref(), &SocketAddr::from(([127, 0, 0, 1], 3000)));
@@ -268,7 +268,6 @@ impl Connection {
     }
 }
 
-/// Default trait
 impl Default for Connection {
     #[inline]
     fn default() -> Self {
@@ -276,7 +275,6 @@ impl Default for Connection {
     }
 }
 
-/// Create a new connection
 impl<S: Into<SocketAddr>, P: Into<SocketAddr>> From<(S, P)> for Connection {
     #[inline]
     fn from((sock, peer): (S, P)) -> Self {

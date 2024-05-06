@@ -23,7 +23,7 @@ impl Response {
     /// # Examples
     /// 
     /// ```
-    /// use bolt::{Response, Version};
+    /// use bolt::*;
     ///
     /// assert_eq!(Response::default().version_ref(), &Version::HTTP_11);
     /// ```
@@ -37,7 +37,7 @@ impl Response {
     /// # Examples
     /// 
     /// ```
-    /// use bolt::{Response, Version};
+    /// use bolt::*;
     ///
     /// let mut res = Response::default();
     /// *res.version_mut() = Version::HTTP_10;
@@ -53,7 +53,7 @@ impl Response {
     /// # Examples
     /// 
     /// ```
-    /// use bolt::{Response, Version};
+    /// use bolt::*;
     ///
     /// let mut res = Response::default().version(Version::HTTP_10);
     /// assert_eq!(res.version_mut(), &Version::HTTP_10);
@@ -69,7 +69,7 @@ impl Response {
     /// # Examples
     /// 
     /// ```
-    /// use bolt::{Response, Status};
+    /// use bolt::*;
     ///
     /// assert_eq!(Response::default().status_ref(), &Status::OK);
     /// ```
@@ -83,7 +83,7 @@ impl Response {
     /// # Examples
     /// 
     /// ```
-    /// use bolt::{Response, Status};
+    /// use bolt::*;
     ///
     /// let mut res = Response::default();
     /// *res.status_mut() = Status::NOT_FOUND;
@@ -99,7 +99,7 @@ impl Response {
     /// # Examples
     /// 
     /// ```
-    /// use bolt::{Response, Status};
+    /// use bolt::*;
     ///
     /// let mut res = Response::default().status(Status::NOT_FOUND);
     /// assert_eq!(res.status_mut(), &Status::NOT_FOUND);
@@ -115,7 +115,7 @@ impl Response {
     /// # Examples
     /// 
     /// ```
-    /// use bolt::{Response};
+    /// use bolt::*;
     ///
     /// assert_eq!(Response::default().headers_ref().len(), 0);
     /// ```
@@ -129,7 +129,7 @@ impl Response {
     /// # Examples
     /// 
     /// ```
-    /// use bolt::{Response, header::{self, IntoHeaderValue}};
+    /// use bolt::*;
     ///
     /// let mut res = Response::default();
     /// res.headers_mut().insert(header::CONTENT_TYPE, mime::APPLICATION_JSON.into_value());
@@ -145,7 +145,7 @@ impl Response {
     /// # Examples
     /// 
     /// ```
-    /// use bolt::{Response, header::{self, HeaderMap, IntoHeaderValue}};
+    /// use bolt::*;
     ///
     /// let mut map = HeaderMap::new();
     /// let mut res = Response::default();
@@ -166,7 +166,7 @@ impl Response {
     /// # Examples
     /// 
     /// ```
-    /// use bolt::{Response, header};
+    /// use bolt::*;
     ///
     /// let mut res = Response::default();
     /// res = res.header(header::CONTENT_TYPE, mime::APPLICATION_JSON);
@@ -183,7 +183,7 @@ impl Response {
     /// # Examples
     /// 
     /// ```
-    /// use bolt::{Response, header::{self, IntoHeaderValue}};
+    /// use bolt::*;
     ///
     /// let mut res = Response::default().header(header::CONTENT_TYPE, mime::APPLICATION_JSON);
     /// res.header_mut(header::CONTENT_TYPE).map(|v| *v = mime::TEXT_PLAIN_UTF_8.into_value());
@@ -200,7 +200,7 @@ impl Response {
     /// # Examples
     /// 
     /// ```
-    /// use bolt::{Response, header};
+    /// use bolt::*;
     ///
     /// let mut res = Response::default().header(header::CONTENT_TYPE, mime::TEXT_HTML_UTF_8);
     ///
@@ -217,7 +217,7 @@ impl Response {
     /// # Examples
     /// 
     /// ```
-    /// use bolt::{Response};
+    /// use bolt::*;
     ///
     /// Response::default().body_ref();
     /// ```
@@ -231,8 +231,8 @@ impl Response {
     /// # Examples
     /// 
     /// ```
+    /// use bolt::*;
     /// use bytes::Bytes;
-    /// use bolt::{Response, BoltResult, body};
     ///
     /// #[tokio::main]
     /// async fn main() -> BoltResult<()> {
@@ -251,8 +251,8 @@ impl Response {
     /// # Examples
     /// 
     /// ```
+    /// use bolt::*;
     /// use bytes::Bytes;
-    /// use bolt::{Response, BoltResult, body};
     ///
     /// #[tokio::main]
     /// async fn main() -> BoltResult<()> {
@@ -272,9 +272,9 @@ impl Response {
     /// # Examples
     /// 
     /// ```
+    /// use bolt::*;
     /// use bytes::Bytes;
     /// use indexmap::indexmap;
-    /// use bolt::{Response, BoltResult, header, body};
     ///
     /// #[tokio::main]
     /// async fn main() -> BoltResult<()> {
@@ -303,9 +303,9 @@ impl Response {
     /// # Examples
     /// 
     /// ```
+    /// use bolt::*;
     /// use bytes::Bytes;
     /// use indexmap::indexmap;
-    /// use bolt::{Response, BoltResult, header, body};
     ///
     /// #[tokio::main]
     /// async fn main() -> BoltResult<()> {
@@ -338,8 +338,8 @@ impl Response {
     /// # Examples
     /// 
     /// ```
+    /// use bolt::*;
     /// use bytes::Bytes;
-    /// use bolt::{Response, BoltResult, header, body};
     ///
     /// #[tokio::main]
     /// async fn main() -> BoltResult<()> {
@@ -361,8 +361,8 @@ impl Response {
     /// # Examples
     /// 
     /// ```
+    /// use bolt::*;
     /// use bytes::Bytes;
-    /// use bolt::{Response, BoltResult, header, body};
     ///
     /// #[tokio::main]
     /// async fn main() -> BoltResult<()> {
@@ -391,8 +391,8 @@ impl Response {
     /// # Examples
     /// 
     /// ```
+    /// use bolt::*;
     /// use bytes::Bytes;
-    /// use bolt::{Response, BoltResult, header, body};
     ///
     /// #[tokio::main]
     /// async fn main() -> BoltResult<()> {
@@ -414,11 +414,11 @@ impl Response {
     /// # Examples
     /// 
     /// ```
+    /// use bolt::*;
     /// use bytes::Bytes;
     /// use futures::Stream;
     /// use std::task::Poll;
     /// use std::io::{BufReader, Read};
-    /// use bolt::{Response, BoltResult, body};
     ///
     /// struct FileStream(BufReader<std::fs::File>);
     ///
@@ -469,8 +469,8 @@ impl Response {
 /// # Examples
 ///
 /// ```
+/// use bolt::*;
 /// use bytes::Bytes;
-/// use bolt::{Response, Status, BoltResult, header, body, mime};
 ///
 /// #[tokio::main]
 /// async fn main() -> BoltResult<()> {
@@ -497,8 +497,8 @@ impl<T> From<(Status, Mime, T)> for Response
 /// # Examples
 ///
 /// ```
+/// use bolt::*;
 /// use bytes::Bytes;
-/// use bolt::{Response, Status, BoltResult, header, body, mime};
 ///
 /// #[tokio::main]
 /// async fn main() -> BoltResult<()> {
@@ -523,8 +523,8 @@ impl From<(Status, &'static str)> for Response {
 /// # Examples
 ///
 /// ```
+/// use bolt::*;
 /// use bytes::Bytes;
-/// use bolt::{Response, Status, BoltResult, header, body, mime};
 ///
 /// #[tokio::main]
 /// async fn main() -> BoltResult<()> {
@@ -549,8 +549,8 @@ impl From<(Status, String)> for Response {
 /// # Examples
 ///
 /// ```
+/// use bolt::*;
 /// use bytes::Bytes;
-/// use bolt::{Response, Status, BoltResult, header, body, mime};
 ///
 /// #[tokio::main]
 /// async fn main() -> BoltResult<()> {
@@ -575,8 +575,8 @@ impl From<(Status, &'static [u8])> for Response {
 /// # Examples
 ///
 /// ```
+/// use bolt::*;
 /// use bytes::Bytes;
-/// use bolt::{Response, Status, BoltResult, header, body, mime};
 ///
 /// #[tokio::main]
 /// async fn main() -> BoltResult<()> {
@@ -601,8 +601,8 @@ impl From<(Status, Vec<u8>)> for Response {
 /// # Examples
 ///
 /// ```
+/// use bolt::*;
 /// use bytes::Bytes;
-/// use bolt::{Response, Status, BoltResult, header, body, mime};
 ///
 /// #[tokio::main]
 /// async fn main() -> BoltResult<()> {
@@ -627,8 +627,8 @@ impl From<()> for Response {
 /// # Examples
 ///
 /// ```
+/// use bolt::*;
 /// use bytes::Bytes;
-/// use bolt::{Response, Status, BoltResult, header, body, mime};
 ///
 /// #[tokio::main]
 /// async fn main() -> BoltResult<()> {
@@ -653,8 +653,8 @@ impl From<Status> for Response {
 /// # Examples
 ///
 /// ```
+/// use bolt::*;
 /// use bytes::Bytes;
-/// use bolt::{Response, Status, BoltResult, header, body, mime};
 ///
 /// #[tokio::main]
 /// async fn main() -> BoltResult<()> {
@@ -679,8 +679,8 @@ impl From<&'static str> for Response {
 /// # Examples
 ///
 /// ```
+/// use bolt::*;
 /// use bytes::Bytes;
-/// use bolt::{Response, Status, BoltResult, header, body, mime};
 ///
 /// #[tokio::main]
 /// async fn main() -> BoltResult<()> {
@@ -705,8 +705,8 @@ impl From<String> for Response {
 /// # Examples
 ///
 /// ```
+/// use bolt::*;
 /// use bytes::Bytes;
-/// use bolt::{Response, Status, BoltResult, header, body, mime};
 ///
 /// #[tokio::main]
 /// async fn main() -> BoltResult<()> {
@@ -731,8 +731,8 @@ impl From<&'static [u8]> for Response {
 /// # Examples
 ///
 /// ```
+/// use bolt::*;
 /// use bytes::Bytes;
-/// use bolt::{Response, Status, BoltResult, header, body, mime};
 ///
 /// #[tokio::main]
 /// async fn main() -> BoltResult<()> {
@@ -757,8 +757,8 @@ impl From<Vec<u8>> for Response {
 /// # Examples
 ///
 /// ```
+/// use bolt::*;
 /// use bytes::Bytes;
-/// use bolt::{Response, Status, BoltResult, header, body, mime};
 ///
 /// #[tokio::main]
 /// async fn main() -> BoltResult<()> {

@@ -6,13 +6,13 @@ use crate::types::*;
 #[derive(Debug, Error)]
 pub enum BoltError {
     #[error("{0}")]
-    PanicError(String),
+    PanicError(Cow<'static, str>),
 
     #[error("{0}")]
     IoError(#[from] std::io::Error),
 
     #[error("{0}")]
-    PatternError(#[from] radixmap::RadixError),
+    RadixError(#[from] radixmap::RadixError),
 
     #[error("{0}")]
     HyperError(#[from] hyper::Error),

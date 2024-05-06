@@ -9,7 +9,7 @@
 // }
 // 
 // impl Logger {
-//     pub fn new(target: impl logkit::Target, level: logkit::Level, precision: chrono::SecondsFormat) -> Self {
+//     pub fn todo remove or default instead(target: impl logkit::Target, level: logkit::Level, precision: chrono::SecondsFormat) -> Self {
 //         let mut logger = logkit::Logger::new(None);
 //         logger.mount(logkit::LevelPlugin);
 //         logger.route(target);

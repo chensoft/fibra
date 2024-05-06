@@ -42,7 +42,7 @@ impl Context {
     /// # Examples
     ///
     /// ```
-    /// use bolt::{Context, Request};
+    /// use bolt::*;
     ///
     /// assert_eq!(Context::from(Request::default()).connid() > 0, true);
     /// ```
@@ -55,8 +55,8 @@ impl Context {
     /// # Examples
     ///
     /// ```
+    /// use bolt::*;
     /// use chrono::Local;
-    /// use bolt::{Context, Request};
     ///
     /// let old = Local::now();
     /// let ctx = Context::from(Request::default());
@@ -73,7 +73,7 @@ impl Context {
     /// # Examples
     ///
     /// ```
-    /// use bolt::{Context, Request};
+    /// use bolt::*;
     ///
     /// assert_eq!(Context::from(Request::default()).served(), 5);
     /// ```
@@ -86,9 +86,9 @@ impl Context {
     /// # Examples
     ///
     /// ```
+    /// use bolt::*;
     /// use std::sync::Arc;
     /// use std::net::SocketAddr;
-    /// use bolt::{Context, Bolt, Connection, Request};
     ///
     /// let app = Arc::new(Bolt::default());
     /// let con = Arc::new(Connection::from((SocketAddr::from(([127, 0, 0, 1], 3000)), SocketAddr::from(([8, 8, 8, 8], 80)))));
@@ -107,9 +107,9 @@ impl Context {
     /// # Examples
     ///
     /// ```
+    /// use bolt::*;
     /// use std::sync::Arc;
     /// use std::net::SocketAddr;
-    /// use bolt::{Context, Bolt, Connection, Request};
     ///
     /// let app = Arc::new(Bolt::default());
     /// let con = Arc::new(Connection::from((SocketAddr::from(([127, 0, 0, 1], 3000)), SocketAddr::from(([8, 8, 8, 8], 80)))));
@@ -135,7 +135,7 @@ impl Context {
     /// # Examples
     ///
     /// ```
-    /// use bolt::{Context, Request};
+    /// use bolt::*;
     ///
     /// let ctx = Context::from(Request::default());
     ///
@@ -151,8 +151,8 @@ impl Context {
     /// # Examples
     ///
     /// ```
+    /// use bolt::*;
     /// use chrono::Local;
-    /// use bolt::{Context, Request};
     ///
     /// let old = Local::now();
     /// let ctx = Context::from(Request::default());
@@ -169,7 +169,7 @@ impl Context {
     /// # Examples
     ///
     /// ```
-    /// use bolt::{Context, Request, Method};
+    /// use bolt::*;
     ///
     /// let req = Request::default();
     /// let ctx = Context::from(Request::default().method(Method::PUT));
@@ -215,7 +215,7 @@ impl Context {
     /// # Examples
     ///
     /// ```
-    /// use bolt::{Context, Request, Uri};
+    /// use bolt::*;
     ///
     /// let ctx = Context::from(Request::default().uri(Uri::from_static("http://example.com")));
     ///
@@ -230,7 +230,7 @@ impl Context {
     /// # Examples
     ///
     /// ```
-    /// use bolt::{Context, Request, Uri, Scheme};
+    /// use bolt::*;
     ///
     /// let ctx = Context::from(Request::default().uri(Uri::from_static("https://example.com")));
     ///
@@ -251,7 +251,7 @@ impl Context {
     /// # Examples
     ///
     /// ```
-    /// use bolt::{Context, Request, Uri, Authority};
+    /// use bolt::*;
     ///
     /// let ctx = Context::from(Request::default().uri(Uri::from_static("http://user:pass@example.com")));
     ///
@@ -266,7 +266,7 @@ impl Context {
     /// # Examples
     ///
     /// ```
-    /// use bolt::{Context, Request, Uri};
+    /// use bolt::*;
     ///
     /// let ctx = Context::from(Request::default().uri(Uri::from_static("http://user:pass@example.com")));
     ///
@@ -281,7 +281,7 @@ impl Context {
     /// # Examples
     ///
     /// ```
-    /// use bolt::{Context, Request, Uri};
+    /// use bolt::*;
     ///
     /// let ctx = Context::from(Request::default().uri(Uri::from_static("http://user:pass@git.example.com")));
     ///
@@ -296,7 +296,7 @@ impl Context {
     /// # Examples
     ///
     /// ```
-    /// use bolt::{Context, Request, Uri};
+    /// use bolt::*;
     ///
     /// let ctx = Context::from(Request::default().uri(Uri::from_static("http://user:pass@git.example.com")));
     ///
@@ -311,7 +311,7 @@ impl Context {
     /// # Examples
     ///
     /// ```
-    /// use bolt::{Context, Request, Uri};
+    /// use bolt::*;
     ///
     /// let ctx = Context::from(Request::default().uri(Uri::from_static("http://example.com:3000")));
     ///
@@ -326,7 +326,7 @@ impl Context {
     /// # Examples
     ///
     /// ```
-    /// use bolt::{Context, Request, Uri};
+    /// use bolt::*;
     ///
     /// let ctx = Context::from(Request::default().uri(Uri::from_static("http://example.com/repo/bolt")));
     ///
@@ -341,7 +341,7 @@ impl Context {
     /// # Examples
     ///
     /// ```
-    /// use bolt::{Context, Request, Uri};
+    /// use bolt::*;
     ///
     /// let ctx = Context::from(Request::default().uri(Uri::from_static("http://example.com/?foo=bar")));
     ///
@@ -357,7 +357,7 @@ impl Context {
     /// # Examples
     ///
     /// ```
-    /// use bolt::{Context, Request, Uri};
+    /// use bolt::*;
     ///
     /// let ctx = Context::from(Request::default().uri(Uri::from_static("http://example.com/?foo=bar&key=%E4%BD%A0%E5%A5%BD")));
     ///
@@ -374,7 +374,7 @@ impl Context {
     /// # Examples
     ///
     /// ```
-    /// use bolt::{Context, Request, Uri};
+    /// use bolt::*;
     ///
     /// let ctx = Context::from(Request::default().uri(Uri::from_static("http://user:pass@git.example.com/repo/bolt?foo=bar&key=%E4%BD%A0%E5%A5%BD")));
     ///
@@ -389,7 +389,7 @@ impl Context {
     /// # Examples
     ///
     /// ```
-    /// use bolt::{Context, Request, Version};
+    /// use bolt::*;
     ///
     /// let ctx = Context::from(Request::default().version(Version::HTTP_10));
     ///
@@ -428,7 +428,7 @@ impl Context {
     /// # Examples
     ///
     /// ```
-    /// use bolt::{Context, Request};
+    /// use bolt::*;
     ///
     /// let ctx = Context::from(Request::default().header("content-type", "application/json").header("cache-control", "no-cache"));
     ///
@@ -447,7 +447,7 @@ impl Context {
     /// # Examples
     ///
     /// ```
-    /// use bolt::{Context, Request};
+    /// use bolt::*;
     ///
     /// let ctx = Context::from(Request::default().header("content-type", "application/json").header("cache-control", "no-cache"));
     ///
@@ -519,22 +519,65 @@ impl Context {
             return cld.handle(self).await;
         }
 
-        Ok(Response::default())
+        Ok(Response::default()) // todo NOT FOUND ERR
     }
 
-    pub async fn reject(self, status: Option<Status>) -> BoltResult<Response> {
-        Ok(Response::default().status(status.unwrap_or(Status::FORBIDDEN)))
+    /// Reject current request with FORBIDDEN by default
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use bolt::*;
+    ///
+    /// #[tokio::main]
+    /// async fn main() -> BoltResult<()> {
+    ///     assert_eq!(Context::from(Request::default()).reject(None)?.status_ref(), &Status::FORBIDDEN);
+    ///     assert_eq!(Context::from(Request::default()).reject(Some(Status::BAD_REQUEST))?, &Status::BAD_REQUEST);
+    ///
+    ///     Ok(())
+    /// }
+    /// ```
+    pub fn reject(self, status: Option<Status>) -> BoltResult<Response> {
+        Ok(status.unwrap_or(Status::FORBIDDEN).into())
     }
 
+    /// Rewrite the current request with a different URI and Body, and re-handle the request transparently
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use bolt::*;
+    ///
+    /// #[tokio::main]
+    /// async fn main() -> BoltResult<()> {
+    ///     todo!()
+    /// }
+    /// ```
     pub async fn rewrite(self, to: impl Into<Uri>, body: impl Into<Body>) -> BoltResult<Response> {
         let ctx = Context::from((self.app, self.conn, self.req.uri(to).body(body)));
         ctx.next().await
     }
 
-    pub async fn redirect(self, to: impl Into<Uri>, status: Option<Status>) -> BoltResult<Response> {
-        Ok(Response::default()
-            .status(status.unwrap_or(Status::TEMPORARY_REDIRECT))
-            .header(header::LOCATION, HeaderValue::from_str(to.into().to_string().as_str())?))
+    /// Redirect current request with FOUND by default
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use bolt::*;
+    ///
+    /// #[tokio::main]
+    /// async fn main() -> BoltResult<()> {
+    ///     assert_eq!(Context::from(Request::default()).redirect("http://example.com", None)?.status_ref(), &Status::FORBIDDEN);
+    ///     assert_eq!(Context::from(Request::default()).redirect("http://example.com", None)?.header_ref(header::LOCATION), &HeaderValue::from_static("http://example.com"));
+    ///     assert_eq!(Context::from(Request::default()).redirect("http://example.com", Some(Status::MOVED_PERMANENTLY))?.status_ref(), &Status::BAD_REQUEST);
+    ///
+    ///     Ok(())
+    /// }
+    /// ```
+    pub fn redirect(self, to: impl Into<Uri>, status: Option<Status>) -> BoltResult<Response> {
+        let location = HeaderValue::try_from(to.into().to_string())?;
+        let redirect = status.unwrap_or(Status::FOUND);
+        Ok(Response::default().status(redirect).header(header::LOCATION, location))
     }
 }
 

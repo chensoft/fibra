@@ -43,7 +43,7 @@ impl Request {
     /// # Examples
     /// 
     /// ```
-    /// use bolt::{Request};
+    /// use bolt::*;
     ///
     /// assert_eq!(*Request::default().id_ref() > 0, true);
     /// ```
@@ -57,7 +57,7 @@ impl Request {
     /// # Examples
     /// 
     /// ```
-    /// use bolt::{Request};
+    /// use bolt::*;
     ///
     /// let mut req = Request::default();
     /// *req.id_mut() = 12345;
@@ -74,7 +74,7 @@ impl Request {
     /// # Examples
     /// 
     /// ```
-    /// use bolt::{Request};
+    /// use bolt::*;
     ///
     /// assert_eq!(Request::default().id(12345).id_ref(), &12345);
     /// ```
@@ -89,8 +89,8 @@ impl Request {
     /// # Examples
     /// 
     /// ```
+    /// use bolt::*;
     /// use chrono::Local;
-    /// use bolt::{Request};
     ///
     /// assert_eq!(Request::default().created_ref() <= &Local::now(), true);
     /// ```
@@ -104,8 +104,8 @@ impl Request {
     /// # Examples
     /// 
     /// ```
+    /// use bolt::*;
     /// use chrono::Local;
-    /// use bolt::{Request};
     ///
     /// let now = Local::now();
     /// let mut req = Request::default();
@@ -123,8 +123,8 @@ impl Request {
     /// # Examples
     /// 
     /// ```
+    /// use bolt::*;
     /// use chrono::Local;
-    /// use bolt::{Request};
     ///
     /// let now = Local::now();
     /// let req = Request::default().created(now);
@@ -142,7 +142,7 @@ impl Request {
     /// # Examples
     /// 
     /// ```
-    /// use bolt::{Request, Method};
+    /// use bolt::*;
     ///
     /// assert_eq!(Request::default().method_ref(), &Method::GET);
     /// ```
@@ -156,7 +156,7 @@ impl Request {
     /// # Examples
     /// 
     /// ```
-    /// use bolt::{Request, Method};
+    /// use bolt::*;
     ///
     /// let mut req = Request::default();
     /// *req.method_mut() = Method::PUT;
@@ -173,7 +173,7 @@ impl Request {
     /// # Examples
     /// 
     /// ```
-    /// use bolt::{Request, Method};
+    /// use bolt::*;
     ///
     /// assert_eq!(Request::default().method(Method::PUT).method_ref(), &Method::PUT);
     /// ```
@@ -188,7 +188,7 @@ impl Request {
     /// # Examples
     /// 
     /// ```
-    /// use bolt::{Request};
+    /// use bolt::*;
     ///
     /// assert_eq!(Request::default().uri_ref(), "/");
     /// ```
@@ -202,7 +202,7 @@ impl Request {
     /// # Examples
     /// 
     /// ```
-    /// use bolt::{Request, Uri};
+    /// use bolt::*;
     ///
     /// let mut req = Request::default();
     /// *req.uri_mut() = Uri::from_static("http://example.com");
@@ -219,7 +219,7 @@ impl Request {
     /// # Examples
     /// 
     /// ```
-    /// use bolt::{Request, Uri};
+    /// use bolt::*;
     ///
     /// assert_eq!(Request::default().uri(Uri::from_static("http://example.com")).uri_ref(), "http://example.com/");
     /// ```
@@ -234,7 +234,7 @@ impl Request {
     /// # Examples
     /// 
     /// ```
-    /// use bolt::{Request, Version};
+    /// use bolt::*;
     ///
     /// assert_eq!(Request::default().version_ref(), &Version::HTTP_11);
     /// ```
@@ -248,7 +248,7 @@ impl Request {
     /// # Examples
     /// 
     /// ```
-    /// use bolt::{Request, Version};
+    /// use bolt::*;
     ///
     /// let mut req = Request::default();
     /// *req.version_mut() = Version::HTTP_2;
@@ -265,7 +265,7 @@ impl Request {
     /// # Examples
     /// 
     /// ```
-    /// use bolt::{Request, Version};
+    /// use bolt::*;
     ///
     /// assert_eq!(Request::default().version(Version::HTTP_2).version_ref(), &Version::HTTP_2);
     /// ```
@@ -280,7 +280,7 @@ impl Request {
     /// # Examples
     /// 
     /// ```
-    /// use bolt::{Request};
+    /// use bolt::*;
     ///
     /// assert_eq!(Request::default().headers_ref().is_empty(), true);
     /// ```
@@ -294,7 +294,7 @@ impl Request {
     /// # Examples
     /// 
     /// ```
-    /// use bolt::{Request, IntoHeaderValue, header};
+    /// use bolt::*;
     ///
     /// let mut req = Request::default();
     /// req.headers_mut().insert(header::CACHE_CONTROL, "no-cache".into_value());
@@ -311,7 +311,7 @@ impl Request {
     /// # Examples
     /// 
     /// ```
-    /// use bolt::{Request, HeaderMap, IntoHeaderValue, header};
+    /// use bolt::*;
     ///
     /// let mut map = HeaderMap::new();
     /// map.insert(header::CACHE_CONTROL, "no-cache".into_value());
@@ -331,7 +331,7 @@ impl Request {
     /// # Examples
     /// 
     /// ```
-    /// use bolt::{Request, header};
+    /// use bolt::*;
     ///
     /// assert_eq!(Request::default().header_ref(header::ACCEPT_ENCODING).is_none(), true);
     /// ```
@@ -345,7 +345,7 @@ impl Request {
     /// # Examples
     /// 
     /// ```
-    /// use bolt::{Request, header};
+    /// use bolt::*;
     ///
     /// assert_eq!(Request::default().header_mut(header::ACCEPT_ENCODING).is_none(), true);
     /// ```
@@ -359,7 +359,7 @@ impl Request {
     /// # Examples
     /// 
     /// ```
-    /// use bolt::{Request, header};
+    /// use bolt::*;
     ///
     /// let req = Request::default().header(header::ACCEPT_ENCODING, "gzip, deflate");
     ///
@@ -376,7 +376,7 @@ impl Request {
     /// # Examples
     /// 
     /// ```
-    /// use bolt::{Request};
+    /// use bolt::*;
     ///
     /// Request::default().body_ref();
     /// ```
@@ -390,8 +390,8 @@ impl Request {
     /// # Examples
     /// 
     /// ```
+    /// use bolt::*;
     /// use bytes::Bytes;
-    /// use bolt::{Request, BoltResult, body};
     ///
     /// #[tokio::main]
     /// async fn main() -> BoltResult<()> {
@@ -410,8 +410,8 @@ impl Request {
     /// # Examples
     /// 
     /// ```
+    /// use bolt::*;
     /// use bytes::Bytes;
-    /// use bolt::{Request, BoltResult, body};
     ///
     /// #[tokio::main]
     /// async fn main() -> BoltResult<()> {
@@ -432,7 +432,7 @@ impl Request {
     /// # Examples
     /// 
     /// ```
-    /// use bolt::{Request, Scheme, Uri};
+    /// use bolt::*;
     ///
     /// assert_eq!(Request::default().uri(Uri::from_static("example.com")).scheme(), &Scheme::Unknown);
     /// assert_eq!(Request::default().uri(Uri::from_static("http://example.com")).scheme(), &Scheme::HTTP);
@@ -459,7 +459,7 @@ impl Request {
     /// # Examples
     /// 
     /// ```
-    /// use bolt::{Request, Uri, Authority};
+    /// use bolt::*;
     ///
     /// assert_eq!(Request::default().uri(Uri::from_static("http://user:pass@example.com")).authority(), Some(&Authority::from_static("user:pass@example.com")));
     /// ```
@@ -473,7 +473,7 @@ impl Request {
     /// # Examples
     /// 
     /// ```
-    /// use bolt::{Request, Uri};
+    /// use bolt::*;
     ///
     /// assert_eq!(Request::default().domain(), "");
     /// assert_eq!(Request::default().uri(Uri::from_static("http://example.com")).domain(), "example.com");
@@ -494,7 +494,7 @@ impl Request {
     /// # Examples
     /// 
     /// ```
-    /// use bolt::{Request, Uri};
+    /// use bolt::*;
     ///
     /// assert_eq!(Request::default().subdomain(), "");
     /// assert_eq!(Request::default().uri(Uri::from_static("http://example.com")).subdomain(), "");
@@ -521,7 +521,7 @@ impl Request {
     /// # Examples
     /// 
     /// ```
-    /// use bolt::{Request, Uri};
+    /// use bolt::*;
     ///
     /// assert_eq!(Request::default().host(), "");
     /// assert_eq!(Request::default().uri(Uri::from_static("http://example.com")).host(), "example.com");
@@ -538,7 +538,7 @@ impl Request {
     /// # Examples
     /// 
     /// ```
-    /// use bolt::{Request, Uri};
+    /// use bolt::*;
     ///
     /// assert_eq!(Request::default().port(), 0);
     /// assert_eq!(Request::default().uri(Uri::from_static("http://example.com")).port(), 80);
@@ -564,7 +564,7 @@ impl Request {
     /// # Examples
     /// 
     /// ```
-    /// use bolt::{Request, Uri};
+    /// use bolt::*;
     ///
     /// assert_eq!(Request::default().path(), "/");
     /// assert_eq!(Request::default().uri(Uri::from_static("http://example.com")).path(), "/");
@@ -586,7 +586,7 @@ impl Request {
     /// # Examples
     /// 
     /// ```
-    /// use bolt::{Request, Uri};
+    /// use bolt::*;
     ///
     /// assert_eq!(Request::default().query(), "");
     /// assert_eq!(Request::default().uri(Uri::from_static("http://example.com")).query(), "");
@@ -606,7 +606,7 @@ impl Request {
     /// # Examples
     /// 
     /// ```
-    /// use bolt::{Request, Uri};
+    /// use bolt::*;
     ///
     /// assert_eq!(Request::default().href(), "/");
     /// assert_eq!(Request::default().uri(Uri::from_static("http://example.com")).href(), "http://example.com/");
@@ -622,7 +622,6 @@ impl Request {
     }
 }
 
-/// Default trait
 impl Default for Request {
     #[inline]
     fn default() -> Self {

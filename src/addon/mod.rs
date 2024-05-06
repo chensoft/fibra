@@ -1,5 +1,5 @@
+mod catcher;
 mod logger;
-mod resource;
 
+pub use catcher::*;
 pub use logger::*;
-pub use resource::*;

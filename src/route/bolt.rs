@@ -1,8 +1,9 @@
+use crate::addon;
 use crate::route::*;
 use crate::types::*;
 
 pub struct Bolt {
-    // mounted: Package,
+    mounted: Vec<BoxHandler>,
     sockets: Vec<Socket>,
 }
 
@@ -32,10 +33,7 @@ impl Bolt {
     // }
     // 
     // pub fn catch(&mut self, handler: impl Fn(&Catcher, RouterError) -> Response + Send + Sync + 'static) {
-    //     match self.mounted.first::<Catcher>() {
-    //         Some(obj) => obj.handler = Box::new(handler),
-    //         _ => unreachable!()
-    //     }
+    //     self.mounted.first::<Catcher>().map(|c| c.handler = Box::new(handler));
     // }
     // 
     // pub fn visit(&self) -> Iter<BoxHandler> {
@@ -87,8 +85,7 @@ impl Bolt {
 
 impl Default for Bolt {
     fn default() -> Self {
-        // Self { mounted: Package::new(vec![Catcher::default()]), sockets: vec![] }
-        todo!()
+        Self { mounted: vec![Box::new(addon::Catcher::default())], sockets: vec![] }
     }
 }
 

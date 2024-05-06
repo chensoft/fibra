@@ -46,8 +46,8 @@ impl<T: Any> AnyHandler for T {
 /// # Examples
 ///
 /// ```
+/// use bolt::*;
 /// use async_trait::async_trait;
-/// use bolt::{Handler, AsHandler, Context, Response, BoltResult};
 ///
 /// struct HandlerA;
 /// struct HandlerB;
@@ -92,7 +92,7 @@ impl<'a> AsHandler<'a> for BoxHandler {
 /// # Examples
 ///
 /// ```
-/// use bolt::{Handler, Context, Response, BoltResult};
+/// use bolt::*;
 ///
 /// async fn free_function(_ctx: Context) -> BoltResult<Response> {
 ///     Ok("It Works!".into())
