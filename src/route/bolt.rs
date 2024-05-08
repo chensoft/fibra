@@ -20,7 +20,7 @@ impl Bolt {
     //     Ok(self.route(pattern, Router::default())?.trust())
     // }
     // 
-    // pub fn limit(&mut self) -> &mut Limiter {
+    // pub fn filter(&mut self) -> &mut Filter {
     //     self.force()
     // }
     // 
@@ -28,14 +28,20 @@ impl Bolt {
     //     self.mounted.insert(handler)
     // }
     // 
-    // pub fn force<T: Handler + Default>(&mut self) -> &mut T {
+    // pub fn ensure<T: Handler + Default>(&mut self) -> &mut T {
     //     self.mounted.ensure()
     // }
-    // 
-    // pub fn catch(&mut self, handler: impl Fn(&Catcher, RouterError) -> Response + Send + Sync + 'static) {
-    //     self.mounted.first::<Catcher>().map(|c| c.handler = Box::new(handler));
-    // }
-    // 
+
+    pub fn catch(&mut self, f: impl Fn(&addon::Catcher, BoltError) -> Response + Send + Sync + 'static) -> &mut addon::Catcher {
+        let catcher = match self.mounted.first_mut().and_then(|h| h.as_handler_mut::<addon::Catcher>()) {
+            Some(obj) => obj,
+            None => unreachable!()
+        };
+
+        catcher.custom = Box::new(f);
+        catcher
+    }
+
     // pub fn visit(&self) -> Iter<BoxHandler> {
     //     self.mounted.bundle.iter()
     // }

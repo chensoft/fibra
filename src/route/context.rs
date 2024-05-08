@@ -522,6 +522,10 @@ impl Context {
         Ok(Response::default()) // todo NOT FOUND ERR
     }
 
+    pub fn reset(self) {
+        todo!()
+    }
+
     /// Reject current request with FORBIDDEN by default
     ///
     /// # Examples

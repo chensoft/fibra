@@ -4,14 +4,26 @@ use crate::types::*;
 
 /// Catch errors and call the handler
 pub struct Catcher {
-    /// Default handler. **Do not assume the Response as it may change without notice**
-    pub default: Box<dyn Fn(BoltError) -> Response + Send + Sync + 'static>,
+    /// Preset handler. **Do not assume the Response as it may change without notice**
+    pub preset: Box<dyn Fn(BoltError) -> Response + Send + Sync + 'static>,
 
     /// Custom handler
-    pub handler: Box<dyn Fn(&Catcher, BoltError) -> Response + Send + Sync + 'static>,
+    pub custom: Box<dyn Fn(&Catcher, BoltError) -> Response + Send + Sync + 'static>,
 }
 
 impl Catcher {
+    /// Set preset handler
+    pub fn preset(mut self, f: impl Fn(BoltError) -> Response + Send + Sync + 'static) -> Self {
+        self.preset = Box::new(f);
+        self
+    }
+
+    /// Set custom handler
+    pub fn custom(mut self, f: impl Fn(&Catcher, BoltError) -> Response + Send + Sync + 'static) -> Self {
+        self.custom = Box::new(f);
+        self
+    }
+
     /// Catch the panic and turn into an error object
     ///
     /// ```
@@ -43,11 +55,11 @@ impl Catcher {
 
 impl Default for Catcher {
     fn default() -> Self {
-        let default = Box::new(|_| {
+        let preset = Box::new(|_| {
             Status::INTERNAL_SERVER_ERROR.into()
         });
 
-        Self { default, handler: Box::new(|obj, err| (obj.default)(err)) }
+        Self { preset, custom: Box::new(|obj, err| (obj.preset)(err)) }
     }
 }
 
@@ -68,7 +80,7 @@ impl<F> From<F> for Catcher
         F: Fn(&Catcher, BoltError) -> Response + Send + Sync + 'static
 {
     fn from(f: F) -> Self {
-        Self { handler: Box::new(f), ..Default::default() }
+        Self { custom: Box::new(f), ..Default::default() }
     }
 }
 
@@ -77,7 +89,7 @@ impl Handler for Catcher {
     async fn handle(&self, ctx: Context) -> BoltResult<Response> {
         match self.catch(ctx.next()).await {
             Ok(res) => Ok(res),
-            Err(err) => Ok((self.handler)(self, err)),
+            Err(err) => Ok((self.custom)(self, err)),
         }
     }
 }

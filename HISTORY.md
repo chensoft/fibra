@@ -32,9 +32,9 @@
 
 ### Features
 
-- bolt config
+- bolt config, case sensitive matching
 - tls support with tls info, ver, sni
-- h2 support
+- h2 support: server push, stream priority
 - content type, referer, user agent, is keepalive, content encoding, accepts, length, type...
 - addon: realip, port, caching, Cache-Control If-Modified-Since, cors, limiter, Accepts
 - limits: conn's num, conn's num per ip, reqs per conn, req read timeout, handler timeout, max header count, max body size, keepalive time
