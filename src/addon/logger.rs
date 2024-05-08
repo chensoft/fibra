@@ -1,13 +1,13 @@
 // todo more config and log hook print start, settings, compact
-// use crate::route::*;
-// use crate::types::*;
-// 
-// pub struct Logger {
+use crate::route::*;
+use crate::types::*;
+
+pub struct Logger {
 //     pub logger: logkit::Logger,
 //     pub level: logkit::Level,
 //     pub precision: chrono::SecondsFormat,
-// }
-// 
+}
+
 // impl Logger {
 //     pub fn todo remove or default instead(target: impl logkit::Target, level: logkit::Level, precision: chrono::SecondsFormat) -> Self {
 //         let mut logger = logkit::Logger::new(None);
@@ -27,16 +27,17 @@
 //         self
 //     }
 // }
-// 
-// impl Default for Logger {
-//     fn default() -> Self {
+
+impl Default for Logger {
+    fn default() -> Self {
 //         Self::new(logkit::StderrTarget, logkit::LEVEL_INFO, chrono::SecondsFormat::Millis)
-//     }
-// }
-// 
-// #[async_trait]
-// impl Handler for Logger {
-//     async fn handle(&self, ctx: Context) -> BoltResult<Response> {
+        todo!()
+    }
+}
+
+#[async_trait]
+impl Handler for Logger {
+    async fn handle(&self, ctx: Context) -> BoltResult<Response> {
 //         let launch = *ctx.created();
 //         let client = ctx.remote().to_string();
 // 
@@ -68,5 +69,6 @@
 //         self.logger.flush(record);
 // 
 //         result
-//     }
-// }
+        todo!()
+    }
+}

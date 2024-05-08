@@ -26,6 +26,8 @@ impl Catcher {
 
     /// Catch the panic and turn into an error object
     ///
+    /// # Examples
+    /// 
     /// ```
     /// use bolt::*;
     ///

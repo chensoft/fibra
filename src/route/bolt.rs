@@ -19,39 +19,96 @@ impl Bolt {
     // pub fn group(&mut self, pattern: &'static str) -> BoltResult<&mut Router> {
     //     Ok(self.route(pattern, Router::default())?.trust())
     // }
-    // 
-    // pub fn filter(&mut self) -> &mut Filter {
-    //     self.force()
-    // }
-    // 
-    // pub fn mount<T: Handler>(&mut self, handler: T) -> &mut T {
-    //     self.mounted.insert(handler)
-    // }
-    // 
-    // pub fn ensure<T: Handler + Default>(&mut self) -> &mut T {
-    //     self.mounted.ensure()
-    // }
 
+    /// Set custom error handler
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use bolt::*;
+    ///
+    /// let mut app = Bolt::default();
+    /// let catcher = app.catch(|_obj, _err| Status::SERVICE_UNAVAILABLE.into());
+    /// assert_eq!((catcher.custom)(catcher, BoltError::PanicError("panic".into())).status_ref(), &Status::SERVICE_UNAVAILABLE);
+    /// ```
     pub fn catch(&mut self, f: impl Fn(&addon::Catcher, BoltError) -> Response + Send + Sync + 'static) -> &mut addon::Catcher {
-        let catcher = match self.mounted.first_mut().and_then(|h| h.as_handler_mut::<addon::Catcher>()) {
-            Some(obj) => obj,
-            None => unreachable!()
-        };
-
+        let catcher = self.mounted.first_mut().and_then(|h| h.as_handler_mut::<addon::Catcher>()).unwrap_or_else(|| unreachable!());
         catcher.custom = Box::new(f);
         catcher
     }
 
-    // pub fn visit(&self) -> Iter<BoxHandler> {
-    //     self.mounted.bundle.iter()
+    // pub fn filter(&mut self) -> &mut Filter {
+    //     self.force()
     // }
 
+    /// Mount a handler to the app
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use bolt::*;
+    ///
+    /// let mut app = Bolt::default();
+    /// let len = app.handlers().len();
+    ///
+    /// app.mount(addon::Logger{});
+    /// app.mount(addon::Logger{});
+    ///
+    /// assert_eq!(app.handlers().len(), len + 2);
+    /// ```
+    pub fn mount<T: Handler>(&mut self, handler: T) -> &mut T {
+        self.mounted.push(Box::new(handler));
+        self.mounted.last_mut().and_then(|h| h.as_handler_mut::<T>()).unwrap_or_else(|| unreachable!())
+    }
+
+    /// Ensure the last item is type T, otherwise create it
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use bolt::*;
+    ///
+    /// let mut app = Bolt::default();
+    /// let len = app.handlers().len();
+    ///
+    /// app.ensure::<addon::Logger>(); // add a new handler
+    /// app.ensure::<addon::Logger>(); // no effect because the last item is already a logger
+    ///
+    /// assert_eq!(app.handlers().len(), len + 1);
+    /// ```
+    pub fn ensure<T: Handler + Default>(&mut self) -> &mut T {
+        if self.mounted.last().and_then(|h| h.as_handler::<T>()).is_none() {
+            return self.mount(T::default());
+        }
+
+        self.mounted.last_mut().and_then(|h| h.as_handler_mut::<T>()).unwrap_or_else(|| unreachable!())
+    }
+
+    /// Get the mounted handlers
+    pub fn handlers(&self) -> &Vec<BoxHandler> {
+        &self.mounted
+    }
+
+    /// Bind tcp listener to a special address, we support calling this multiple times to listening on multiple addresses
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use bolt::*;
+    ///
+    /// let mut app = Bolt::default();
+    ///
+    /// assert_eq!(app.bind("0.0.0.0:0").is_ok(), true); // first random port
+    /// assert_eq!(app.bind("0.0.0.0:0").is_ok(), true); // second random port
+    /// assert_eq!(app.bind("0.0.0.0:65536").is_ok(), false); // invalid port
+    /// ```
     pub fn bind(&mut self, addr: impl ToSocketAddrs) -> BoltResult<&mut Socket> {
         let last = self.sockets.len();
         self.sockets.push(StdTcpListener::bind(addr)?.into());
         Ok(&mut self.sockets[last])
     }
 
+    /// Run the server, check the examples folder to see its usage
     pub async fn run(mut self) -> BoltResult<()> {
         use hyper::Server;
         use hyper::server::conn::AddrStream;
