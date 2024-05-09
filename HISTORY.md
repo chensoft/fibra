@@ -6,13 +6,15 @@
 - Async-ready API
 - Flex middleware
 - Named params
-- Regex matching
 - Glob support
+- Regex matching
 - URL rewrite
 - URL redirect
-- Subdomain support
+- Domain routing
+- Subdomain routing
 - Subrouter support
-- Cache storage
+- Cookie support
+- Session management
 - Multiple listener
 
 ## [Todo]
@@ -44,3 +46,4 @@
 - Swagger & OpenAPI
 - bench: https://www.techempower.com/benchmarks/#section=intro&test=fortune
 - example: simple downloader and indexer, httpbin-like tools
+- deploy easily to serverless platform

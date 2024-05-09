@@ -1,4 +1,3 @@
-use crate::addon;
 use crate::route::*;
 use crate::types::*;
 
@@ -8,60 +7,40 @@ pub struct Fibra {
 }
 
 impl Fibra {
-    // todo static check path is valid and remove fibraresult
-    pub fn get(&mut self, path: &'static str, handler: impl Handler) -> FibraResult<&mut Self> {
-        self.route(path, handler, Some(Method::GET))
-    }
+    // todo static check path(proc macros) is valid and remove fibraresult
+    // pub fn get(&mut self, path: &'static str, handler: impl Handler) -> FibraResult<&mut Self> {
+    //     self.route(path, handler, Some(Method::GET))
+    // }
+    // 
+    // pub fn post(&mut self, path: &'static str, handler: impl Handler) -> FibraResult<&mut Self> {
+    //     self.route(path, handler, Some(Method::POST))
+    // }
+    // 
+    // pub fn put(&mut self, path: &'static str, handler: impl Handler) -> FibraResult<&mut Self> {
+    //     self.route(path, handler, Some(Method::PUT))
+    // }
+    // 
+    // pub fn delete(&mut self, path: &'static str, handler: impl Handler) -> FibraResult<&mut Self> {
+    //     self.route(path, handler, Some(Method::DELETE))
+    // }
+    // 
+    // pub fn patch(&mut self, path: &'static str, handler: impl Handler) -> FibraResult<&mut Self> {
+    //     self.route(path, handler, Some(Method::PATCH))
+    // }
+    // 
+    // pub fn all(&mut self, path: &'static str, handler: impl Handler) -> FibraResult<&mut Self> {
+    //     self.route(path, handler, None)
+    // }
 
-    pub fn post(&mut self, path: &'static str, handler: impl Handler) -> FibraResult<&mut Self> {
-        self.route(path, handler, Some(Method::POST))
-    }
-
-    pub fn put(&mut self, path: &'static str, handler: impl Handler) -> FibraResult<&mut Self> {
-        self.route(path, handler, Some(Method::PUT))
-    }
-
-    pub fn delete(&mut self, path: &'static str, handler: impl Handler) -> FibraResult<&mut Self> {
-        self.route(path, handler, Some(Method::DELETE))
-    }
-
-    pub fn patch(&mut self, path: &'static str, handler: impl Handler) -> FibraResult<&mut Self> {
-        self.route(path, handler, Some(Method::PATCH))
-    }
-
-    pub fn all(&mut self, path: &'static str, handler: impl Handler) -> FibraResult<&mut Self> {
-        self.route(path, handler, None)
-    }
-
-    pub fn route(&mut self, path: &'static str, handler: impl Handler, method: Option<Method>) -> FibraResult<&mut Self> {
-        self.ensure::<Router>().add(path, handler, method)?;
-        Ok(self)
+    pub fn route(&mut self, path: &'static str, handler: impl Handler) -> FibraResult<&mut Routine> {
+        // self.ensure::<Matcher>().add(path, handler)?;
+        todo!()
     }
 
     pub fn group(&mut self, path: &'static str) -> FibraResult<&mut Fibra> {
-        self.route(path, Fibra::default(), None)
+        // self.route(path, Fibra::default())
+        todo!()
     }
-
-    /// Set custom error handler
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use fibra::*;
-    ///
-    /// let mut app = Fibra::default();
-    /// let catcher = app.catch(|_obj, _err| Status::SERVICE_UNAVAILABLE.into());
-    /// assert_eq!((catcher.custom)(catcher, FibraError::PanicError("panic".into())).status_ref(), &Status::SERVICE_UNAVAILABLE);
-    /// ```
-    pub fn catch(&mut self, f: impl Fn(&addon::Catcher, FibraError) -> Response + Send + Sync + 'static) -> &mut addon::Catcher {
-        let catcher = self.mounted.first_mut().and_then(|h| h.as_handler_mut::<addon::Catcher>()).unwrap_or_else(|| unreachable!());
-        catcher.custom = Box::new(f);
-        catcher
-    }
-
-    // pub fn filter(&mut self) -> &mut Filter {
-    //     self.force()
-    // }
 
     /// Mount a handler to the app
     ///
@@ -81,6 +60,36 @@ impl Fibra {
     pub fn mount<T: Handler>(&mut self, handler: T) -> &mut T {
         self.mounted.push(Box::new(handler));
         self.mounted.last_mut().and_then(|h| h.as_handler_mut::<T>()).unwrap_or_else(|| unreachable!())
+    }
+
+    /// Set custom error handler
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use fibra::*;
+    ///
+    /// let mut app = Fibra::default();
+    /// let catcher = app.catch(|_obj, err| {
+    ///     match err {
+    ///         FibraError::PanicError(_) => Status::SERVICE_UNAVAILABLE.into(),
+    ///         _ => Status::INTERNAL_SERVER_ERROR.into(),
+    ///     }
+    /// });
+    /// assert_eq!((catcher.custom)(catcher, FibraError::PanicError("panic".into())).status_ref(), &Status::SERVICE_UNAVAILABLE);
+    /// ```
+    pub fn catch(&mut self, f: impl Fn(&Catcher, FibraError) -> Response + Send + Sync + 'static) -> &mut Catcher {
+        let catcher = self.mounted.first_mut().and_then(|h| h.as_handler_mut::<Catcher>()).unwrap_or_else(|| unreachable!());
+        catcher.custom(f);
+        catcher
+    }
+
+    pub fn limit(&mut self) -> &mut Limiter {
+        todo!()
+    }
+
+    pub fn config(&mut self) {
+        todo!()
     }
 
     /// Ensure the last item is type T, otherwise create it
@@ -170,7 +179,7 @@ impl Fibra {
 
 impl Default for Fibra {
     fn default() -> Self {
-        Self { mounted: vec![Box::new(addon::Catcher::default())], sockets: vec![] }
+        Self { mounted: vec![Box::new(Catcher::default())], sockets: vec![] }
     }
 }
 

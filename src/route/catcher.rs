@@ -13,13 +13,13 @@ pub struct Catcher {
 
 impl Catcher {
     /// Set preset handler
-    pub fn preset(mut self, f: impl Fn(FibraError) -> Response + Send + Sync + 'static) -> Self {
+    pub fn preset(&mut self, f: impl Fn(FibraError) -> Response + Send + Sync + 'static) -> &mut Self {
         self.preset = Box::new(f);
         self
     }
 
     /// Set custom handler
-    pub fn custom(mut self, f: impl Fn(&Catcher, FibraError) -> Response + Send + Sync + 'static) -> Self {
+    pub fn custom(&mut self, f: impl Fn(&Catcher, FibraError) -> Response + Send + Sync + 'static) -> &mut Self {
         self.custom = Box::new(f);
         self
     }
@@ -33,7 +33,7 @@ impl Catcher {
     ///
     /// #[tokio::main]
     /// async fn main() -> FibraResult<()> {
-    ///     let catcher = addon::Catcher::default();
+    ///     let catcher = Catcher::default();
     ///     assert_eq!(catcher.catch(async { Ok(Response::from("It Works!")) }).await, Ok(Response::from("It Works!")));
     ///     assert_eq!(catcher.catch(async { panic!("Fatal Error") }).await, Err(FibraError::PanicError("Fatal Error".into())));
     ///     Ok(())
@@ -70,7 +70,7 @@ impl Default for Catcher {
 /// ```
 /// use fibra::*;
 ///
-/// let _ = addon::Catcher::from(|obj, err| {
+/// let _ = Catcher::from(|obj, err| {
 ///     match err {
 ///         FibraError::PanicError(_) => Status::SERVICE_UNAVAILABLE.into(),
 ///         _ => obj.default(err)
