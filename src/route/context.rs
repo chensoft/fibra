@@ -206,8 +206,28 @@ impl Context {
     }
 
     /// Check method
+    pub fn is_head(&self) -> bool {
+        self.method() == &Method::HEAD
+    }
+
+    /// Check method
+    pub fn is_options(&self) -> bool {
+        self.method() == &Method::OPTIONS
+    }
+
+    /// Check method
+    pub fn is_connect(&self) -> bool {
+        self.method() == &Method::CONNECT
+    }
+
+    /// Check method
     pub fn is_patch(&self) -> bool {
         self.method() == &Method::PATCH
+    }
+
+    /// Check method
+    pub fn is_trace(&self) -> bool {
+        self.method() == &Method::TRACE
     }
 
     /// Request's uri

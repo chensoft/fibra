@@ -8,17 +8,39 @@ pub struct Bolt {
 }
 
 impl Bolt {
-    // pub fn get(&mut self, )
+    // todo static check path is valid and remove boltresult
+    pub fn get(&mut self, path: &'static str, handler: impl Handler) -> BoltResult<&mut Self> {
+        self.route(path, handler, Some(Method::GET))
+    }
 
-    // todo add get, post, ... like ctx
-    // todo remove BoltResult
-    // pub fn route(&mut self, pattern: &'static str, handler: impl Handler) -> BoltResult<&mut Routine> {
-    //     self.force::<Matcher>().add(pattern, handler)
-    // }
-    // 
-    // pub fn group(&mut self, pattern: &'static str) -> BoltResult<&mut Router> {
-    //     Ok(self.route(pattern, Router::default())?.trust())
-    // }
+    pub fn post(&mut self, path: &'static str, handler: impl Handler) -> BoltResult<&mut Self> {
+        self.route(path, handler, Some(Method::POST))
+    }
+
+    pub fn put(&mut self, path: &'static str, handler: impl Handler) -> BoltResult<&mut Self> {
+        self.route(path, handler, Some(Method::PUT))
+    }
+
+    pub fn delete(&mut self, path: &'static str, handler: impl Handler) -> BoltResult<&mut Self> {
+        self.route(path, handler, Some(Method::DELETE))
+    }
+
+    pub fn patch(&mut self, path: &'static str, handler: impl Handler) -> BoltResult<&mut Self> {
+        self.route(path, handler, Some(Method::PATCH))
+    }
+
+    pub fn all(&mut self, path: &'static str, handler: impl Handler) -> BoltResult<&mut Self> {
+        self.route(path, handler, None)
+    }
+
+    pub fn route(&mut self, path: &'static str, handler: impl Handler, method: Option<Method>) -> BoltResult<&mut Self> {
+        self.ensure::<Router>().add(path, handler, method)?;
+        Ok(self)
+    }
+
+    pub fn group(&mut self, path: &'static str) -> BoltResult<&mut Bolt> {
+        self.route(path, Bolt::default(), None)
+    }
 
     /// Set custom error handler
     ///
