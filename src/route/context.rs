@@ -1,11 +1,12 @@
 //! Request Context
 use crate::route::*;
 use crate::types::*;
+use crate::fibra::*;
 
 /// Context which holds the connection and request
 pub struct Context {
     /// The root app instance
-    app: Arc<Bolt>,
+    app: Arc<Fibra>,
 
     /// Current connection ref
     conn: Arc<Connection>,
@@ -28,7 +29,7 @@ unsafe impl Sync for Context {}
 
 impl Context {
     /// The root app instance
-    pub fn app(&self) -> &Bolt {
+    pub fn app(&self) -> &Fibra {
         &self.app
     }
 
@@ -42,7 +43,7 @@ impl Context {
     /// # Examples
     ///
     /// ```
-    /// use bolt::*;
+    /// use fibra::*;
     ///
     /// assert_eq!(Context::from(Request::default()).connid() > 0, true);
     /// ```
@@ -55,7 +56,7 @@ impl Context {
     /// # Examples
     ///
     /// ```
-    /// use bolt::*;
+    /// use fibra::*;
     /// use chrono::Local;
     ///
     /// let old = Local::now();
@@ -73,7 +74,7 @@ impl Context {
     /// # Examples
     ///
     /// ```
-    /// use bolt::*;
+    /// use fibra::*;
     ///
     /// assert_eq!(Context::from(Request::default()).served(), 5);
     /// ```
@@ -86,11 +87,11 @@ impl Context {
     /// # Examples
     ///
     /// ```
-    /// use bolt::*;
+    /// use fibra::*;
     /// use std::sync::Arc;
     /// use std::net::SocketAddr;
     ///
-    /// let app = Arc::new(Bolt::default());
+    /// let app = Arc::new(Fibra::default());
     /// let con = Arc::new(Connection::from((SocketAddr::from(([127, 0, 0, 1], 3000)), SocketAddr::from(([8, 8, 8, 8], 80)))));
     /// let req = Request::default();
     /// let ctx = Context::from((app, con, req));
@@ -107,11 +108,11 @@ impl Context {
     /// # Examples
     ///
     /// ```
-    /// use bolt::*;
+    /// use fibra::*;
     /// use std::sync::Arc;
     /// use std::net::SocketAddr;
     ///
-    /// let app = Arc::new(Bolt::default());
+    /// let app = Arc::new(Fibra::default());
     /// let con = Arc::new(Connection::from((SocketAddr::from(([127, 0, 0, 1], 3000)), SocketAddr::from(([8, 8, 8, 8], 80)))));
     /// let req = Request::default();
     /// let ctx = Context::from((app, con, req));
@@ -135,7 +136,7 @@ impl Context {
     /// # Examples
     ///
     /// ```
-    /// use bolt::*;
+    /// use fibra::*;
     ///
     /// let ctx = Context::from(Request::default());
     ///
@@ -151,7 +152,7 @@ impl Context {
     /// # Examples
     ///
     /// ```
-    /// use bolt::*;
+    /// use fibra::*;
     /// use chrono::Local;
     ///
     /// let old = Local::now();
@@ -169,7 +170,7 @@ impl Context {
     /// # Examples
     ///
     /// ```
-    /// use bolt::*;
+    /// use fibra::*;
     ///
     /// let req = Request::default();
     /// let ctx = Context::from(Request::default().method(Method::PUT));
@@ -235,7 +236,7 @@ impl Context {
     /// # Examples
     ///
     /// ```
-    /// use bolt::*;
+    /// use fibra::*;
     ///
     /// let ctx = Context::from(Request::default().uri(Uri::from_static("http://example.com")));
     ///
@@ -250,7 +251,7 @@ impl Context {
     /// # Examples
     ///
     /// ```
-    /// use bolt::*;
+    /// use fibra::*;
     ///
     /// let ctx = Context::from(Request::default().uri(Uri::from_static("https://example.com")));
     ///
@@ -271,7 +272,7 @@ impl Context {
     /// # Examples
     ///
     /// ```
-    /// use bolt::*;
+    /// use fibra::*;
     ///
     /// let ctx = Context::from(Request::default().uri(Uri::from_static("http://user:pass@example.com")));
     ///
@@ -286,7 +287,7 @@ impl Context {
     /// # Examples
     ///
     /// ```
-    /// use bolt::*;
+    /// use fibra::*;
     ///
     /// let ctx = Context::from(Request::default().uri(Uri::from_static("http://user:pass@example.com")));
     ///
@@ -301,7 +302,7 @@ impl Context {
     /// # Examples
     ///
     /// ```
-    /// use bolt::*;
+    /// use fibra::*;
     ///
     /// let ctx = Context::from(Request::default().uri(Uri::from_static("http://user:pass@git.example.com")));
     ///
@@ -316,7 +317,7 @@ impl Context {
     /// # Examples
     ///
     /// ```
-    /// use bolt::*;
+    /// use fibra::*;
     ///
     /// let ctx = Context::from(Request::default().uri(Uri::from_static("http://user:pass@git.example.com")));
     ///
@@ -331,7 +332,7 @@ impl Context {
     /// # Examples
     ///
     /// ```
-    /// use bolt::*;
+    /// use fibra::*;
     ///
     /// let ctx = Context::from(Request::default().uri(Uri::from_static("http://example.com:3000")));
     ///
@@ -346,11 +347,11 @@ impl Context {
     /// # Examples
     ///
     /// ```
-    /// use bolt::*;
+    /// use fibra::*;
     ///
-    /// let ctx = Context::from(Request::default().uri(Uri::from_static("http://example.com/repo/bolt")));
+    /// let ctx = Context::from(Request::default().uri(Uri::from_static("http://example.com/repo/fibra")));
     ///
-    /// assert_eq!(ctx.path(), "/repo/bolt");
+    /// assert_eq!(ctx.path(), "/repo/fibra");
     /// ```
     pub fn path(&self) -> &str {
         self.req.path()
@@ -361,7 +362,7 @@ impl Context {
     /// # Examples
     ///
     /// ```
-    /// use bolt::*;
+    /// use fibra::*;
     ///
     /// let ctx = Context::from(Request::default().uri(Uri::from_static("http://example.com/?foo=bar")));
     ///
@@ -377,7 +378,7 @@ impl Context {
     /// # Examples
     ///
     /// ```
-    /// use bolt::*;
+    /// use fibra::*;
     ///
     /// let ctx = Context::from(Request::default().uri(Uri::from_static("http://example.com/?foo=bar&key=%E4%BD%A0%E5%A5%BD")));
     ///
@@ -394,11 +395,11 @@ impl Context {
     /// # Examples
     ///
     /// ```
-    /// use bolt::*;
+    /// use fibra::*;
     ///
-    /// let ctx = Context::from(Request::default().uri(Uri::from_static("http://user:pass@git.example.com/repo/bolt?foo=bar&key=%E4%BD%A0%E5%A5%BD")));
+    /// let ctx = Context::from(Request::default().uri(Uri::from_static("http://user:pass@git.example.com/repo/fibra?foo=bar&key=%E4%BD%A0%E5%A5%BD")));
     ///
-    /// assert_eq!(ctx.href(), "http://user:pass@git.example.com/repo/bolt?foo=bar&key=%E4%BD%A0%E5%A5%BD".to_string());
+    /// assert_eq!(ctx.href(), "http://user:pass@git.example.com/repo/fibra?foo=bar&key=%E4%BD%A0%E5%A5%BD".to_string());
     /// ```
     pub fn href(&self) -> String {
         self.req.href()
@@ -409,7 +410,7 @@ impl Context {
     /// # Examples
     ///
     /// ```
-    /// use bolt::*;
+    /// use fibra::*;
     ///
     /// let ctx = Context::from(Request::default().version(Version::HTTP_10));
     ///
@@ -448,7 +449,7 @@ impl Context {
     /// # Examples
     ///
     /// ```
-    /// use bolt::*;
+    /// use fibra::*;
     ///
     /// let ctx = Context::from(Request::default().header("content-type", "application/json").header("cache-control", "no-cache"));
     ///
@@ -467,7 +468,7 @@ impl Context {
     /// # Examples
     ///
     /// ```
-    /// use bolt::*;
+    /// use fibra::*;
     ///
     /// let ctx = Context::from(Request::default().header("content-type", "application/json").header("cache-control", "no-cache"));
     ///
@@ -523,7 +524,7 @@ impl Context {
         self.routing.pop();
     }
 
-    pub async fn next(mut self) -> BoltResult<Response> {
+    pub async fn next(mut self) -> FibraResult<Response> {
         while let Some((cur, idx)) = self.routing.last_mut() {
             let top = unsafe { &**cur };
             let cld = match top.select(*idx) {
@@ -551,17 +552,17 @@ impl Context {
     /// # Examples
     ///
     /// ```
-    /// use bolt::*;
+    /// use fibra::*;
     ///
     /// #[tokio::main]
-    /// async fn main() -> BoltResult<()> {
+    /// async fn main() -> FibraResult<()> {
     ///     assert_eq!(Context::from(Request::default()).reject(None)?.status_ref(), &Status::FORBIDDEN);
     ///     assert_eq!(Context::from(Request::default()).reject(Some(Status::BAD_REQUEST))?, &Status::BAD_REQUEST);
     ///
     ///     Ok(())
     /// }
     /// ```
-    pub fn reject(self, status: Option<Status>) -> BoltResult<Response> {
+    pub fn reject(self, status: Option<Status>) -> FibraResult<Response> {
         Ok(status.unwrap_or(Status::FORBIDDEN).into())
     }
 
@@ -570,14 +571,14 @@ impl Context {
     /// # Examples
     ///
     /// ```
-    /// use bolt::*;
+    /// use fibra::*;
     ///
     /// #[tokio::main]
-    /// async fn main() -> BoltResult<()> {
+    /// async fn main() -> FibraResult<()> {
     ///     todo!()
     /// }
     /// ```
-    pub async fn rewrite(self, to: impl Into<Uri>, body: impl Into<Body>) -> BoltResult<Response> {
+    pub async fn rewrite(self, to: impl Into<Uri>, body: impl Into<Body>) -> FibraResult<Response> {
         let ctx = Context::from((self.app, self.conn, self.req.uri(to).body(body)));
         ctx.next().await
     }
@@ -587,10 +588,10 @@ impl Context {
     /// # Examples
     ///
     /// ```
-    /// use bolt::*;
+    /// use fibra::*;
     ///
     /// #[tokio::main]
-    /// async fn main() -> BoltResult<()> {
+    /// async fn main() -> FibraResult<()> {
     ///     assert_eq!(Context::from(Request::default()).redirect("http://example.com", None)?.status_ref(), &Status::FORBIDDEN);
     ///     assert_eq!(Context::from(Request::default()).redirect("http://example.com", None)?.header_ref(header::LOCATION), &HeaderValue::from_static("http://example.com"));
     ///     assert_eq!(Context::from(Request::default()).redirect("http://example.com", Some(Status::MOVED_PERMANENTLY))?.status_ref(), &Status::BAD_REQUEST);
@@ -598,7 +599,7 @@ impl Context {
     ///     Ok(())
     /// }
     /// ```
-    pub fn redirect(self, to: impl Into<Uri>, status: Option<Status>) -> BoltResult<Response> {
+    pub fn redirect(self, to: impl Into<Uri>, status: Option<Status>) -> FibraResult<Response> {
         let location = HeaderValue::try_from(to.into().to_string())?;
         let redirect = status.unwrap_or(Status::FOUND);
         Ok(Response::default().status(redirect).header(header::LOCATION, location))
@@ -606,8 +607,8 @@ impl Context {
 }
 
 /// Construct from client request
-impl From<(Arc<Bolt>, Arc<Connection>, Request)> for Context {
-    fn from((app, conn, req): (Arc<Bolt>, Arc<Connection>, Request)) -> Self {
+impl From<(Arc<Fibra>, Arc<Connection>, Request)> for Context {
+    fn from((app, conn, req): (Arc<Fibra>, Arc<Connection>, Request)) -> Self {
         // todo push root to routing
         let queries = form_urlencoded::parse(req.query().as_bytes()).into_owned().collect();
         Self { app, conn, req, params: IndexMap::new(), queries, routing: vec![] }
@@ -617,6 +618,6 @@ impl From<(Arc<Bolt>, Arc<Connection>, Request)> for Context {
 /// For mock use only
 impl From<Request> for Context {
     fn from(req: Request) -> Self {
-        (Arc::new(Bolt::default()), Arc::new(Connection::default()), req).into()
+        (Arc::new(Fibra::default()), Arc::new(Connection::default()), req).into()
     }
 }

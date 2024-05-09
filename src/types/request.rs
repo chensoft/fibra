@@ -43,7 +43,7 @@ impl Request {
     /// # Examples
     /// 
     /// ```
-    /// use bolt::*;
+    /// use fibra::*;
     ///
     /// assert_eq!(*Request::default().id_ref() > 0, true);
     /// ```
@@ -57,7 +57,7 @@ impl Request {
     /// # Examples
     /// 
     /// ```
-    /// use bolt::*;
+    /// use fibra::*;
     ///
     /// let mut req = Request::default();
     /// *req.id_mut() = 12345;
@@ -74,7 +74,7 @@ impl Request {
     /// # Examples
     /// 
     /// ```
-    /// use bolt::*;
+    /// use fibra::*;
     ///
     /// assert_eq!(Request::default().id(12345).id_ref(), &12345);
     /// ```
@@ -89,7 +89,7 @@ impl Request {
     /// # Examples
     /// 
     /// ```
-    /// use bolt::*;
+    /// use fibra::*;
     /// use chrono::Local;
     ///
     /// assert_eq!(Request::default().created_ref() <= &Local::now(), true);
@@ -104,7 +104,7 @@ impl Request {
     /// # Examples
     /// 
     /// ```
-    /// use bolt::*;
+    /// use fibra::*;
     /// use chrono::Local;
     ///
     /// let now = Local::now();
@@ -123,7 +123,7 @@ impl Request {
     /// # Examples
     /// 
     /// ```
-    /// use bolt::*;
+    /// use fibra::*;
     /// use chrono::Local;
     ///
     /// let now = Local::now();
@@ -142,7 +142,7 @@ impl Request {
     /// # Examples
     /// 
     /// ```
-    /// use bolt::*;
+    /// use fibra::*;
     ///
     /// assert_eq!(Request::default().method_ref(), &Method::GET);
     /// ```
@@ -156,7 +156,7 @@ impl Request {
     /// # Examples
     /// 
     /// ```
-    /// use bolt::*;
+    /// use fibra::*;
     ///
     /// let mut req = Request::default();
     /// *req.method_mut() = Method::PUT;
@@ -173,7 +173,7 @@ impl Request {
     /// # Examples
     /// 
     /// ```
-    /// use bolt::*;
+    /// use fibra::*;
     ///
     /// assert_eq!(Request::default().method(Method::PUT).method_ref(), &Method::PUT);
     /// ```
@@ -188,7 +188,7 @@ impl Request {
     /// # Examples
     /// 
     /// ```
-    /// use bolt::*;
+    /// use fibra::*;
     ///
     /// assert_eq!(Request::default().uri_ref(), "/");
     /// ```
@@ -202,7 +202,7 @@ impl Request {
     /// # Examples
     /// 
     /// ```
-    /// use bolt::*;
+    /// use fibra::*;
     ///
     /// let mut req = Request::default();
     /// *req.uri_mut() = Uri::from_static("http://example.com");
@@ -219,7 +219,7 @@ impl Request {
     /// # Examples
     /// 
     /// ```
-    /// use bolt::*;
+    /// use fibra::*;
     ///
     /// assert_eq!(Request::default().uri(Uri::from_static("http://example.com")).uri_ref(), "http://example.com/");
     /// ```
@@ -234,7 +234,7 @@ impl Request {
     /// # Examples
     /// 
     /// ```
-    /// use bolt::*;
+    /// use fibra::*;
     ///
     /// assert_eq!(Request::default().version_ref(), &Version::HTTP_11);
     /// ```
@@ -248,7 +248,7 @@ impl Request {
     /// # Examples
     /// 
     /// ```
-    /// use bolt::*;
+    /// use fibra::*;
     ///
     /// let mut req = Request::default();
     /// *req.version_mut() = Version::HTTP_2;
@@ -265,7 +265,7 @@ impl Request {
     /// # Examples
     /// 
     /// ```
-    /// use bolt::*;
+    /// use fibra::*;
     ///
     /// assert_eq!(Request::default().version(Version::HTTP_2).version_ref(), &Version::HTTP_2);
     /// ```
@@ -280,7 +280,7 @@ impl Request {
     /// # Examples
     /// 
     /// ```
-    /// use bolt::*;
+    /// use fibra::*;
     ///
     /// assert_eq!(Request::default().headers_ref().is_empty(), true);
     /// ```
@@ -294,7 +294,7 @@ impl Request {
     /// # Examples
     /// 
     /// ```
-    /// use bolt::*;
+    /// use fibra::*;
     ///
     /// let mut req = Request::default();
     /// req.headers_mut().insert(header::CACHE_CONTROL, "no-cache".into_value());
@@ -311,7 +311,7 @@ impl Request {
     /// # Examples
     /// 
     /// ```
-    /// use bolt::*;
+    /// use fibra::*;
     ///
     /// let mut map = HeaderMap::new();
     /// map.insert(header::CACHE_CONTROL, "no-cache".into_value());
@@ -331,7 +331,7 @@ impl Request {
     /// # Examples
     /// 
     /// ```
-    /// use bolt::*;
+    /// use fibra::*;
     ///
     /// assert_eq!(Request::default().header_ref(header::ACCEPT_ENCODING).is_none(), true);
     /// ```
@@ -345,7 +345,7 @@ impl Request {
     /// # Examples
     /// 
     /// ```
-    /// use bolt::*;
+    /// use fibra::*;
     ///
     /// assert_eq!(Request::default().header_mut(header::ACCEPT_ENCODING).is_none(), true);
     /// ```
@@ -359,7 +359,7 @@ impl Request {
     /// # Examples
     /// 
     /// ```
-    /// use bolt::*;
+    /// use fibra::*;
     ///
     /// let req = Request::default().header(header::ACCEPT_ENCODING, "gzip, deflate");
     ///
@@ -376,7 +376,7 @@ impl Request {
     /// # Examples
     /// 
     /// ```
-    /// use bolt::*;
+    /// use fibra::*;
     ///
     /// Request::default().body_ref();
     /// ```
@@ -390,11 +390,11 @@ impl Request {
     /// # Examples
     /// 
     /// ```
-    /// use bolt::*;
+    /// use fibra::*;
     /// use bytes::Bytes;
     ///
     /// #[tokio::main]
-    /// async fn main() -> BoltResult<()> {
+    /// async fn main() -> FibraResult<()> {
     ///     let mut res = Request::default().body("Hello World!");
     ///     assert_eq!(body::to_bytes(res.body_mut()).await?, Bytes::from("Hello World!"));
     ///     Ok(())
@@ -410,11 +410,11 @@ impl Request {
     /// # Examples
     /// 
     /// ```
-    /// use bolt::*;
+    /// use fibra::*;
     /// use bytes::Bytes;
     ///
     /// #[tokio::main]
-    /// async fn main() -> BoltResult<()> {
+    /// async fn main() -> FibraResult<()> {
     ///     assert_eq!(body::to_bytes(Request::default().body("Hello World!").body_mut()).await?, Bytes::from("Hello World!"));
     ///     Ok(())
     /// }
@@ -432,7 +432,7 @@ impl Request {
     /// # Examples
     /// 
     /// ```
-    /// use bolt::*;
+    /// use fibra::*;
     ///
     /// assert_eq!(Request::default().uri(Uri::from_static("example.com")).scheme(), &Scheme::Unknown);
     /// assert_eq!(Request::default().uri(Uri::from_static("http://example.com")).scheme(), &Scheme::HTTP);
@@ -459,7 +459,7 @@ impl Request {
     /// # Examples
     /// 
     /// ```
-    /// use bolt::*;
+    /// use fibra::*;
     ///
     /// assert_eq!(Request::default().uri(Uri::from_static("http://user:pass@example.com")).authority(), Some(&Authority::from_static("user:pass@example.com")));
     /// ```
@@ -473,12 +473,12 @@ impl Request {
     /// # Examples
     /// 
     /// ```
-    /// use bolt::*;
+    /// use fibra::*;
     ///
     /// assert_eq!(Request::default().domain(), "");
     /// assert_eq!(Request::default().uri(Uri::from_static("http://example.com")).domain(), "example.com");
     /// assert_eq!(Request::default().uri(Uri::from_static("http://www.example.com")).domain(), "example.com");
-    /// assert_eq!(Request::default().uri(Uri::from_static("http://bolt.api.example.com")).domain(), "example.com");
+    /// assert_eq!(Request::default().uri(Uri::from_static("http://fibra.api.example.com")).domain(), "example.com");
     /// assert_eq!(Request::default().uri(Uri::from_static("https://www.google.com.hk")).domain(), "google.com.hk");
     /// ```
     #[inline]
@@ -494,12 +494,12 @@ impl Request {
     /// # Examples
     /// 
     /// ```
-    /// use bolt::*;
+    /// use fibra::*;
     ///
     /// assert_eq!(Request::default().subdomain(), "");
     /// assert_eq!(Request::default().uri(Uri::from_static("http://example.com")).subdomain(), "");
     /// assert_eq!(Request::default().uri(Uri::from_static("http://www.example.com")).subdomain(), "www");
-    /// assert_eq!(Request::default().uri(Uri::from_static("http://bolt.api.example.com")).subdomain(), "bolt.api");
+    /// assert_eq!(Request::default().uri(Uri::from_static("http://fibra.api.example.com")).subdomain(), "fibra.api");
     /// assert_eq!(Request::default().uri(Uri::from_static("https://www.google.com.hk")).subdomain(), "www");
     /// ```
     #[inline]
@@ -521,12 +521,12 @@ impl Request {
     /// # Examples
     /// 
     /// ```
-    /// use bolt::*;
+    /// use fibra::*;
     ///
     /// assert_eq!(Request::default().host(), "");
     /// assert_eq!(Request::default().uri(Uri::from_static("http://example.com")).host(), "example.com");
     /// assert_eq!(Request::default().uri(Uri::from_static("http://www.example.com")).host(), "www.example.com");
-    /// assert_eq!(Request::default().uri(Uri::from_static("http://bolt.api.example.com")).host(), "bolt.api.example.com");
+    /// assert_eq!(Request::default().uri(Uri::from_static("http://fibra.api.example.com")).host(), "fibra.api.example.com");
     /// ```
     #[inline]
     pub fn host(&self) -> &str {
@@ -538,7 +538,7 @@ impl Request {
     /// # Examples
     /// 
     /// ```
-    /// use bolt::*;
+    /// use fibra::*;
     ///
     /// assert_eq!(Request::default().port(), 0);
     /// assert_eq!(Request::default().uri(Uri::from_static("http://example.com")).port(), 80);
@@ -564,7 +564,7 @@ impl Request {
     /// # Examples
     /// 
     /// ```
-    /// use bolt::*;
+    /// use fibra::*;
     ///
     /// assert_eq!(Request::default().path(), "/");
     /// assert_eq!(Request::default().uri(Uri::from_static("http://example.com")).path(), "/");
@@ -586,7 +586,7 @@ impl Request {
     /// # Examples
     /// 
     /// ```
-    /// use bolt::*;
+    /// use fibra::*;
     ///
     /// assert_eq!(Request::default().query(), "");
     /// assert_eq!(Request::default().uri(Uri::from_static("http://example.com")).query(), "");
@@ -606,7 +606,7 @@ impl Request {
     /// # Examples
     /// 
     /// ```
-    /// use bolt::*;
+    /// use fibra::*;
     ///
     /// assert_eq!(Request::default().href(), "/");
     /// assert_eq!(Request::default().uri(Uri::from_static("http://example.com")).href(), "http://example.com/");

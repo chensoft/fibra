@@ -6,7 +6,7 @@ pub struct Router {
 }
 
 impl Router {
-    pub fn add(&mut self, path: &'static str, handler: impl Handler, method: Option<Method>) -> BoltResult<&mut Self> {
+    pub fn add(&mut self, path: &'static str, handler: impl Handler, method: Option<Method>) -> FibraResult<&mut Self> {
         Ok(self)
     }
 }
@@ -19,7 +19,7 @@ impl Default for Router {
 
 #[async_trait]
 impl Handler for Router {
-    async fn handle(&self, ctx: Context) -> BoltResult<Response> {
+    async fn handle(&self, ctx: Context) -> FibraResult<Response> {
         todo!()
     }
 }

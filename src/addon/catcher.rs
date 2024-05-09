@@ -5,21 +5,21 @@ use crate::types::*;
 /// Catch errors and call the handler
 pub struct Catcher {
     /// Preset handler. **Do not assume the Response as it may change without notice**
-    pub preset: Box<dyn Fn(BoltError) -> Response + Send + Sync + 'static>,
+    pub preset: Box<dyn Fn(FibraError) -> Response + Send + Sync + 'static>,
 
     /// Custom handler
-    pub custom: Box<dyn Fn(&Catcher, BoltError) -> Response + Send + Sync + 'static>,
+    pub custom: Box<dyn Fn(&Catcher, FibraError) -> Response + Send + Sync + 'static>,
 }
 
 impl Catcher {
     /// Set preset handler
-    pub fn preset(mut self, f: impl Fn(BoltError) -> Response + Send + Sync + 'static) -> Self {
+    pub fn preset(mut self, f: impl Fn(FibraError) -> Response + Send + Sync + 'static) -> Self {
         self.preset = Box::new(f);
         self
     }
 
     /// Set custom handler
-    pub fn custom(mut self, f: impl Fn(&Catcher, BoltError) -> Response + Send + Sync + 'static) -> Self {
+    pub fn custom(mut self, f: impl Fn(&Catcher, FibraError) -> Response + Send + Sync + 'static) -> Self {
         self.custom = Box::new(f);
         self
     }
@@ -29,17 +29,17 @@ impl Catcher {
     /// # Examples
     /// 
     /// ```
-    /// use bolt::*;
+    /// use fibra::*;
     ///
     /// #[tokio::main]
-    /// async fn main() -> BoltResult<()> {
+    /// async fn main() -> FibraResult<()> {
     ///     let catcher = addon::Catcher::default();
     ///     assert_eq!(catcher.catch(async { Ok(Response::from("It Works!")) }).await, Ok(Response::from("It Works!")));
-    ///     assert_eq!(catcher.catch(async { panic!("Fatal Error") }).await, Err(BoltError::PanicError("Fatal Error".into())));
+    ///     assert_eq!(catcher.catch(async { panic!("Fatal Error") }).await, Err(FibraError::PanicError("Fatal Error".into())));
     ///     Ok(())
     /// }
     /// ```
-    pub async fn catch<F: Future<Output = BoltResult<Response>>>(&self, f: F) -> BoltResult<Response> {
+    pub async fn catch<F: Future<Output = FibraResult<Response>>>(&self, f: F) -> FibraResult<Response> {
         use futures::FutureExt;
 
         match AssertUnwindSafe(f).catch_unwind().await {
@@ -48,8 +48,8 @@ impl Catcher {
                 Err(err) => Err(err),
             }
             Err(err) => match err.downcast_ref::<&str>() {
-                Some(err) => Err(BoltError::PanicError(err.to_string().into())),
-                None => Err(BoltError::PanicError("Unknown panic".into())),
+                Some(err) => Err(FibraError::PanicError(err.to_string().into())),
+                None => Err(FibraError::PanicError("Unknown panic".into())),
             }
         }
     }
@@ -68,18 +68,18 @@ impl Default for Catcher {
 /// Construct from custom error handler
 ///
 /// ```
-/// use bolt::*;
+/// use fibra::*;
 ///
 /// let _ = addon::Catcher::from(|obj, err| {
 ///     match err {
-///         BoltError::PanicError(_) => Status::SERVICE_UNAVAILABLE.into(),
+///         FibraError::PanicError(_) => Status::SERVICE_UNAVAILABLE.into(),
 ///         _ => obj.default(err)
 ///     }
 /// });
 /// ```
 impl<F> From<F> for Catcher
     where
-        F: Fn(&Catcher, BoltError) -> Response + Send + Sync + 'static
+        F: Fn(&Catcher, FibraError) -> Response + Send + Sync + 'static
 {
     fn from(f: F) -> Self {
         Self { custom: Box::new(f), ..Default::default() }
@@ -88,7 +88,7 @@ impl<F> From<F> for Catcher
 
 #[async_trait]
 impl Handler for Catcher {
-    async fn handle(&self, ctx: Context) -> BoltResult<Response> {
+    async fn handle(&self, ctx: Context) -> FibraResult<Response> {
         match self.catch(ctx.next()).await {
             Ok(res) => Ok(res),
             Err(err) => Ok((self.custom)(self, err)),

@@ -8,7 +8,7 @@ pub trait Handler: AnyHandler + Send + Sync + 'static {
     /// Impl this function to handle http requests, a context contains a connection object and
     /// a current request object, multiple requests may reside on one connection, and these
     /// requests will be handled one by one on different context objects
-    async fn handle(&self, ctx: Context) -> BoltResult<Response>;
+    async fn handle(&self, ctx: Context) -> FibraResult<Response>;
 
     /// Internal method to get the child handler of its parent
     #[allow(unused_variables)]
@@ -46,15 +46,15 @@ impl<T: Any> AnyHandler for T {
 /// # Examples
 ///
 /// ```
-/// use bolt::*;
+/// use fibra::*;
 /// use async_trait::async_trait;
 ///
 /// struct HandlerA;
 /// struct HandlerB;
 ///
 /// #[async_trait]
-/// impl Handler for HandlerA { async fn handle(&self, _ctx: Context) -> BoltResult<Response> { unimplemented!() } }
-/// impl Handler for HandlerB { async fn handle(&self, _ctx: Context) -> BoltResult<Response> { unimplemented!() } }
+/// impl Handler for HandlerA { async fn handle(&self, _ctx: Context) -> FibraResult<Response> { unimplemented!() } }
+/// impl Handler for HandlerB { async fn handle(&self, _ctx: Context) -> FibraResult<Response> { unimplemented!() } }
 ///
 /// let mut handler_a: Box<dyn Handler> = Box::new(HandlerA);
 /// let mut handler_b: Box<dyn Handler> = Box::new(HandlerB);
@@ -92,9 +92,9 @@ impl<'a> AsHandler<'a> for BoxHandler {
 /// # Examples
 ///
 /// ```
-/// use bolt::*;
+/// use fibra::*;
 ///
-/// async fn free_function(_ctx: Context) -> BoltResult<Response> {
+/// async fn free_function(_ctx: Context) -> FibraResult<Response> {
 ///     Ok("It Works!".into())
 /// }
 ///
@@ -108,9 +108,9 @@ impl<'a> AsHandler<'a> for BoxHandler {
 impl<F, R> Handler for F
     where
         F: Fn(Context) -> R + Send + Sync + 'static,
-        R: Future<Output = BoltResult<Response>> + Send + 'static
+        R: Future<Output = FibraResult<Response>> + Send + 'static
 {
-    async fn handle(&self, ctx: Context) -> BoltResult<Response> {
+    async fn handle(&self, ctx: Context) -> FibraResult<Response> {
         self(ctx).await
     }
 }

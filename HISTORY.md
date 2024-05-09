@@ -32,7 +32,7 @@
 
 ### Features
 
-- bolt config, case sensitive matching
+- fibra config, case sensitive matching
 - tls support with tls info, ver, sni
 - h2 support: server push, stream priority
 - content type, referer, user agent, is keepalive, content encoding, accepts, length, type...

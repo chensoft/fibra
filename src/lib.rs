@@ -7,8 +7,10 @@
 
 mod route;
 mod types;
-
-pub mod addon;
+mod fibra;
 
 pub use route::*;
 pub use types::*;
+pub use fibra::*;
+
+pub mod addon;

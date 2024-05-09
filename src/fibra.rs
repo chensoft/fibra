@@ -2,44 +2,44 @@ use crate::addon;
 use crate::route::*;
 use crate::types::*;
 
-pub struct Bolt {
+pub struct Fibra {
     mounted: Vec<BoxHandler>,
     sockets: Vec<Socket>,
 }
 
-impl Bolt {
-    // todo static check path is valid and remove boltresult
-    pub fn get(&mut self, path: &'static str, handler: impl Handler) -> BoltResult<&mut Self> {
+impl Fibra {
+    // todo static check path is valid and remove fibraresult
+    pub fn get(&mut self, path: &'static str, handler: impl Handler) -> FibraResult<&mut Self> {
         self.route(path, handler, Some(Method::GET))
     }
 
-    pub fn post(&mut self, path: &'static str, handler: impl Handler) -> BoltResult<&mut Self> {
+    pub fn post(&mut self, path: &'static str, handler: impl Handler) -> FibraResult<&mut Self> {
         self.route(path, handler, Some(Method::POST))
     }
 
-    pub fn put(&mut self, path: &'static str, handler: impl Handler) -> BoltResult<&mut Self> {
+    pub fn put(&mut self, path: &'static str, handler: impl Handler) -> FibraResult<&mut Self> {
         self.route(path, handler, Some(Method::PUT))
     }
 
-    pub fn delete(&mut self, path: &'static str, handler: impl Handler) -> BoltResult<&mut Self> {
+    pub fn delete(&mut self, path: &'static str, handler: impl Handler) -> FibraResult<&mut Self> {
         self.route(path, handler, Some(Method::DELETE))
     }
 
-    pub fn patch(&mut self, path: &'static str, handler: impl Handler) -> BoltResult<&mut Self> {
+    pub fn patch(&mut self, path: &'static str, handler: impl Handler) -> FibraResult<&mut Self> {
         self.route(path, handler, Some(Method::PATCH))
     }
 
-    pub fn all(&mut self, path: &'static str, handler: impl Handler) -> BoltResult<&mut Self> {
+    pub fn all(&mut self, path: &'static str, handler: impl Handler) -> FibraResult<&mut Self> {
         self.route(path, handler, None)
     }
 
-    pub fn route(&mut self, path: &'static str, handler: impl Handler, method: Option<Method>) -> BoltResult<&mut Self> {
+    pub fn route(&mut self, path: &'static str, handler: impl Handler, method: Option<Method>) -> FibraResult<&mut Self> {
         self.ensure::<Router>().add(path, handler, method)?;
         Ok(self)
     }
 
-    pub fn group(&mut self, path: &'static str) -> BoltResult<&mut Bolt> {
-        self.route(path, Bolt::default(), None)
+    pub fn group(&mut self, path: &'static str) -> FibraResult<&mut Fibra> {
+        self.route(path, Fibra::default(), None)
     }
 
     /// Set custom error handler
@@ -47,13 +47,13 @@ impl Bolt {
     /// # Examples
     ///
     /// ```
-    /// use bolt::*;
+    /// use fibra::*;
     ///
-    /// let mut app = Bolt::default();
+    /// let mut app = Fibra::default();
     /// let catcher = app.catch(|_obj, _err| Status::SERVICE_UNAVAILABLE.into());
-    /// assert_eq!((catcher.custom)(catcher, BoltError::PanicError("panic".into())).status_ref(), &Status::SERVICE_UNAVAILABLE);
+    /// assert_eq!((catcher.custom)(catcher, FibraError::PanicError("panic".into())).status_ref(), &Status::SERVICE_UNAVAILABLE);
     /// ```
-    pub fn catch(&mut self, f: impl Fn(&addon::Catcher, BoltError) -> Response + Send + Sync + 'static) -> &mut addon::Catcher {
+    pub fn catch(&mut self, f: impl Fn(&addon::Catcher, FibraError) -> Response + Send + Sync + 'static) -> &mut addon::Catcher {
         let catcher = self.mounted.first_mut().and_then(|h| h.as_handler_mut::<addon::Catcher>()).unwrap_or_else(|| unreachable!());
         catcher.custom = Box::new(f);
         catcher
@@ -68,9 +68,9 @@ impl Bolt {
     /// # Examples
     ///
     /// ```
-    /// use bolt::*;
+    /// use fibra::*;
     ///
-    /// let mut app = Bolt::default();
+    /// let mut app = Fibra::default();
     /// let len = app.handlers().len();
     ///
     /// app.mount(addon::Logger{});
@@ -88,9 +88,9 @@ impl Bolt {
     /// # Examples
     ///
     /// ```
-    /// use bolt::*;
+    /// use fibra::*;
     ///
-    /// let mut app = Bolt::default();
+    /// let mut app = Fibra::default();
     /// let len = app.handlers().len();
     ///
     /// app.ensure::<addon::Logger>(); // add a new handler
@@ -116,22 +116,22 @@ impl Bolt {
     /// # Examples
     ///
     /// ```
-    /// use bolt::*;
+    /// use fibra::*;
     ///
-    /// let mut app = Bolt::default();
+    /// let mut app = Fibra::default();
     ///
     /// assert_eq!(app.bind("0.0.0.0:0").is_ok(), true); // first random port
     /// assert_eq!(app.bind("0.0.0.0:0").is_ok(), true); // second random port
     /// assert_eq!(app.bind("0.0.0.0:65536").is_ok(), false); // invalid port
     /// ```
-    pub fn bind(&mut self, addr: impl ToSocketAddrs) -> BoltResult<&mut Socket> {
+    pub fn bind(&mut self, addr: impl ToSocketAddrs) -> FibraResult<&mut Socket> {
         let last = self.sockets.len();
         self.sockets.push(StdTcpListener::bind(addr)?.into());
         Ok(&mut self.sockets[last])
     }
 
     /// Run the server, check the examples folder to see its usage
-    pub async fn run(mut self) -> BoltResult<()> {
+    pub async fn run(mut self) -> FibraResult<()> {
         use hyper::Server;
         use hyper::server::conn::AddrStream;
         use hyper::service::{make_service_fn, service_fn};
@@ -151,7 +151,7 @@ impl Bolt {
                     let ctx = Context::from((app.clone(), con.clone(), Request::from(req)));
 
                     // processing the request from the ctx's next method
-                    async move { Ok::<_, BoltError>(ctx.next().await?.into()) }
+                    async move { Ok::<_, FibraError>(ctx.next().await?.into()) }
                 }))
             }
         });
@@ -168,15 +168,15 @@ impl Bolt {
     }
 }
 
-impl Default for Bolt {
+impl Default for Fibra {
     fn default() -> Self {
         Self { mounted: vec![Box::new(addon::Catcher::default())], sockets: vec![] }
     }
 }
 
 #[async_trait]
-impl Handler for Bolt {
-    async fn handle(&self, ctx: Context) -> BoltResult<Response> {
+impl Handler for Fibra {
+    async fn handle(&self, ctx: Context) -> FibraResult<Response> {
         // self.mounted.handle(ctx).await
         todo!()
     }
