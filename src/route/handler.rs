@@ -69,25 +69,25 @@ impl<T: Any> AnyHandler for T {
 /// assert_eq!(handler_b.as_handler_mut::<HandlerA>().is_some(), false);
 /// assert_eq!(handler_b.as_handler_mut::<HandlerB>().is_some(), true);
 /// ```
-pub trait AsHandler<'a> {
+pub trait AsHandler {
     /// Convert handler if possible
-    fn as_handler<T: Handler>(&'a self) -> Option<&'a T>;
+    fn as_handler<T: Handler>(&self) -> Option<&T>;
 
     /// Convert handler if possible
-    fn as_handler_mut<T: Handler>(&'a mut self) -> Option<&'a mut T>;
+    fn as_handler_mut<T: Handler>(&mut self) -> Option<&mut T>;
 }
 
-impl<'a> AsHandler<'a> for BoxHandler {
-    fn as_handler<T: Handler>(&'a self) -> Option<&'a T> {
+impl AsHandler for BoxHandler {
+    fn as_handler<T: Handler>(&self) -> Option<&T> {
         self.as_ref().as_any().downcast_ref::<T>()
     }
 
-    fn as_handler_mut<T: Handler>(&'a mut self) -> Option<&'a mut T> {
+    fn as_handler_mut<T: Handler>(&mut self) -> Option<&mut T> {
         self.as_mut().as_any_mut().downcast_mut::<T>()
     }
 }
 
-/// Impl Handler for functions
+/// Impl Handler for function and closure
 ///
 /// # Examples
 ///
@@ -95,14 +95,25 @@ impl<'a> AsHandler<'a> for BoxHandler {
 /// use fibra::*;
 ///
 /// async fn free_function(_ctx: Context) -> FibraResult<Response> {
-///     Ok("It Works!".into())
+///     Ok("Hello World!".into())
 /// }
 ///
-/// let handler_closure: dyn Handler = |_ctx: Context| async { b"It Works!".into() };
-/// let handler_function: dyn Handler = free_function;
+/// #[tokio::main]
+/// async fn main() -> FibraResult<()> {
+///     let ctx_function = Context::from(Request::default());
+///     let ctx_closure = Context::from(Request::default());
 ///
-/// assert_eq!(handler_closure(), Ok(Response::from("It Works!")));
-/// assert_eq!(handler_function(), Ok(Response::from("It Works!")));
+///     let fun_function: dyn Handler = free_function;
+///     let fun_closure: dyn Handler = |_ctx: Context| async { b"It Works!".into() };
+///
+///     let mut res_function = fun_function.handle(ctx_function).await?;
+///     let mut res_closure = fun_closure.handle(ctx_closure).await?;
+///
+///     assert_eq!(body::to_bytes(res_function.body_mut()).await?, "It Works!");
+///     assert_eq!(body::to_bytes(res_closure.body_mut()).await?, "Hello World!");
+///
+///     Ok(())
+/// }
 /// ```
 #[async_trait]
 impl<F, R> Handler for F
@@ -112,5 +123,118 @@ impl<F, R> Handler for F
 {
     async fn handle(&self, ctx: Context) -> FibraResult<Response> {
         self(ctx).await
+    }
+}
+
+/// Impl Handler for static value
+///
+/// ```
+/// use fibra::*;
+///
+/// #[tokio::main]
+/// async fn main() -> FibraResult<()> {
+///     let ctx = Context::from(Request::default());
+///     let mut res = (Status::OK, mime::APPLICATION_JSON, "{}").handle(ctx).await?;
+///
+///     assert_eq!(res.status_ref(), &Status::OK);
+///     assert_eq!(res.header_ref(header::CONTENT_TYPE).map(|v| v.as_bytes()), Some(mime::APPLICATION_JSON.as_ref().as_bytes()));
+///     assert_eq!(body::to_bytes(res.body_mut()).await?, "{}");
+///
+///     Ok(())
+/// }
+/// ```
+#[async_trait]
+impl Handler for (Status, Mime, &'static str) {
+    async fn handle(&self, _ctx: Context) -> FibraResult<Response> {
+        Ok((self.0, self.1.clone(), self.2).into())
+    }
+}
+
+/// Impl Handler for static value
+///
+/// ```
+/// use fibra::*;
+///
+/// #[tokio::main]
+/// async fn main() -> FibraResult<()> {
+///     let ctx = Context::from(Request::default());
+///     let mut res = (Status::OK, "Hello World!").handle(ctx).await?;
+///
+///     assert_eq!(res.status_ref(), &Status::OK);
+///     assert_eq!(body::to_bytes(res.body_mut()).await?, "Hello World!");
+///
+///     Ok(())
+/// }
+/// ```
+#[async_trait]
+impl Handler for (Status, &'static str) {
+    async fn handle(&self, _ctx: Context) -> FibraResult<Response> {
+        Ok((*self).into())
+    }
+}
+
+/// Impl Handler for static value
+///
+/// ```
+/// use fibra::*;
+///
+/// #[tokio::main]
+/// async fn main() -> FibraResult<()> {
+///     let ctx = Context::from(Request::default());
+///     let mut res = ().handle(ctx).await?;
+///
+///     assert_eq!(body::to_bytes(res.body_mut()).await?, "");
+///
+///     Ok(())
+/// }
+/// ```
+#[async_trait]
+impl Handler for () {
+    async fn handle(&self, _ctx: Context) -> FibraResult<Response> {
+        Ok((*self).into())
+    }
+}
+
+/// Impl Handler for static value
+///
+/// ```
+/// use fibra::*;
+///
+/// #[tokio::main]
+/// async fn main() -> FibraResult<()> {
+///     let ctx = Context::from(Request::default());
+///     let res = Status::UNAUTHORIZED.handle(ctx).await?;
+///
+///     assert_eq!(res.status_ref(), &Status::UNAUTHORIZED.into());
+///
+///     Ok(())
+/// }
+/// ```
+#[async_trait]
+impl Handler for Status {
+    async fn handle(&self, _ctx: Context) -> FibraResult<Response> {
+        Ok((*self).into())
+    }
+}
+
+/// Impl Handler for static value
+///
+/// ```
+/// use fibra::*;
+///
+/// #[tokio::main]
+/// async fn main() -> FibraResult<()> {
+///     let ctx = Context::from(Request::default());
+///     let mut res = "Hello World!".handle(ctx).await?;
+///
+///     assert_eq!(body::to_bytes(res.body_mut()).await?, "Hello World!");
+///
+///     Ok(())
+/// }
+/// ```
+#[async_trait]
+impl Handler for &'static str {
+    async fn handle(&self, _ctx: Context) -> FibraResult<Response> {
+        Ok((*self).into())
     }
 }

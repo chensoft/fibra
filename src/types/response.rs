@@ -232,12 +232,11 @@ impl Response {
     /// 
     /// ```
     /// use fibra::*;
-    /// use bytes::Bytes;
     ///
     /// #[tokio::main]
     /// async fn main() -> FibraResult<()> {
     ///     let mut res = Response::default().body("Hello World!");
-    ///     assert_eq!(body::to_bytes(res.body_mut()).await?, Bytes::from("Hello World!"));
+    ///     assert_eq!(body::to_bytes(res.body_mut()).await?, "Hello World!");
     ///     Ok(())
     /// }
     /// ```
@@ -252,12 +251,11 @@ impl Response {
     /// 
     /// ```
     /// use fibra::*;
-    /// use bytes::Bytes;
     ///
     /// #[tokio::main]
     /// async fn main() -> FibraResult<()> {
     ///     let mut res = Response::default().body("Hello World!");
-    ///     assert_eq!(body::to_bytes(res.body_mut()).await?, Bytes::from("Hello World!"));
+    ///     assert_eq!(body::to_bytes(res.body_mut()).await?, "Hello World!");
     ///     Ok(())
     /// }
     /// ```
@@ -273,7 +271,6 @@ impl Response {
     /// 
     /// ```
     /// use fibra::*;
-    /// use bytes::Bytes;
     /// use indexmap::indexmap;
     ///
     /// #[tokio::main]
@@ -286,7 +283,7 @@ impl Response {
     ///     let mut res = Response::default().json(map);
     ///
     ///     assert_eq!(res.header_ref(header::CONTENT_TYPE).map(|v| v.as_bytes()), Some(mime::APPLICATION_JSON.as_ref().as_bytes()));
-    ///     assert_eq!(body::to_bytes(res.body_mut()).await?, Bytes::from("{\"a\":1,\"b\":2}"));
+    ///     assert_eq!(body::to_bytes(res.body_mut()).await?, "{\"a\":1,\"b\":2}");
     ///
     ///     Ok(())
     /// }
@@ -304,7 +301,6 @@ impl Response {
     /// 
     /// ```
     /// use fibra::*;
-    /// use bytes::Bytes;
     /// use indexmap::indexmap;
     ///
     /// #[tokio::main]
@@ -317,7 +313,7 @@ impl Response {
     ///     let mut res = Response::default().jsonp(map, "callback");
     ///
     ///     assert_eq!(res.header_ref(header::CONTENT_TYPE).map(|v| v.as_bytes()), Some(mime::APPLICATION_JSON.as_ref().as_bytes()));
-    ///     assert_eq!(body::to_bytes(res.body_mut()).await?, Bytes::from("callback({\"a\":1,\"b\":2})"));
+    ///     assert_eq!(body::to_bytes(res.body_mut()).await?, "callback({\"a\":1,\"b\":2}"));
     ///
     ///     Ok(())
     /// }
@@ -339,14 +335,13 @@ impl Response {
     /// 
     /// ```
     /// use fibra::*;
-    /// use bytes::Bytes;
     ///
     /// #[tokio::main]
     /// async fn main() -> FibraResult<()> {
     ///     let mut res = Response::default().text("It Works!");
     ///
     ///     assert_eq!(res.header_ref(header::CONTENT_TYPE).map(|v| v.as_bytes()), Some(mime::TEXT_PLAIN_UTF_8.as_ref().as_bytes()));
-    ///     assert_eq!(body::to_bytes(res.body_mut()).await?, Bytes::from("It Works!"));
+    ///     assert_eq!(body::to_bytes(res.body_mut()).await?, "It Works!");
     ///
     ///     Ok(())
     /// }
@@ -362,14 +357,13 @@ impl Response {
     /// 
     /// ```
     /// use fibra::*;
-    /// use bytes::Bytes;
     ///
     /// #[tokio::main]
     /// async fn main() -> FibraResult<()> {
     ///     let mut res = Response::default().html("<html><body>It Works!</body></html>");
     ///
     ///     assert_eq!(res.header_ref(header::CONTENT_TYPE).map(|v| v.as_bytes()), Some(mime::TEXT_HTML_UTF_8.as_ref().as_bytes()));
-    ///     assert_eq!(body::to_bytes(res.body_mut()).await?, Bytes::from("<html><body>It Works!</body></html>"));
+    ///     assert_eq!(body::to_bytes(res.body_mut()).await?, "<html><body>It Works!</body></html>");
     ///
     ///     Ok(())
     /// }
@@ -392,14 +386,13 @@ impl Response {
     /// 
     /// ```
     /// use fibra::*;
-    /// use bytes::Bytes;
     ///
     /// #[tokio::main]
     /// async fn main() -> FibraResult<()> {
     ///     let mut res = Response::default().bytes(b"abc".to_vec());
     ///
     ///     assert_eq!(res.header_ref(header::CONTENT_TYPE).map(|v| v.as_bytes()), Some(mime::APPLICATION_OCTET_STREAM.as_ref().as_bytes()));
-    ///     assert_eq!(body::to_bytes(res.body_mut()).await?, Bytes::from(b"abc".to_vec()));
+    ///     assert_eq!(body::to_bytes(res.body_mut()).await?, b"abc".to_vec());
     ///
     ///     Ok(())
     /// }
@@ -415,7 +408,6 @@ impl Response {
     /// 
     /// ```
     /// use fibra::*;
-    /// use bytes::Bytes;
     /// use futures::Stream;
     /// use std::task::Poll;
     /// use std::io::{BufReader, Read};
@@ -438,7 +430,7 @@ impl Response {
     ///             Ok(0) => Poll::Ready(None),
     ///             Ok(n) => {
     ///                 buffer.truncate(n);
-    ///                 Poll::Ready(Some(Ok(Bytes::from(buffer))))
+    ///                 Poll::Ready(Some(Ok(buffer)))
     ///             },
     ///             Err(e) => Poll::Ready(Some(Err(e.into()))),
     ///         }
@@ -449,7 +441,7 @@ impl Response {
     /// async fn main() -> FibraResult<()> {
     ///     let mut res = Response::default().stream(FileStream::new()?);
     ///
-    ///     assert_eq!(body::to_bytes(res.body_mut()).await?, Bytes::from("Actions speak louder than words"));
+    ///     assert_eq!(body::to_bytes(res.body_mut()).await?, "Actions speak louder than words");
     ///
     ///     Ok(())
     /// }
@@ -470,7 +462,6 @@ impl Response {
 ///
 /// ```
 /// use fibra::*;
-/// use bytes::Bytes;
 ///
 /// #[tokio::main]
 /// async fn main() -> FibraResult<()> {
@@ -478,7 +469,7 @@ impl Response {
 ///
 ///     assert_eq!(res.status_ref(), &Status::NOT_FOUND);
 ///     assert_eq!(res.header_ref(header::CONTENT_TYPE).map(|v| v.as_bytes()), Some("text/plain; charset=utf-8".as_bytes()));
-///     assert_eq!(body::to_bytes(res.body_mut()).await?, Bytes::from("Not Found"));
+///     assert_eq!(body::to_bytes(res.body_mut()).await?, "Not Found");
 ///
 ///     Ok(())
 /// }
@@ -498,7 +489,6 @@ impl<T> From<(Status, Mime, T)> for Response
 ///
 /// ```
 /// use fibra::*;
-/// use bytes::Bytes;
 ///
 /// #[tokio::main]
 /// async fn main() -> FibraResult<()> {
@@ -506,7 +496,7 @@ impl<T> From<(Status, Mime, T)> for Response
 ///
 ///     assert_eq!(res.status_ref(), &Status::NOT_FOUND);
 ///     assert_eq!(res.header_ref(header::CONTENT_TYPE).map(|v| v.as_bytes()), Some("text/plain; charset=utf-8".as_bytes()));
-///     assert_eq!(body::to_bytes(res.body_mut()).await?, Bytes::from("Not Found"));
+///     assert_eq!(body::to_bytes(res.body_mut()).await?, "Not Found");
 ///
 ///     Ok(())
 /// }
@@ -524,7 +514,6 @@ impl From<(Status, &'static str)> for Response {
 ///
 /// ```
 /// use fibra::*;
-/// use bytes::Bytes;
 ///
 /// #[tokio::main]
 /// async fn main() -> FibraResult<()> {
@@ -532,7 +521,7 @@ impl From<(Status, &'static str)> for Response {
 ///
 ///     assert_eq!(res.status_ref(), &Status::NOT_FOUND);
 ///     assert_eq!(res.header_ref(header::CONTENT_TYPE).map(|v| v.as_bytes()), Some("text/plain; charset=utf-8".as_bytes()));
-///     assert_eq!(body::to_bytes(res.body_mut()).await?, Bytes::from("Not Found"));
+///     assert_eq!(body::to_bytes(res.body_mut()).await?, "Not Found");
 ///
 ///     Ok(())
 /// }
@@ -550,7 +539,6 @@ impl From<(Status, String)> for Response {
 ///
 /// ```
 /// use fibra::*;
-/// use bytes::Bytes;
 ///
 /// #[tokio::main]
 /// async fn main() -> FibraResult<()> {
@@ -558,7 +546,7 @@ impl From<(Status, String)> for Response {
 ///
 ///     assert_eq!(res.status_ref(), &Status::FORBIDDEN);
 ///     assert_eq!(res.header_ref(header::CONTENT_TYPE).map(|v| v.as_bytes()), Some("application/octet-stream".as_bytes()));
-///     assert_eq!(body::to_bytes(res.body_mut()).await?, Bytes::from(b"Forbidden".as_slice()));
+///     assert_eq!(body::to_bytes(res.body_mut()).await?, b"Forbidden".as_slice());
 ///
 ///     Ok(())
 /// }
@@ -576,7 +564,6 @@ impl From<(Status, &'static [u8])> for Response {
 ///
 /// ```
 /// use fibra::*;
-/// use bytes::Bytes;
 ///
 /// #[tokio::main]
 /// async fn main() -> FibraResult<()> {
@@ -584,7 +571,7 @@ impl From<(Status, &'static [u8])> for Response {
 ///
 ///     assert_eq!(res.status_ref(), &Status::FORBIDDEN);
 ///     assert_eq!(res.header_ref(header::CONTENT_TYPE).map(|v| v.as_bytes()), Some("application/octet-stream".as_bytes()));
-///     assert_eq!(body::to_bytes(res.body_mut()).await?, Bytes::from(b"Forbidden".to_vec()));
+///     assert_eq!(body::to_bytes(res.body_mut()).await?, b"Forbidden".to_vec());
 ///
 ///     Ok(())
 /// }
@@ -602,7 +589,6 @@ impl From<(Status, Vec<u8>)> for Response {
 ///
 /// ```
 /// use fibra::*;
-/// use bytes::Bytes;
 ///
 /// #[tokio::main]
 /// async fn main() -> FibraResult<()> {
@@ -610,7 +596,7 @@ impl From<(Status, Vec<u8>)> for Response {
 ///
 ///     assert_eq!(res.status_ref(), &Status::OK);
 ///     assert_eq!(res.header_ref(header::CONTENT_TYPE).map(|v| v.as_bytes()), Some("text/plain; charset=utf-8".as_bytes()));
-///     assert_eq!(body::to_bytes(res.body_mut()).await?, Bytes::from(""));
+///     assert_eq!(body::to_bytes(res.body_mut()).await?, "");
 ///
 ///     Ok(())
 /// }
@@ -628,7 +614,6 @@ impl From<()> for Response {
 ///
 /// ```
 /// use fibra::*;
-/// use bytes::Bytes;
 ///
 /// #[tokio::main]
 /// async fn main() -> FibraResult<()> {
@@ -636,7 +621,7 @@ impl From<()> for Response {
 ///
 ///     assert_eq!(res.status_ref(), &Status::INTERNAL_SERVER_ERROR);
 ///     assert_eq!(res.header_ref(header::CONTENT_TYPE).map(|v| v.as_bytes()), Some("text/plain; charset=utf-8".as_bytes()));
-///     assert_eq!(body::to_bytes(res.body_mut()).await?, Bytes::from(""));
+///     assert_eq!(body::to_bytes(res.body_mut()).await?, "");
 ///
 ///     Ok(())
 /// }
@@ -654,7 +639,6 @@ impl From<Status> for Response {
 ///
 /// ```
 /// use fibra::*;
-/// use bytes::Bytes;
 ///
 /// #[tokio::main]
 /// async fn main() -> FibraResult<()> {
@@ -662,7 +646,7 @@ impl From<Status> for Response {
 ///
 ///     assert_eq!(res.status_ref(), &Status::OK);
 ///     assert_eq!(res.header_ref(header::CONTENT_TYPE).map(|v| v.as_bytes()), Some("text/plain; charset=utf-8".as_bytes()));
-///     assert_eq!(body::to_bytes(res.body_mut()).await?, Bytes::from("Hello World!"));
+///     assert_eq!(body::to_bytes(res.body_mut()).await?, "Hello World!");
 ///
 ///     Ok(())
 /// }
@@ -680,7 +664,6 @@ impl From<&'static str> for Response {
 ///
 /// ```
 /// use fibra::*;
-/// use bytes::Bytes;
 ///
 /// #[tokio::main]
 /// async fn main() -> FibraResult<()> {
@@ -688,7 +671,7 @@ impl From<&'static str> for Response {
 ///
 ///     assert_eq!(res.status_ref(), &Status::OK);
 ///     assert_eq!(res.header_ref(header::CONTENT_TYPE).map(|v| v.as_bytes()), Some("text/plain; charset=utf-8".as_bytes()));
-///     assert_eq!(body::to_bytes(res.body_mut()).await?, Bytes::from("Hello World!"));
+///     assert_eq!(body::to_bytes(res.body_mut()).await?, "Hello World!");
 ///
 ///     Ok(())
 /// }
@@ -706,7 +689,6 @@ impl From<String> for Response {
 ///
 /// ```
 /// use fibra::*;
-/// use bytes::Bytes;
 ///
 /// #[tokio::main]
 /// async fn main() -> FibraResult<()> {
@@ -714,7 +696,7 @@ impl From<String> for Response {
 ///
 ///     assert_eq!(res.status_ref(), &Status::OK);
 ///     assert_eq!(res.header_ref(header::CONTENT_TYPE).map(|v| v.as_bytes()), Some("application/octet-stream".as_bytes()));
-///     assert_eq!(body::to_bytes(res.body_mut()).await?, Bytes::from("Hello World!"));
+///     assert_eq!(body::to_bytes(res.body_mut()).await?, "Hello World!");
 ///
 ///     Ok(())
 /// }
@@ -732,7 +714,6 @@ impl From<&'static [u8]> for Response {
 ///
 /// ```
 /// use fibra::*;
-/// use bytes::Bytes;
 ///
 /// #[tokio::main]
 /// async fn main() -> FibraResult<()> {
@@ -740,7 +721,7 @@ impl From<&'static [u8]> for Response {
 ///
 ///     assert_eq!(res.status_ref(), &Status::OK);
 ///     assert_eq!(res.header_ref(header::CONTENT_TYPE).map(|v| v.as_bytes()), Some("application/octet-stream".as_bytes()));
-///     assert_eq!(body::to_bytes(res.body_mut()).await?, Bytes::from("Hello World!"));
+///     assert_eq!(body::to_bytes(res.body_mut()).await?, "Hello World!");
 ///
 ///     Ok(())
 /// }
@@ -758,7 +739,6 @@ impl From<Vec<u8>> for Response {
 ///
 /// ```
 /// use fibra::*;
-/// use bytes::Bytes;
 ///
 /// #[tokio::main]
 /// async fn main() -> FibraResult<()> {
@@ -767,7 +747,7 @@ impl From<Vec<u8>> for Response {
 ///
 ///     assert_eq!(res.status(), Status::NOT_FOUND.as_u16());
 ///     assert_eq!(res.headers().get(header::CONTENT_TYPE).map(|v| v.as_bytes()), Some("text/plain; charset=utf-8".as_bytes()));
-///     assert_eq!(body::to_bytes(res.body_mut()).await?, Bytes::from("Not Found"));
+///     assert_eq!(body::to_bytes(res.body_mut()).await?, "Not Found");
 ///
 ///     Ok(())
 /// }

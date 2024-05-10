@@ -391,12 +391,11 @@ impl Request {
     /// 
     /// ```
     /// use fibra::*;
-    /// use bytes::Bytes;
     ///
     /// #[tokio::main]
     /// async fn main() -> FibraResult<()> {
     ///     let mut res = Request::default().body("Hello World!");
-    ///     assert_eq!(body::to_bytes(res.body_mut()).await?, Bytes::from("Hello World!"));
+    ///     assert_eq!(body::to_bytes(res.body_mut()).await?, "Hello World!");
     ///     Ok(())
     /// }
     /// ```
@@ -411,11 +410,10 @@ impl Request {
     /// 
     /// ```
     /// use fibra::*;
-    /// use bytes::Bytes;
     ///
     /// #[tokio::main]
     /// async fn main() -> FibraResult<()> {
-    ///     assert_eq!(body::to_bytes(Request::default().body("Hello World!").body_mut()).await?, Bytes::from("Hello World!"));
+    ///     assert_eq!(body::to_bytes(Request::default().body("Hello World!").body_mut()).await?, "Hello World!");
     ///     Ok(())
     /// }
     /// ```

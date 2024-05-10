@@ -16,6 +16,7 @@
 - Cookie support
 - Session management
 - Multiple listener
+- Handy response
 
 ## [Todo]
 
@@ -44,6 +45,10 @@
 - cookie support
 - session support
 - Swagger & OpenAPI
+- hook support
 - bench: https://www.techempower.com/benchmarks/#section=intro&test=fortune
 - example: simple downloader and indexer, httpbin-like tools
 - deploy easily to serverless platform
+- impl Handler for sync closure, even a File fd
+- impl File for Response
+- temp storage for context

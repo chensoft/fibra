@@ -39,7 +39,7 @@ impl Catcher {
     ///     Ok(())
     /// }
     /// ```
-    pub async fn catch<F: Future<Output = FibraResult<Response>>>(&self, f: F) -> FibraResult<Response> {
+    pub async fn catch<F>(&self, f: F) -> FibraResult<Response> where F: Future<Output = FibraResult<Response>> {
         use futures::FutureExt;
 
         match AssertUnwindSafe(f).catch_unwind().await {

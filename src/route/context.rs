@@ -91,7 +91,7 @@ impl Context {
     /// use std::sync::Arc;
     /// use std::net::SocketAddr;
     ///
-    /// let app = Arc::new(Fibra::default());
+    /// let app = Arc::new(Fibra::new());
     /// let con = Arc::new(Connection::from((SocketAddr::from(([127, 0, 0, 1], 3000)), SocketAddr::from(([8, 8, 8, 8], 80)))));
     /// let req = Request::default();
     /// let ctx = Context::from((app, con, req));
@@ -112,7 +112,7 @@ impl Context {
     /// use std::sync::Arc;
     /// use std::net::SocketAddr;
     ///
-    /// let app = Arc::new(Fibra::default());
+    /// let app = Arc::new(Fibra::new());
     /// let con = Arc::new(Connection::from((SocketAddr::from(([127, 0, 0, 1], 3000)), SocketAddr::from(([8, 8, 8, 8], 80)))));
     /// let req = Request::default();
     /// let ctx = Context::from((app, con, req));

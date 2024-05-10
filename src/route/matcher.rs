@@ -3,20 +3,17 @@ use crate::types::*;
 
 #[derive(Default)]
 pub struct Matcher {
-    pub routes: RadixMap<Routine>
+    routes: RadixMap<Routine>
 }
 
 impl Matcher {
     pub fn insert(&mut self, path: &'static str, handler: impl Handler) -> FibraResult<&mut Routine> {
-        // if !self.routes.contains_key(path) {
-        //     self.routes.insert(path, Routine::default())?;
-        // }
-        //
-        // match self.routes.get_mut(path) {
-        //     Some(package) => Ok(package.insert(Routine::new(handler))),
-        //     None => unreachable!()
-        // }
-        todo!()
+        if self.routes.contains_key(path.as_bytes()) {
+            return Err(FibraError::PathDuplicate(path.into()));
+        }
+
+        self.routes.insert(path, Routine::from(handler))?;
+        Ok(self.routes.get_mut(path.as_bytes()).unwrap_or_else(|| unreachable!()))
     }
 
     pub fn matches() -> Option<()> {

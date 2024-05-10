@@ -3,7 +3,7 @@ use fibra::*;
 #[tokio::main]
 async fn main() -> FibraResult<()> {
     // create a main router with a predefined logger
-    let mut app = Fibra::default();
+    let mut app = Fibra::new();
     // app.mount(addon::Logger::default());
     // app.route("/", app_root)?;
     // app.route("/index.html", |ctx: Context| async { ctx.rewrite("/", b"todo".into()).await })?;

@@ -7,39 +7,62 @@ pub struct Fibra {
 }
 
 impl Fibra {
-    // todo static check path(proc macros) is valid and remove fibraresult
-    // pub fn get(&mut self, path: &'static str, handler: impl Handler) -> FibraResult<&mut Self> {
-    //     self.route(path, handler, Some(Method::GET))
-    // }
-    // 
-    // pub fn post(&mut self, path: &'static str, handler: impl Handler) -> FibraResult<&mut Self> {
-    //     self.route(path, handler, Some(Method::POST))
-    // }
-    // 
-    // pub fn put(&mut self, path: &'static str, handler: impl Handler) -> FibraResult<&mut Self> {
-    //     self.route(path, handler, Some(Method::PUT))
-    // }
-    // 
-    // pub fn delete(&mut self, path: &'static str, handler: impl Handler) -> FibraResult<&mut Self> {
-    //     self.route(path, handler, Some(Method::DELETE))
-    // }
-    // 
-    // pub fn patch(&mut self, path: &'static str, handler: impl Handler) -> FibraResult<&mut Self> {
-    //     self.route(path, handler, Some(Method::PATCH))
-    // }
-    // 
-    // pub fn all(&mut self, path: &'static str, handler: impl Handler) -> FibraResult<&mut Self> {
-    //     self.route(path, handler, None)
-    // }
+    /// Create a default app
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// use fibra::*;
+    ///
+    /// #[tokio::main]
+    /// async fn main() -> FibraResult<()> {
+    ///     let mut app = Fibra::new();
+    ///     app.get("/", "Hello World!")?;
+    ///     app.get("/user/:id", |ctx: Context| async move { Ok(ctx.param("id").to_string().into()) })?;
+    ///     app.bind("0.0.0.0:3000")?;
+    ///     app.run().await
+    /// }
+    /// ```
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    pub fn get(&mut self, path: &'static str, handler: impl Handler) -> FibraResult<&mut Self> {
+        self.route(path, handler)?.limit().method(Method::GET);
+        Ok(self)
+    }
+
+    pub fn post(&mut self, path: &'static str, handler: impl Handler) -> FibraResult<&mut Self> {
+        self.route(path, handler)?.limit().method(Method::POST);
+        Ok(self)
+    }
+
+    pub fn put(&mut self, path: &'static str, handler: impl Handler) -> FibraResult<&mut Self> {
+        self.route(path, handler)?.limit().method(Method::PUT);
+        Ok(self)
+    }
+
+    pub fn delete(&mut self, path: &'static str, handler: impl Handler) -> FibraResult<&mut Self> {
+        self.route(path, handler)?.limit().method(Method::DELETE);
+        Ok(self)
+    }
+
+    pub fn patch(&mut self, path: &'static str, handler: impl Handler) -> FibraResult<&mut Self> {
+        self.route(path, handler)?.limit().method(Method::PATCH);
+        Ok(self)
+    }
+
+    pub fn all(&mut self, path: &'static str, handler: impl Handler) -> FibraResult<&mut Self> {
+        self.route(path, handler)?;
+        Ok(self)
+    }
 
     pub fn route(&mut self, path: &'static str, handler: impl Handler) -> FibraResult<&mut Routine> {
-        // self.ensure::<Matcher>().add(path, handler)?;
-        todo!()
+        self.ensure::<Matcher>().insert(path, handler)
     }
 
     pub fn group(&mut self, path: &'static str) -> FibraResult<&mut Fibra> {
-        // self.route(path, Fibra::default())
-        todo!()
+        Ok(self.route(path, Fibra::new())?.treat::<Fibra>().unwrap_or_else(|| unreachable!()))
     }
 
     /// Mount a handler to the app
@@ -49,7 +72,7 @@ impl Fibra {
     /// ```
     /// use fibra::*;
     ///
-    /// let mut app = Fibra::default();
+    /// let mut app = Fibra::new();
     /// let len = app.handlers().len();
     ///
     /// app.mount(addon::Logger{});
@@ -69,7 +92,7 @@ impl Fibra {
     /// ```
     /// use fibra::*;
     ///
-    /// let mut app = Fibra::default();
+    /// let mut app = Fibra::new();
     /// let catcher = app.catch(|_obj, err| {
     ///     match err {
     ///         FibraError::PanicError(_) => Status::SERVICE_UNAVAILABLE.into(),
@@ -78,7 +101,7 @@ impl Fibra {
     /// });
     /// assert_eq!((catcher.custom)(catcher, FibraError::PanicError("panic".into())).status_ref(), &Status::SERVICE_UNAVAILABLE);
     /// ```
-    pub fn catch(&mut self, f: impl Fn(&Catcher, FibraError) -> Response + Send + Sync + 'static) -> &mut Catcher {
+    pub fn catch<F>(&mut self, f: F) -> &mut Catcher where F: Fn(&Catcher, FibraError) -> Response + Send + Sync + 'static {
         let catcher = self.mounted.first_mut().and_then(|h| h.as_handler_mut::<Catcher>()).unwrap_or_else(|| unreachable!());
         catcher.custom(f);
         catcher
@@ -99,7 +122,7 @@ impl Fibra {
     /// ```
     /// use fibra::*;
     ///
-    /// let mut app = Fibra::default();
+    /// let mut app = Fibra::new();
     /// let len = app.handlers().len();
     ///
     /// app.ensure::<addon::Logger>(); // add a new handler
@@ -127,7 +150,7 @@ impl Fibra {
     /// ```
     /// use fibra::*;
     ///
-    /// let mut app = Fibra::default();
+    /// let mut app = Fibra::new();
     ///
     /// assert_eq!(app.bind("0.0.0.0:0").is_ok(), true); // first random port
     /// assert_eq!(app.bind("0.0.0.0:0").is_ok(), true); // second random port

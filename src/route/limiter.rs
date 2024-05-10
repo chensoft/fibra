@@ -1,17 +1,18 @@
 use crate::route::*;
 use crate::types::*;
 
+// todo why Send + Sync + 'static
 #[derive(Default)]
 pub struct Limiter {
-//     pub limits: Vec<Box<dyn Fn(&Context) -> Status + Send + Sync + 'static>>
+    pub limits: Vec<Box<dyn Fn(&Context) -> Status + Send + Sync + 'static>>
 }
 
 impl Limiter {
-//     pub fn add(&mut self, limit: impl Fn(&Context) -> Status + Send + Sync + 'static) -> &mut Self {
-//         self.limits.push(Box::new(limit));
-//         self
-//     }
-//
+    pub fn add<F>(&mut self, f: F) -> &mut Self where F: Fn(&Context) -> Status + Send + Sync + 'static {
+        self.limits.push(Box::new(f));
+        self
+    }
+
 //     pub fn pass(&self, ctx: &Context) -> Status {
 //         self.limits.iter().find_map(|f| {
 //             let status = f(ctx);
@@ -26,15 +27,15 @@ impl Limiter {
 //         self.limits.clear();
 //         self
 //     }
-//
-//     pub fn method(&mut self, method: Method) -> &mut Self {
-//         self.add(move |ctx| match ctx.method() == method {
-//             true => Status::OK,
-//             false => Status::METHOD_NOT_ALLOWED
-//         });
-//         self
-//     }
-//
+
+    pub fn method(&mut self, method: Method) -> &mut Self {
+        self.add(move |ctx| match ctx.method() == method {
+            true => Status::OK,
+            false => Status::METHOD_NOT_ALLOWED
+        });
+        self
+    }
+
 //     // todo use Into Method
 //     pub fn methods(&mut self) -> &mut Self {
 //         todo!()
