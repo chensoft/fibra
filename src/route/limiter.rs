@@ -104,15 +104,3 @@ impl Limiter {
 //         todo!()
 //     }
 }
-
-#[async_trait]
-impl Handler for Limiter {
-    async fn handle(&self, mut ctx: Context) -> FibraResult<Response> {
-//         if self.pass(&ctx) != Status::OK {
-//             ctx.pop();
-//         }
-//
-//         ctx.next().await
-        todo!()
-    }
-}

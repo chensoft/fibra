@@ -1,5 +1,4 @@
 //! Catch Errors
-use crate::route::*;
 use crate::types::*;
 
 /// Catch errors and call the handler
@@ -13,43 +12,43 @@ pub struct Catcher {
 
 impl Catcher {
     /// Set preset handler
-    pub fn preset(&mut self, f: impl Fn(FibraError) -> Response + Send + Sync + 'static) -> &mut Self {
+    pub fn preset<F>(&mut self, f: F) -> &mut Self where F: Fn(FibraError) -> Response + Send + Sync + 'static {
         self.preset = Box::new(f);
         self
     }
 
     /// Set custom handler
-    pub fn custom(&mut self, f: impl Fn(&Catcher, FibraError) -> Response + Send + Sync + 'static) -> &mut Self {
+    pub fn custom<F>(&mut self, f: F) -> &mut Self where F: Fn(&Catcher, FibraError) -> Response + Send + Sync + 'static {
         self.custom = Box::new(f);
         self
     }
 
-    /// Catch the panic and turn into an error object
+    /// Catch the error or panic then turn it into a Response object
     ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// use fibra::*;
     ///
     /// #[tokio::main]
     /// async fn main() -> FibraResult<()> {
     ///     let catcher = Catcher::default();
-    ///     assert_eq!(catcher.catch(async { Ok(Response::from("It Works!")) }).await, Ok(Response::from("It Works!")));
-    ///     assert_eq!(catcher.catch(async { panic!("Fatal Error") }).await, Err(FibraError::PanicError("Fatal Error".into())));
+    ///     assert_eq!(catcher.protect(async { Ok(Response::from("It Works!")) }).await.body_all().await?, "It Works!");
+    ///     assert_eq!(catcher.protect(async { panic!("Fatal Error") }).await.status_ref(), &Status::INTERNAL_SERVER_ERROR);
     ///     Ok(())
     /// }
     /// ```
-    pub async fn catch<F>(&self, f: F) -> FibraResult<Response> where F: Future<Output = FibraResult<Response>> {
+    pub async fn protect<F>(&self, f: F) -> Response where F: Future<Output = FibraResult<Response>> {
         use futures::FutureExt;
 
         match AssertUnwindSafe(f).catch_unwind().await {
             Ok(ret) => match ret {
-                Ok(res) => Ok(res),
-                Err(err) => Err(err),
+                Ok(res) => res,
+                Err(err) => (self.custom)(self, err),
             }
             Err(err) => match err.downcast_ref::<&str>() {
-                Some(err) => Err(FibraError::PanicError(err.to_string().into())),
-                None => Err(FibraError::PanicError("Unknown panic".into())),
+                Some(err) => (self.custom)(self, FibraError::PanicError(err.to_string().into())),
+                None => (self.custom)(self, FibraError::PanicError("Unknown panic".into())),
             }
         }
     }
@@ -67,15 +66,26 @@ impl Default for Catcher {
 
 /// Construct from custom error handler
 ///
+/// # Examples
+///
 /// ```
 /// use fibra::*;
 ///
-/// let _ = Catcher::from(|obj, err| {
-///     match err {
-///         FibraError::PanicError(_) => Status::SERVICE_UNAVAILABLE.into(),
-///         _ => obj.default(err)
-///     }
-/// });
+/// #[tokio::main]
+/// async fn main() -> FibraResult<()> {
+///     let catcher = Catcher::from(|obj, err| {
+///         match err {
+///             FibraError::PanicError(_) => Status::SERVICE_UNAVAILABLE.into(),
+///             _ => obj.default(err)
+///         }
+///     });
+///
+///     assert_eq!(catcher.protect(async { Ok(Response::from("It Works!")) }).await.body_all().await?, "It Works!");
+///     assert_eq!(catcher.protect(async { panic!("Fatal Error") }).await.status_ref(), &Status::SERVICE_UNAVAILABLE);
+///     assert_eq!(catcher.protect(async { Err(FibraError::PathDuplicate("/".into())) }).await.status_ref(), &Status::INTERNAL_SERVER_ERROR);
+///
+///     Ok(())
+/// }
 /// ```
 impl<F> From<F> for Catcher
     where
@@ -83,15 +93,5 @@ impl<F> From<F> for Catcher
 {
     fn from(f: F) -> Self {
         Self { custom: Box::new(f), ..Default::default() }
-    }
-}
-
-#[async_trait]
-impl Handler for Catcher {
-    async fn handle(&self, ctx: Context) -> FibraResult<Response> {
-        match self.catch(ctx.next()).await {
-            Ok(res) => Ok(res),
-            Err(err) => Ok((self.custom)(self, err)),
-        }
     }
 }

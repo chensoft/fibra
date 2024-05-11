@@ -109,8 +109,8 @@ impl AsHandler for BoxHandler {
 ///     let mut res_function = fun_function.handle(ctx_function).await?;
 ///     let mut res_closure = fun_closure.handle(ctx_closure).await?;
 ///
-///     assert_eq!(body::to_bytes(res_function.body_mut()).await?, "It Works!");
-///     assert_eq!(body::to_bytes(res_closure.body_mut()).await?, "Hello World!");
+///     assert_eq!(res_function.body_all().await?, "It Works!");
+///     assert_eq!(res_closure.body_all().await?, "Hello World!");
 ///
 ///     Ok(())
 /// }
@@ -138,7 +138,7 @@ impl<F, R> Handler for F
 ///
 ///     assert_eq!(res.status_ref(), &Status::OK);
 ///     assert_eq!(res.header_ref(header::CONTENT_TYPE).map(|v| v.as_bytes()), Some(mime::APPLICATION_JSON.as_ref().as_bytes()));
-///     assert_eq!(body::to_bytes(res.body_mut()).await?, "{}");
+///     assert_eq!(res.body_all().await?, "{}");
 ///
 ///     Ok(())
 /// }
@@ -161,7 +161,7 @@ impl Handler for (Status, Mime, &'static str) {
 ///     let mut res = (Status::OK, "Hello World!").handle(ctx).await?;
 ///
 ///     assert_eq!(res.status_ref(), &Status::OK);
-///     assert_eq!(body::to_bytes(res.body_mut()).await?, "Hello World!");
+///     assert_eq!(res.body_all().await?, "Hello World!");
 ///
 ///     Ok(())
 /// }
@@ -183,7 +183,7 @@ impl Handler for (Status, &'static str) {
 ///     let ctx = Context::from(Request::default());
 ///     let mut res = ().handle(ctx).await?;
 ///
-///     assert_eq!(body::to_bytes(res.body_mut()).await?, "");
+///     assert_eq!(res.body_all().await?, "");
 ///
 ///     Ok(())
 /// }
@@ -227,7 +227,7 @@ impl Handler for Status {
 ///     let ctx = Context::from(Request::default());
 ///     let mut res = "Hello World!".handle(ctx).await?;
 ///
-///     assert_eq!(body::to_bytes(res.body_mut()).await?, "Hello World!");
+///     assert_eq!(res.body_all().await?, "Hello World!");
 ///
 ///     Ok(())
 /// }

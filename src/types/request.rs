@@ -386,6 +386,12 @@ impl Request {
     }
 
     /// Get the stream body for reading
+    #[inline]
+    pub fn body_mut(&mut self) -> &mut Body {
+        &mut self.body
+    }
+
+    /// Consume body and turn it into Bytes
     ///
     /// # Examples
     ///
@@ -394,14 +400,13 @@ impl Request {
     ///
     /// #[tokio::main]
     /// async fn main() -> FibraResult<()> {
-    ///     let mut res = Request::default().body("Hello World!");
-    ///     assert_eq!(body::to_bytes(res.body_mut()).await?, "Hello World!");
+    ///     let mut req = Request::default().body("Hello World!");
+    ///     assert_eq!(req.body_all().await?, "Hello World!");
     ///     Ok(())
     /// }
     /// ```
-    #[inline]
-    pub fn body_mut(&mut self) -> &mut Body {
-        &mut self.body
+    pub async fn body_all(&mut self) -> FibraResult<Bytes> {
+        Ok(body::to_bytes(&mut self.body).await?)
     }
 
     /// Set a new body
@@ -413,7 +418,7 @@ impl Request {
     ///
     /// #[tokio::main]
     /// async fn main() -> FibraResult<()> {
-    ///     assert_eq!(body::to_bytes(Request::default().body("Hello World!").body_mut()).await?, "Hello World!");
+    ///     assert_eq!(Request::default().body("Hello World!").body_all().await?, "Hello World!");
     ///     Ok(())
     /// }
     /// ```

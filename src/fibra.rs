@@ -2,7 +2,9 @@ use crate::route::*;
 use crate::types::*;
 
 pub struct Fibra {
+    limiter: Limiter,
     mounted: Vec<BoxHandler>,
+    catcher: Catcher,
     sockets: Vec<Socket>,
 }
 
@@ -109,7 +111,7 @@ impl Fibra {
     ///     let con = Connection::default();
     ///     let mut ctx = Context::from((Arc::new(app), Arc::new(con), Request::default().uri("http://example.com/api/v2/user")));
     ///
-    ///     assert_eq!(body::to_bytes(ctx.next().await?.body_mut()).await?, "user2");
+    ///     assert_eq!(ctx.next().await?.body_all().await?, "user2");
     ///
     ///     Ok(())
     /// }
@@ -155,14 +157,13 @@ impl Fibra {
     /// assert_eq!((catcher.custom)(catcher, FibraError::PanicError("panic".into())).status_ref(), &Status::SERVICE_UNAVAILABLE);
     /// ```
     pub fn catch<F>(&mut self, f: F) -> &mut Catcher where F: Fn(&Catcher, FibraError) -> Response + Send + Sync + 'static {
-        let catcher = self.mounted.first_mut().and_then(|h| h.as_handler_mut::<Catcher>()).unwrap_or_else(|| unreachable!());
-        catcher.custom(f);
-        catcher
+        self.catcher.custom(f);
+        &mut self.catcher
     }
 
     // todo do not impl from handler, just plain sync methods and field in fibra
     pub fn limit(&mut self) -> &mut Limiter {
-        todo!()
+        &mut self.limiter
     }
 
     pub fn config(&mut self) {
@@ -256,13 +257,14 @@ impl Fibra {
 
 impl Default for Fibra {
     fn default() -> Self {
-        Self { mounted: vec![Box::new(Catcher::default())], sockets: vec![] }
+        Self { limiter: Limiter::default(), mounted: vec![], catcher: Catcher::default(), sockets: vec![] }
     }
 }
 
 #[async_trait]
 impl Handler for Fibra {
     async fn handle(&self, ctx: Context) -> FibraResult<Response> {
+        // todo catcher
         // self.mounted.handle(ctx).await
         todo!()
     }
