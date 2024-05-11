@@ -27,40 +27,93 @@ impl Fibra {
         Self::default()
     }
 
+    /// Register a route for GET method
     pub fn get(&mut self, path: &'static str, handler: impl Handler) -> FibraResult<&mut Self> {
         self.route(path, handler)?.limit().method(Method::GET);
         Ok(self)
     }
 
+    /// Register a route for POST method
     pub fn post(&mut self, path: &'static str, handler: impl Handler) -> FibraResult<&mut Self> {
         self.route(path, handler)?.limit().method(Method::POST);
         Ok(self)
     }
 
+    /// Register a route for PUT method
     pub fn put(&mut self, path: &'static str, handler: impl Handler) -> FibraResult<&mut Self> {
         self.route(path, handler)?.limit().method(Method::PUT);
         Ok(self)
     }
 
+    /// Register a route for DELETE method
     pub fn delete(&mut self, path: &'static str, handler: impl Handler) -> FibraResult<&mut Self> {
         self.route(path, handler)?.limit().method(Method::DELETE);
         Ok(self)
     }
 
+    /// Register a route for PATCH method
     pub fn patch(&mut self, path: &'static str, handler: impl Handler) -> FibraResult<&mut Self> {
         self.route(path, handler)?.limit().method(Method::PATCH);
         Ok(self)
     }
 
+    /// Register a route for any method
     pub fn all(&mut self, path: &'static str, handler: impl Handler) -> FibraResult<&mut Self> {
         self.route(path, handler)?;
         Ok(self)
     }
 
+    /// Register a route without predefined method
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use fibra::*;
+    ///
+    /// #[tokio::main]
+    /// async fn main() -> FibraResult<()> {
+    ///     let mut app = Fibra::new();
+    ///     let len = app.handlers().len();
+    ///
+    ///     app.route("/api/v1", "v1")?;
+    ///     app.route("/api/v2", "v2")?;
+    ///
+    ///     assert_eq!(app.handlers().len(), len + 2);
+    ///
+    ///     Ok(())
+    /// }
+    /// ```
     pub fn route(&mut self, path: &'static str, handler: impl Handler) -> FibraResult<&mut Routine> {
         self.ensure::<Matcher>().insert(path, handler)
     }
 
+    /// Register a subrouter with a prefix path
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use fibra::*;
+    /// use std::sync::Arc;
+    ///
+    /// #[tokio::main]
+    /// async fn main() -> FibraResult<()> {
+    ///     let mut app = Fibra::new();
+    ///     let api = app.group("/api")?;
+    ///
+    ///     let v1 = api.group("/v1")?;
+    ///     v1.get("/user", "user1")?;
+    ///
+    ///     let v2 = api.group("/v2")?;
+    ///     v2.get("/user", "user2")?;
+    ///
+    ///     let con = Connection::default();
+    ///     let mut ctx = Context::from((Arc::new(app), Arc::new(con), Request::default().uri("http://example.com/api/v2/user")));
+    ///
+    ///     assert_eq!(body::to_bytes(ctx.next().await?.body_mut()).await?, "user2");
+    ///
+    ///     Ok(())
+    /// }
+    /// ```
     pub fn group(&mut self, path: &'static str) -> FibraResult<&mut Fibra> {
         Ok(self.route(path, Fibra::new())?.treat::<Fibra>().unwrap_or_else(|| unreachable!()))
     }
@@ -107,6 +160,7 @@ impl Fibra {
         catcher
     }
 
+    // todo do not impl from handler, just plain sync methods and field in fibra
     pub fn limit(&mut self) -> &mut Limiter {
         todo!()
     }

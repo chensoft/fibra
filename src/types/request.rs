@@ -18,7 +18,7 @@ pub struct Request {
     /// This example comes from hyper:
     ///
     /// # Examples
-    /// 
+    ///
     /// ```notrust
     /// abc://username:password@example.com:123/path/data?key=value&key2=value2#fragid1
     /// |-|   |-------------------------------||--------| |-------------------| |-----|
@@ -41,7 +41,7 @@ impl Request {
     /// Get the unique identifier of this request
     ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// use fibra::*;
     ///
@@ -55,7 +55,7 @@ impl Request {
     /// Get/Set the unique identifier of this request
     ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// use fibra::*;
     ///
@@ -72,7 +72,7 @@ impl Request {
     /// Set the unique identifier of this request
     ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// use fibra::*;
     ///
@@ -87,7 +87,7 @@ impl Request {
     /// Get the created time of this request
     ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// use fibra::*;
     /// use chrono::Local;
@@ -102,7 +102,7 @@ impl Request {
     /// Get/Set the created time of this request
     ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// use fibra::*;
     /// use chrono::Local;
@@ -121,7 +121,7 @@ impl Request {
     /// Set the created time of this request
     ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// use fibra::*;
     /// use chrono::Local;
@@ -140,7 +140,7 @@ impl Request {
     /// Get the http method
     ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// use fibra::*;
     ///
@@ -154,7 +154,7 @@ impl Request {
     /// Get/Set the http method
     ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// use fibra::*;
     ///
@@ -171,7 +171,7 @@ impl Request {
     /// Set the http method
     ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// use fibra::*;
     ///
@@ -186,7 +186,7 @@ impl Request {
     /// Get the uri
     ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// use fibra::*;
     ///
@@ -200,7 +200,7 @@ impl Request {
     /// Get/Set the uri
     ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// use fibra::*;
     ///
@@ -217,7 +217,7 @@ impl Request {
     /// Set the uri
     ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// use fibra::*;
     ///
@@ -232,7 +232,7 @@ impl Request {
     /// Get the http version
     ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// use fibra::*;
     ///
@@ -246,7 +246,7 @@ impl Request {
     /// Get/Set the http version
     ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// use fibra::*;
     ///
@@ -263,7 +263,7 @@ impl Request {
     /// Set the http version
     ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// use fibra::*;
     ///
@@ -278,7 +278,7 @@ impl Request {
     /// Get the headers
     ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// use fibra::*;
     ///
@@ -292,7 +292,7 @@ impl Request {
     /// Get/Set the headers
     ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// use fibra::*;
     ///
@@ -309,7 +309,7 @@ impl Request {
     /// Set the headers
     ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// use fibra::*;
     ///
@@ -329,7 +329,7 @@ impl Request {
     /// Get a header
     ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// use fibra::*;
     ///
@@ -343,7 +343,7 @@ impl Request {
     /// Get/Set a header
     ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// use fibra::*;
     ///
@@ -357,7 +357,7 @@ impl Request {
     /// Set a header
     ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// use fibra::*;
     ///
@@ -374,7 +374,7 @@ impl Request {
     /// Get the body
     ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// use fibra::*;
     ///
@@ -388,7 +388,7 @@ impl Request {
     /// Get the stream body for reading
     ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// use fibra::*;
     ///
@@ -407,7 +407,7 @@ impl Request {
     /// Set a new body
     ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// use fibra::*;
     ///
@@ -428,7 +428,7 @@ impl Request {
     /// Get the scheme
     ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// use fibra::*;
     ///
@@ -455,7 +455,7 @@ impl Request {
     /// Get the authority
     ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// use fibra::*;
     ///
@@ -469,7 +469,7 @@ impl Request {
     /// Get the domain from the host
     ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// use fibra::*;
     ///
@@ -490,7 +490,7 @@ impl Request {
     /// Get the subdomain from the host
     ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// use fibra::*;
     ///
@@ -517,7 +517,7 @@ impl Request {
     /// Get the host
     ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// use fibra::*;
     ///
@@ -534,7 +534,7 @@ impl Request {
     /// Get the port
     ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// use fibra::*;
     ///
@@ -560,7 +560,7 @@ impl Request {
     /// Get the path
     ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// use fibra::*;
     ///
@@ -582,7 +582,7 @@ impl Request {
     /// Get the query string
     ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// use fibra::*;
     ///
@@ -602,7 +602,7 @@ impl Request {
     /// Get the whole uri
     ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// use fibra::*;
     ///
