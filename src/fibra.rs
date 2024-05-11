@@ -9,7 +9,7 @@ pub struct Fibra {
 }
 
 impl Fibra {
-    /// Create a default app
+    /// Create a fibra app
     ///
     /// # Examples
     ///
@@ -59,7 +59,7 @@ impl Fibra {
         Ok(self)
     }
 
-    /// Register a route for any method
+    /// Register a route for all methods
     pub fn all(&mut self, path: &'static str, handler: impl Handler) -> FibraResult<&mut Self> {
         self.route(path, handler)?;
         Ok(self)
@@ -71,16 +71,19 @@ impl Fibra {
     ///
     /// ```
     /// use fibra::*;
+    /// use std::sync::Arc;
     ///
     /// #[tokio::main]
     /// async fn main() -> FibraResult<()> {
     ///     let mut app = Fibra::new();
-    ///     let len = app.handlers().len();
     ///
-    ///     app.route("/api/v1", "v1")?;
-    ///     app.route("/api/v2", "v2")?;
+    ///     app.get("/api/v1/user", "user1")?;
+    ///     app.get("/api/v2/user", "user2")?;
     ///
-    ///     assert_eq!(app.handlers().len(), len + 2);
+    ///     let con = Connection::default();
+    ///     let ctx = Context::from((Arc::new(app), Arc::new(con), Request::default().uri("http://example.com/api/v2/user")));
+    ///
+    ///     assert_eq!(ctx.next().await?.body_all().await?, "user2");
     ///
     ///     Ok(())
     /// }
@@ -128,12 +131,11 @@ impl Fibra {
     /// use fibra::*;
     ///
     /// let mut app = Fibra::new();
-    /// let len = app.handlers().len();
     ///
     /// app.mount(addon::Logger{});
     /// app.mount(addon::Logger{});
     ///
-    /// assert_eq!(app.handlers().len(), len + 2);
+    /// assert_eq!(app.handlers().len(), 2);
     /// ```
     pub fn mount<T: Handler>(&mut self, handler: T) -> &mut T {
         self.mounted.push(Box::new(handler));
@@ -146,22 +148,35 @@ impl Fibra {
     ///
     /// ```
     /// use fibra::*;
+    /// use std::sync::Arc;
     ///
-    /// let mut app = Fibra::new();
-    /// let catcher = app.catch(|_obj, err| {
-    ///     match err {
-    ///         FibraError::PanicError(_) => Status::SERVICE_UNAVAILABLE.into(),
-    ///         _ => Status::INTERNAL_SERVER_ERROR.into(),
-    ///     }
-    /// });
-    /// assert_eq!((catcher.custom)(catcher, FibraError::PanicError("panic".into())).status_ref(), &Status::SERVICE_UNAVAILABLE);
+    /// #[tokio::main]
+    /// async fn main() -> FibraResult<()> {
+    ///     let mut app = Fibra::new();
+    ///
+    ///     app.get("/api/v1/user", "user1")?;
+    ///     app.get("/api/v2/user", "user2")?;
+    ///
+    ///     app.catch(|_, err| match err {
+    ///         FibraError::PathNotFound(path) => (Status::NOT_FOUND, path).into(),
+    ///         _ => Status::SERVICE_UNAVAILABLE.into(),
+    ///     });
+    ///
+    ///     let con = Connection::default();
+    ///     let mut ctx = Context::from((Arc::new(app), Arc::new(con), Request::default().uri("http://example.com/api/v3/user")));
+    ///     let mut res = ctx.next().await?;
+    ///
+    ///     assert_eq!(res.status_ref(), &Status::NOT_FOUND);
+    ///     assert_eq!(res.body_all().await?, "/api/v3/user");
+    ///
+    ///     Ok(())
+    /// }
     /// ```
     pub fn catch<F>(&mut self, f: F) -> &mut Catcher where F: Fn(&Catcher, FibraError) -> Response + Send + Sync + 'static {
         self.catcher.custom(f);
         &mut self.catcher
     }
 
-    // todo do not impl from handler, just plain sync methods and field in fibra
     pub fn limit(&mut self) -> &mut Limiter {
         &mut self.limiter
     }
@@ -178,12 +193,11 @@ impl Fibra {
     /// use fibra::*;
     ///
     /// let mut app = Fibra::new();
-    /// let len = app.handlers().len();
     ///
     /// app.ensure::<addon::Logger>(); // add a new handler
     /// app.ensure::<addon::Logger>(); // no effect because the last item is already a logger
     ///
-    /// assert_eq!(app.handlers().len(), len + 1);
+    /// assert_eq!(app.handlers().len(), 1);
     /// ```
     pub fn ensure<T: Handler + Default>(&mut self) -> &mut T {
         if self.mounted.last().and_then(|h| h.as_handler::<T>()).is_none() {
@@ -264,7 +278,7 @@ impl Default for Fibra {
 #[async_trait]
 impl Handler for Fibra {
     async fn handle(&self, ctx: Context) -> FibraResult<Response> {
-        // todo catcher
+        // todo catcher & limiter
         // self.mounted.handle(ctx).await
         todo!()
     }

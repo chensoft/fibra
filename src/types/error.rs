@@ -27,6 +27,9 @@ pub enum FibraError {
     HeaderInvalid(#[from] header::InvalidHeaderValue),
 
     #[error("{0}")]
+    PathNotFound(Cow<'static, str>),
+
+    #[error("{0}")]
     PathDuplicate(Cow<'static, str>),
 }
 

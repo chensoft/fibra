@@ -615,7 +615,7 @@ impl From<(Arc<Fibra>, Arc<Connection>, Request)> for Context {
     }
 }
 
-/// For mock use only todo Default
+/// For mock use only
 impl From<Request> for Context {
     fn from(req: Request) -> Self {
         (Arc::new(Fibra::default()), Arc::new(Connection::default()), req).into()
