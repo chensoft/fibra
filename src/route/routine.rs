@@ -19,10 +19,3 @@ impl Routine {
         self.handler.as_handler_mut::<T>()
     }
 }
-
-#[async_trait]
-impl Handler for Routine {
-    async fn handle(&self, ctx: Context) -> FibraResult<Response> {
-        todo!()
-    }
-}

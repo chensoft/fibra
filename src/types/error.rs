@@ -28,9 +28,6 @@ pub enum FibraError {
 
     #[error("{0}")]
     PathNotFound(Cow<'static, str>),
-
-    #[error("{0}")]
-    PathDuplicate(Cow<'static, str>),
 }
 
 /// Custom Result

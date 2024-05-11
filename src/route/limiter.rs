@@ -1,7 +1,6 @@
 use crate::route::*;
 use crate::types::*;
 
-// todo why Send + Sync + 'static
 #[derive(Default)]
 pub struct Limiter {
     pub limits: Vec<Box<dyn Fn(&Context) -> Status + Send + Sync + 'static>>
@@ -33,6 +32,10 @@ impl Limiter {
             true => Status::OK,
             false => Status::METHOD_NOT_ALLOWED
         });
+        self
+    }
+
+    pub fn subdomain(&mut self, value: &'static str) -> &mut Self {
         self
     }
 

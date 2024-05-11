@@ -1,30 +1,47 @@
+//! The Router
 use crate::route::*;
 use crate::types::*;
 
+/// Fibra, the core struct in this crate, acts as the central processor, handling and directing
+/// all routing logic and operations. It processes incoming requests, matching them to predefined
+/// handlers. Fibra also handles middlewares and errors, making it essential for building flexible
+/// and robust web apps.
+///
+/// # Examples
+///
+/// ```no_run
+/// use fibra::*;
+///
+/// #[tokio::main]
+/// async fn main() -> FibraResult<()> {
+///     let mut app = Fibra::new();
+///     app.get("/", "Hello World!")?;
+///     app.get("/user/:id", |ctx: Context| async move { Ok(ctx.param("id").to_string().into()) })?;
+///     app.bind("0.0.0.0:3000")?;
+///     app.run().await
+/// }
+/// ```
 pub struct Fibra {
-    limiter: Limiter,
+    /// Limiter is used to determine if certain preconditions are met. If the conditions
+    /// are not satisfied, no further processing will occur within this router.
+    limiter: Option<Limiter>,
+
+    /// Catcher is used to catch all errors and panics to prevent the program from crashing,
+    /// if the Subrouter does not assign this field, the Parent Router will handle it.
+    catcher: Option<Catcher>,
+
+    /// Mounted is used to store HTTP handlers. Any type that implements the Handler Trait can
+    /// become a handler. Middlewares that are predefined in the **addon** folder can also be
+    /// added as handlers.
     mounted: Vec<BoxHandler>,
-    catcher: Catcher,
+
+    /// Sockets is used to store all TCP listeners. We support listening on multiple addresses
+    /// simultaneously. You can achieve this by calling the **bind** method multiple times.
     sockets: Vec<Socket>,
 }
 
 impl Fibra {
-    /// Create a fibra app
-    ///
-    /// # Examples
-    ///
-    /// ```no_run
-    /// use fibra::*;
-    ///
-    /// #[tokio::main]
-    /// async fn main() -> FibraResult<()> {
-    ///     let mut app = Fibra::new();
-    ///     app.get("/", "Hello World!")?;
-    ///     app.get("/user/:id", |ctx: Context| async move { Ok(ctx.param("id").to_string().into()) })?;
-    ///     app.bind("0.0.0.0:3000")?;
-    ///     app.run().await
-    /// }
-    /// ```
+    /// Create a fibra router
     pub fn new() -> Self {
         Self::default()
     }
@@ -65,7 +82,7 @@ impl Fibra {
         Ok(self)
     }
 
-    /// Register a route without predefined method
+    /// Register a route
     ///
     /// # Examples
     ///
@@ -80,8 +97,10 @@ impl Fibra {
     ///     app.get("/api/v1/user", "user1")?;
     ///     app.get("/api/v2/user", "user2")?;
     ///
+    ///     // mock a real request and check the response body
     ///     let con = Connection::default();
-    ///     let ctx = Context::from((Arc::new(app), Arc::new(con), Request::default().uri("http://example.com/api/v2/user")));
+    ///     let req = Request::default().uri("http://example.com/api/v2/user");
+    ///     let ctx = Context::from((Arc::new(app), Arc::new(con), req));
     ///
     ///     assert_eq!(ctx.next().await?.body_all().await?, "user2");
     ///
@@ -92,7 +111,7 @@ impl Fibra {
         self.ensure::<Matcher>().insert(path, handler)
     }
 
-    /// Register a subrouter with a prefix path
+    /// Register a subrouter
     ///
     /// # Examples
     ///
@@ -111,8 +130,10 @@ impl Fibra {
     ///     let v2 = api.group("/v2")?;
     ///     v2.get("/user", "user2")?;
     ///
+    ///     // mock a real request
     ///     let con = Connection::default();
-    ///     let mut ctx = Context::from((Arc::new(app), Arc::new(con), Request::default().uri("http://example.com/api/v2/user")));
+    ///     let req = Request::default().uri("http://example.com/api/v2/user");
+    ///     let mut ctx = Context::from((Arc::new(app), Arc::new(con), req));
     ///
     ///     assert_eq!(ctx.next().await?.body_all().await?, "user2");
     ///
@@ -123,7 +144,7 @@ impl Fibra {
         Ok(self.route(path, Fibra::new())?.treat::<Fibra>().unwrap_or_else(|| unreachable!()))
     }
 
-    /// Mount a handler to the app
+    /// Mount a handler
     ///
     /// # Examples
     ///
@@ -140,6 +161,51 @@ impl Fibra {
     pub fn mount<T: Handler>(&mut self, handler: T) -> &mut T {
         self.mounted.push(Box::new(handler));
         self.mounted.last_mut().and_then(|h| h.as_handler_mut::<T>()).unwrap_or_else(|| unreachable!())
+    }
+
+    /// Add filters
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use fibra::*;
+    /// use std::sync::Arc;
+    ///
+    /// #[tokio::main]
+    /// async fn main() -> FibraResult<()> {
+    ///     let mut app = Fibra::new();
+    ///
+    ///     app.get("/api/v1/user", "user1")?;
+    ///     app.get("/api/v2/user", "user2")?;
+    ///
+    ///     app.limit().subdomain("api"); // domain name must begin with 'api'
+    ///
+    ///     let app = Arc::new(app);
+    ///     let con = Arc::new(Connection::default());
+    ///
+    ///     // mock a request with incorrect subdomain
+    ///     {
+    ///         let req = Request::default().uri("http://app.example.com/api/v2/user");
+    ///         let mut ctx = Context::from((app.clone(), con.clone(), req));
+    ///
+    ///         assert_eq!(ctx.next().await?.status_ref(), &Status::NOT_FOUND);
+    ///     }
+    ///
+    ///     // mock a request with correct subdomain
+    ///     {
+    ///         let req = Request::default().uri("http://api.example.com/api/v2/user");
+    ///         let mut ctx = Context::from((app.clone(), con.clone(), req));
+    ///         let mut res = ctx.next().await?;
+    ///
+    ///         assert_eq!(res.status_ref(), &Status::OK);
+    ///         assert_eq!(res.body_all().await?, "user2");
+    ///     }
+    ///
+    ///     Ok(())
+    /// }
+    /// ```
+    pub fn limit(&mut self) -> &mut Limiter {
+        self.limiter.get_or_insert(Limiter::default())
     }
 
     /// Set custom error handler
@@ -162,8 +228,10 @@ impl Fibra {
     ///         _ => Status::SERVICE_UNAVAILABLE.into(),
     ///     });
     ///
+    ///     // mock a real request
     ///     let con = Connection::default();
-    ///     let mut ctx = Context::from((Arc::new(app), Arc::new(con), Request::default().uri("http://example.com/api/v3/user")));
+    ///     let req = Request::default().uri("http://example.com/api/v3/user");
+    ///     let mut ctx = Context::from((Arc::new(app), Arc::new(con), req));
     ///     let mut res = ctx.next().await?;
     ///
     ///     assert_eq!(res.status_ref(), &Status::NOT_FOUND);
@@ -173,12 +241,9 @@ impl Fibra {
     /// }
     /// ```
     pub fn catch<F>(&mut self, f: F) -> &mut Catcher where F: Fn(&Catcher, FibraError) -> Response + Send + Sync + 'static {
-        self.catcher.custom(f);
-        &mut self.catcher
-    }
-
-    pub fn limit(&mut self) -> &mut Limiter {
-        &mut self.limiter
+        let catcher = self.catcher.get_or_insert(Catcher::default());
+        catcher.custom(f);
+        catcher
     }
 
     pub fn config(&mut self) {
@@ -236,6 +301,9 @@ impl Fibra {
         use hyper::Server;
         use hyper::server::conn::AddrStream;
         use hyper::service::{make_service_fn, service_fn};
+        
+        // root router must have a catcher
+        self.catcher.get_or_insert(Catcher::default());
 
         let mut sockets = std::mem::take(&mut self.sockets);
         let app = Arc::new(self);
@@ -271,7 +339,7 @@ impl Fibra {
 
 impl Default for Fibra {
     fn default() -> Self {
-        Self { limiter: Limiter::default(), mounted: vec![], catcher: Catcher::default(), sockets: vec![] }
+        Self { limiter: None, catcher: None, mounted: vec![], sockets: vec![] }
     }
 }
 
