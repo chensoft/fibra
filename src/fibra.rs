@@ -47,37 +47,37 @@ impl Fibra {
     }
 
     /// Register a route for GET method
-    pub fn get(&mut self, path: &'static str, handler: impl Handler) -> FibraResult<&mut Self> {
+    pub fn get(&mut self, path: impl Into<String>, handler: impl Handler) -> FibraResult<&mut Self> {
         self.route(path, handler)?.limit().method(Method::GET);
         Ok(self)
     }
 
     /// Register a route for POST method
-    pub fn post(&mut self, path: &'static str, handler: impl Handler) -> FibraResult<&mut Self> {
+    pub fn post(&mut self, path: impl Into<String>, handler: impl Handler) -> FibraResult<&mut Self> {
         self.route(path, handler)?.limit().method(Method::POST);
         Ok(self)
     }
 
     /// Register a route for PUT method
-    pub fn put(&mut self, path: &'static str, handler: impl Handler) -> FibraResult<&mut Self> {
+    pub fn put(&mut self, path: impl Into<String>, handler: impl Handler) -> FibraResult<&mut Self> {
         self.route(path, handler)?.limit().method(Method::PUT);
         Ok(self)
     }
 
     /// Register a route for DELETE method
-    pub fn delete(&mut self, path: &'static str, handler: impl Handler) -> FibraResult<&mut Self> {
+    pub fn delete(&mut self, path: impl Into<String>, handler: impl Handler) -> FibraResult<&mut Self> {
         self.route(path, handler)?.limit().method(Method::DELETE);
         Ok(self)
     }
 
     /// Register a route for PATCH method
-    pub fn patch(&mut self, path: &'static str, handler: impl Handler) -> FibraResult<&mut Self> {
+    pub fn patch(&mut self, path: impl Into<String>, handler: impl Handler) -> FibraResult<&mut Self> {
         self.route(path, handler)?.limit().method(Method::PATCH);
         Ok(self)
     }
 
     /// Register a route for all methods
-    pub fn all(&mut self, path: &'static str, handler: impl Handler) -> FibraResult<&mut Self> {
+    pub fn all(&mut self, path: impl Into<String>, handler: impl Handler) -> FibraResult<&mut Self> {
         self.route(path, handler)?;
         Ok(self)
     }
@@ -107,7 +107,7 @@ impl Fibra {
     ///     Ok(())
     /// }
     /// ```
-    pub fn route(&mut self, path: &'static str, handler: impl Handler) -> FibraResult<&mut Routine> {
+    pub fn route(&mut self, path: impl Into<String>, handler: impl Handler) -> FibraResult<&mut Routine> {
         self.ensure::<Matcher>().insert(path, handler)
     }
 
@@ -140,7 +140,7 @@ impl Fibra {
     ///     Ok(())
     /// }
     /// ```
-    pub fn group(&mut self, path: &'static str) -> FibraResult<&mut Fibra> {
+    pub fn group(&mut self, path: impl Into<String>) -> FibraResult<&mut Fibra> {
         Ok(self.route(path, Fibra::new())?.treat::<Fibra>().unwrap_or_else(|| unreachable!()))
     }
 
@@ -301,7 +301,7 @@ impl Fibra {
         use hyper::Server;
         use hyper::server::conn::AddrStream;
         use hyper::service::{make_service_fn, service_fn};
-        
+
         // root router must have a catcher
         self.catcher.get_or_insert(Catcher::default());
 

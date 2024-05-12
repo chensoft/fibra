@@ -1,4 +1,4 @@
-//! Handler Trait
+//! HTTP Handler
 use crate::route::*;
 use crate::types::*;
 
