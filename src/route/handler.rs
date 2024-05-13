@@ -191,7 +191,7 @@ impl Handler for (Status, &'static str) {
 #[async_trait]
 impl Handler for () {
     async fn handle(&self, _ctx: Context) -> FibraResult<Response> {
-        Ok((*self).into())
+        Ok(().into())
     }
 }
 

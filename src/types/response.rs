@@ -247,7 +247,8 @@ impl Response {
     /// }
     /// ```
     pub async fn body_all(&mut self) -> FibraResult<Bytes> {
-        Ok(body::to_bytes(&mut self.body).await?)
+        use hyper::body::HttpBody;
+        Ok(self.body_mut().collect().await?.to_bytes())
     }
 
     /// Set the http body without predefined content-type

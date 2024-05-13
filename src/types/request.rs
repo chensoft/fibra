@@ -406,7 +406,8 @@ impl Request {
     /// }
     /// ```
     pub async fn body_all(&mut self) -> FibraResult<Bytes> {
-        Ok(body::to_bytes(&mut self.body).await?)
+        use hyper::body::HttpBody;
+        Ok(self.body_mut().collect().await?.to_bytes())
     }
 
     /// Set a new body
@@ -488,7 +489,7 @@ impl Request {
     pub fn domain(&self) -> &str {
         match psl::domain(self.host().as_bytes()) {
             Some(d) => unsafe { std::str::from_utf8_unchecked(d.as_bytes()) },
-            None => return "",
+            None => "",
         }
     }
 

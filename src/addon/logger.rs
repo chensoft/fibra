@@ -37,7 +37,7 @@ impl Default for Logger {
 
 #[async_trait]
 impl Handler for Logger {
-    async fn handle(&self, ctx: Context) -> FibraResult<Response> {
+    async fn handle(&self, _ctx: Context) -> FibraResult<Response> {
 //         let launch = *ctx.created();
 //         let client = ctx.remote().to_string();
 // 

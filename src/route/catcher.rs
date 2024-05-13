@@ -4,9 +4,11 @@ use crate::types::*;
 /// Catch errors and call the handler
 pub struct Catcher {
     /// Preset handler. **Do not assume the Response as it may change without notice**
+    #[allow(clippy::type_complexity)]
     pub preset: Box<dyn Fn(FibraError) -> Response + Send + Sync + 'static>,
 
     /// Custom handler
+    #[allow(clippy::type_complexity)]
     pub custom: Box<dyn Fn(&Catcher, FibraError) -> Response + Send + Sync + 'static>,
 }
 

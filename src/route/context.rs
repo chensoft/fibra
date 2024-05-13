@@ -188,47 +188,47 @@ impl Context {
 
     /// Check method
     pub fn is_get(&self) -> bool {
-        self.method() == &Method::GET
+        self.method() == Method::GET
     }
 
     /// Check method
     pub fn is_post(&self) -> bool {
-        self.method() == &Method::POST
+        self.method() == Method::POST
     }
 
     /// Check method
     pub fn is_put(&self) -> bool {
-        self.method() == &Method::PUT
+        self.method() == Method::PUT
     }
 
     /// Check method
     pub fn is_delete(&self) -> bool {
-        self.method() == &Method::DELETE
+        self.method() == Method::DELETE
     }
 
     /// Check method
     pub fn is_head(&self) -> bool {
-        self.method() == &Method::HEAD
+        self.method() == Method::HEAD
     }
 
     /// Check method
     pub fn is_options(&self) -> bool {
-        self.method() == &Method::OPTIONS
+        self.method() == Method::OPTIONS
     }
 
     /// Check method
     pub fn is_connect(&self) -> bool {
-        self.method() == &Method::CONNECT
+        self.method() == Method::CONNECT
     }
 
     /// Check method
     pub fn is_patch(&self) -> bool {
-        self.method() == &Method::PATCH
+        self.method() == Method::PATCH
     }
 
     /// Check method
     pub fn is_trace(&self) -> bool {
-        self.method() == &Method::TRACE
+        self.method() == Method::TRACE
     }
 
     /// Request's uri
@@ -499,17 +499,8 @@ impl Context {
     }
 
     pub async fn read_chunk(&mut self) -> Option<Bytes> {
-        // todo body length limit
         use hyper::body::HttpBody;
-        self.req.body_mut().data().await.map(|r| r.ok()).flatten()
-    }
-
-    pub fn decode(&mut self) {
-        todo!()
-    }
-
-    pub async fn save(&mut self, _path: impl Into<PathBuf>) {
-        todo!()
+        self.req.body_mut().data().await.and_then(|r| r.ok())
     }
 }
 
@@ -540,7 +531,7 @@ impl Context {
             return cld.handle(self).await;
         }
 
-        Ok(Response::default()) // todo NOT FOUND ERR
+        Err(FibraError::PathNotFound("todo".into())) // todo
     }
 
     pub fn reset(self) {

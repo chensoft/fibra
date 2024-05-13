@@ -21,6 +21,7 @@ use crate::types::*;
 ///     app.run().await
 /// }
 /// ```
+#[derive(Default)]
 pub struct Fibra {
     /// Limiter is used to determine if certain preconditions are met. If the conditions
     /// are not satisfied, no further processing will occur within this router.
@@ -224,7 +225,7 @@ impl Fibra {
     ///     app.get("/api/v2/user", "user2")?;
     ///
     ///     app.catch(|_, err| match err {
-    ///         FibraError::PathNotFound(path) => (Status::NOT_FOUND, path).into(),
+    ///         FibraError::PathNotFound(path) => (Status::FORBIDDEN, path).into(),
     ///         _ => Status::SERVICE_UNAVAILABLE.into(),
     ///     });
     ///
@@ -234,7 +235,7 @@ impl Fibra {
     ///     let mut ctx = Context::from((Arc::new(app), Arc::new(con), req));
     ///     let mut res = ctx.next().await?;
     ///
-    ///     assert_eq!(res.status_ref(), &Status::NOT_FOUND);
+    ///     assert_eq!(res.status_ref(), &Status::FORBIDDEN);
     ///     assert_eq!(res.body_all().await?, "/api/v3/user");
     ///
     ///     Ok(())
@@ -337,21 +338,15 @@ impl Fibra {
     }
 }
 
-impl Default for Fibra {
-    fn default() -> Self {
-        Self { limiter: None, catcher: None, mounted: vec![], sockets: vec![] }
-    }
-}
-
 #[async_trait]
 impl Handler for Fibra {
-    async fn handle(&self, ctx: Context) -> FibraResult<Response> {
+    async fn handle(&self, _ctx: Context) -> FibraResult<Response> {
         // todo catcher & limiter
         // self.mounted.handle(ctx).await
         todo!()
     }
 
-    fn select(&self, idx: usize) -> Option<&BoxHandler> {
+    fn select(&self, _idx: usize) -> Option<&BoxHandler> {
         // match idx == 0 {
         //     true => ,
         //     false => {}

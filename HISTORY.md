@@ -37,7 +37,8 @@
 
 - fibra config, case sensitive matching
 - tls support with tls info, ver, sni
-- h2 support: extension, server push, stream priority
+- h2 support: extension, server push, stream priority, RST_STREAM cancel request in flight
+- h3 support
 - content type, referer, user agent, is keepalive, content encoding, accept, accept-encoding, accept-language, length, type...
 - addon: realip, port, caching, Cache-Control If-Modified-Since, cors, limiter, Accepts
 - limits: conn's num, conn's num per ip, reqs per conn, req read timeout, handler timeout, max header count, max body size, keepalive time
@@ -51,4 +52,5 @@
 - deploy easily to serverless platform
 - impl Handler for sync closure, even a File fd
 - impl File for Response
-- temp storage for context
+- context: temp storage, save data into file
+- trailing headers after the body in h1.1

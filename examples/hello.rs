@@ -28,26 +28,26 @@ async fn main() -> FibraResult<()> {
     app.run().await
 }
 
-async fn app_root(_ctx: Context) -> FibraResult<Response> {
-    Ok("It Works!".into())
-}
-
-async fn api_root(_ctx: Context) -> FibraResult<Response> {
-    Ok("".into())
-}
-
-async fn v1_root(_ctx: Context) -> FibraResult<Response> {
-    Ok("".into())
-}
-
-async fn v1_user(_ctx: Context) -> FibraResult<Response> {
-    Ok("".into())
-}
-
-async fn v2_root(_ctx: Context) -> FibraResult<Response> {
-    Ok("".into())
-}
-
-async fn v2_user(_ctx: Context) -> FibraResult<Response> {
-    Ok("".into())
-}
+// async fn app_root(_ctx: Context) -> FibraResult<Response> {
+//     Ok("It Works!".into())
+// }
+// 
+// async fn api_root(_ctx: Context) -> FibraResult<Response> {
+//     Ok("".into())
+// }
+// 
+// async fn v1_root(_ctx: Context) -> FibraResult<Response> {
+//     Ok("".into())
+// }
+// 
+// async fn v1_user(_ctx: Context) -> FibraResult<Response> {
+//     Ok("".into())
+// }
+// 
+// async fn v2_root(_ctx: Context) -> FibraResult<Response> {
+//     Ok("".into())
+// }
+// 
+// async fn v2_user(_ctx: Context) -> FibraResult<Response> {
+//     Ok("".into())
+// }
