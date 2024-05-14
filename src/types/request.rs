@@ -8,7 +8,7 @@ pub struct Request {
     id: u128,
 
     /// The time the request was created
-    created: DateTime<Local>,
+    created: SystemTime,
 
     /// GET, POST, ...
     method: Method,
@@ -95,7 +95,7 @@ impl Request {
     /// assert_eq!(Request::default().created_ref() <= &Local::now(), true);
     /// ```
     #[inline]
-    pub fn created_ref(&self) -> &DateTime<Local> {
+    pub fn created_ref(&self) -> &SystemTime {
         &self.created
     }
 
@@ -114,7 +114,7 @@ impl Request {
     /// assert_eq!(req.created_ref(), &now);
     /// ```
     #[inline]
-    pub fn created_mut(&mut self) -> &mut DateTime<Local> {
+    pub fn created_mut(&mut self) -> &mut SystemTime {
         &mut self.created
     }
 
@@ -132,7 +132,7 @@ impl Request {
     /// assert_eq!(req.created_ref(), &now);
     /// ```
     #[inline]
-    pub fn created(mut self, val: impl Into<DateTime<Local>>) -> Self {
+    pub fn created(mut self, val: impl Into<SystemTime>) -> Self {
         self.created = val.into();
         self
     }
@@ -637,10 +637,12 @@ impl Default for Request {
 impl From<hyper::Request<Body>> for Request {
     #[inline]
     fn from(from: hyper::Request<Body>) -> Self {
+        let time = SystemTime::now();
         let (head, body) = from.into_parts();
+
         Self {
-            id: Ulid::new().0,
-            created: Local::now(),
+            id: Ulid::from_datetime(time).0,
+            created: time,
             method: head.method,
             uri: head.uri,
             version: head.version,

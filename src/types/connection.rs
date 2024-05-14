@@ -8,7 +8,7 @@ pub struct Connection {
     id: u128,
 
     /// The time the connection was created
-    created: DateTime<Local>,
+    created: SystemTime,
 
     /// The count of requests processed
     count: AtomicUsize,
@@ -78,7 +78,7 @@ impl Connection {
     /// assert_eq!(Connection::default().created_ref() <= &Local::now(), true);
     /// ```
     #[inline]
-    pub fn created_ref(&self) -> &DateTime<Local> {
+    pub fn created_ref(&self) -> &SystemTime {
         &self.created
     }
 
@@ -97,7 +97,7 @@ impl Connection {
     /// assert_eq!(con.created_ref(), &now);
     /// ```
     #[inline]
-    pub fn created_mut(&mut self) -> &mut DateTime<Local> {
+    pub fn created_mut(&mut self) -> &mut SystemTime {
         &mut self.created
     }
 
@@ -115,7 +115,7 @@ impl Connection {
     /// assert_eq!(con.created_ref(), &now);
     /// ```
     #[inline]
-    pub fn created(mut self, val: impl Into<DateTime<Local>>) -> Self {
+    pub fn created(mut self, val: impl Into<SystemTime>) -> Self {
         self.created = val.into();
         self
     }
@@ -292,6 +292,6 @@ impl Default for Connection {
 impl<S: Into<SocketAddr>, P: Into<SocketAddr>> From<(S, P)> for Connection {
     #[inline]
     fn from((sock, peer): (S, P)) -> Self {
-        Self { id: Ulid::new().0, count: 0.into(), created: Local::now(), sockaddr: sock.into(), peeraddr: peer.into() }
+        Self { id: Ulid::new().0, count: 0.into(), created: SystemTime::now(), sockaddr: sock.into(), peeraddr: peer.into() }
     }
 }

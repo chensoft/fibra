@@ -68,7 +68,7 @@ impl Context {
     /// assert_eq!(ctx.established() >= &old, true);
     /// assert_eq!(ctx.established() <= &Local::now(), true);
     /// ```
-    pub fn established(&self) -> &DateTime<Local> {
+    pub fn established(&self) -> &SystemTime {
         self.conn.created_ref()
     }
 
@@ -164,7 +164,7 @@ impl Context {
     /// assert_eq!(ctx.created() >= &old, true);
     /// assert_eq!(ctx.created() <= &Local::now(), true);
     /// ```
-    pub fn created(&self) -> &DateTime<Local> {
+    pub fn created(&self) -> &SystemTime {
         self.req.created_ref()
     }
 
@@ -518,7 +518,7 @@ impl Context {
         self.routing.pop();
     }
 
-    pub async fn next(mut self) -> FibraResult<Response> {
+    pub async fn next(self) -> FibraResult<Response> {
         // while let Some((cur, idx)) = self.routing.last_mut() {
         //     let top = unsafe { &**cur };
         //     let cld = match top.select(*idx) {
