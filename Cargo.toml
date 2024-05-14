@@ -30,7 +30,7 @@ async-trait = "0.1"
 form_urlencoded = "1.2"
 
 [dev-dependencies]
-criterion = "0.5"
+criterion = { version = "0.5", features = ["async_tokio"] }
 
 [[bench]]
 name = "playground"

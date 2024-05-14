@@ -224,8 +224,8 @@ impl Request {
     /// assert_eq!(Request::default().uri(Uri::from_static("http://example.com")).uri_ref(), "http://example.com/");
     /// ```
     #[inline]
-    pub fn uri(mut self, val: impl Into<Uri>) -> Self {
-        self.uri = val.into();
+    pub fn uri(mut self, val: impl IntoUri) -> Self {
+        self.uri = val.into_uri();
         self
     }
 

@@ -11,6 +11,9 @@ pub struct Context {
     /// Current connection ref
     conn: Arc<Connection>,
 
+    /// The served requests of the connection, begins from 1
+    served: usize,
+
     /// Current request object
     req: Request,
 
@@ -69,17 +72,17 @@ impl Context {
         self.conn.created_ref()
     }
 
-    /// The number of requests served by a connection
+    /// The number of requests served by the connection until this request
     ///
     /// # Examples
     ///
     /// ```
     /// use fibra::*;
     ///
-    /// assert_eq!(Context::from(Request::default()).served(), 5);
+    /// assert_eq!(Context::from(Request::default()).served(), 1);
     /// ```
     pub fn served(&self) -> usize {
-        self.conn.count_ref().load(atomic::Ordering::Relaxed)
+        self.served
     }
 
     /// The endpoint on the local machine for the connection
@@ -516,22 +519,24 @@ impl Context {
     }
 
     pub async fn next(mut self) -> FibraResult<Response> {
-        while let Some((cur, idx)) = self.routing.last_mut() {
-            let top = unsafe { &**cur };
-            let cld = match top.select(*idx) {
-                Some(obj) => obj,
-                None => {
-                    self.pop();
-                    continue;
-                }
-            };
+        // while let Some((cur, idx)) = self.routing.last_mut() {
+        //     let top = unsafe { &**cur };
+        //     let cld = match top.select(*idx) {
+        //         Some(obj) => obj,
+        //         None => {
+        //             self.pop();
+        //             continue;
+        //         }
+        //     };
+        // 
+        //     *idx += 1;
+        // 
+        //     return cld.handle(self).await;
+        // }
+        // 
+        // Err(FibraError::PathNotFound("todo".into())) // todo
 
-            *idx += 1;
-
-            return cld.handle(self).await;
-        }
-
-        Err(FibraError::PathNotFound("todo".into())) // todo
+        Ok("abc".into())
     }
 
     pub fn reset(self) {
@@ -569,7 +574,7 @@ impl Context {
     ///     todo!()
     /// }
     /// ```
-    pub async fn rewrite(self, to: impl Into<Uri>, body: impl Into<Body>) -> FibraResult<Response> {
+    pub async fn rewrite(self, to: impl IntoUri, body: impl Into<Body>) -> FibraResult<Response> {
         let ctx = Context::from((self.app, self.conn, self.req.uri(to).body(body)));
         ctx.next().await
     }
@@ -590,8 +595,8 @@ impl Context {
     ///     Ok(())
     /// }
     /// ```
-    pub fn redirect(self, to: impl Into<Uri>, status: Option<Status>) -> FibraResult<Response> {
-        let location = HeaderValue::try_from(to.into().to_string())?;
+    pub fn redirect(self, to: impl IntoUri, status: Option<Status>) -> FibraResult<Response> {
+        let location = HeaderValue::try_from(to.into_uri().to_string())?;
         let redirect = status.unwrap_or(Status::FOUND);
         Ok(Response::default().status(redirect).header(header::LOCATION, location))
     }
@@ -601,8 +606,9 @@ impl Context {
 impl From<(Arc<Fibra>, Arc<Connection>, Request)> for Context {
     fn from((app, conn, req): (Arc<Fibra>, Arc<Connection>, Request)) -> Self {
         // todo push root to routing
+        let served = conn.count_add(1);
         let queries = form_urlencoded::parse(req.query().as_bytes()).into_owned().collect();
-        Self { app, conn, req, params: IndexMap::new(), queries, routing: vec![] }
+        Self { app, conn, served, req, params: IndexMap::new(), queries, routing: vec![] }
     }
 }
 

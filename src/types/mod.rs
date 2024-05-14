@@ -31,6 +31,7 @@ mod connection;
 mod cookie;
 mod error;
 pub mod header;
+mod macros;
 mod method;
 pub mod mime;
 mod request;

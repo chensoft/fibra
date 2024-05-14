@@ -135,6 +135,20 @@ impl Connection {
         &self.count
     }
 
+    /// Increase the count of requests
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use fibra::*;
+    ///
+    /// assert_eq!(Connection::default().count_add(0), 0);
+    /// assert_eq!(Connection::default().count_add(5), 5);
+    /// ```
+    pub fn count_add(&self, incr: usize) -> usize {
+        self.count.fetch_add(incr, atomic::Ordering::Relaxed)
+    }
+
     /// Get/Set the count of requests processed
     ///
     /// # Examples

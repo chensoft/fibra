@@ -37,7 +37,7 @@
 
 - fibra config, case sensitive matching
 - tls support with tls info, ver, sni
-- h2 support: extension, server push, stream priority, RST_STREAM cancel request in flight
+- h2 support: extension, server push, stream priority, RST_STREAM cancel request in flight, res push support via addon HTTP Link Headers
 - h3 support
 - content type, referer, user agent, is keepalive, content encoding, accept, accept-encoding, accept-language, length, type...
 - addon: realip, port, caching, Cache-Control If-Modified-Since, cors, limiter, Accepts
@@ -54,3 +54,5 @@
 - impl File for Response
 - context: temp storage, save data into file
 - trailing headers after the body in h1.1
+- test: curl --http2 --parallel -v http://localip.cc:3000/first http://localip.cc:3000/second
+- test: curl --http2-prior-knowledge --parallel -v http://localip.cc:3000/first http://localip.cc:3000/second

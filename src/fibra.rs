@@ -314,9 +314,6 @@ impl Fibra {
 
             async move {
                 Ok::<_, Infallible>(service_fn(move |req| {
-                    // simply incr because no concurrent requests on one connection
-                    con.count_ref().fetch_add(1, atomic::Ordering::Relaxed);
-
                     // construct our own context object for each request
                     let ctx = Context::from((app.clone(), con.clone(), Request::from(req)));
 
