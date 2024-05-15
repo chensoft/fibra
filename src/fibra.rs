@@ -247,10 +247,6 @@ impl Fibra {
         catcher
     }
 
-    pub fn config(&mut self) {
-        todo!()
-    }
-
     /// Ensure the last item is type T, otherwise create it
     ///
     /// # Examples
@@ -337,17 +333,21 @@ impl Fibra {
 
 #[async_trait]
 impl Handler for Fibra {
-    async fn handle(&self, _ctx: Context) -> FibraResult<Response> {
-        // todo catcher & limiter
-        // self.mounted.handle(ctx).await
-        todo!()
-    }
+    async fn handle(&self, ctx: Context) -> FibraResult<Response> {
+        // block requests that fail the test
+        if let Some(limiter) = &self.limiter {
+            if !limiter.filter(&ctx) {
+                return ctx.next().await;
+            }
+        }
 
-    fn select(&self, _idx: usize) -> Option<&BoxHandler> {
-        // match idx == 0 {
-        //     true => ,
-        //     false => {}
-        // }
-        todo!()
+        // the root node always has a Catcher
+        // subrouters with Catchers also handle errors here
+        if let Some(catcher) = &self.catcher {
+            return Ok(catcher.protect(self.mounted.handle(ctx)).await);
+        }
+
+        // subrouters without Catchers handle errors here
+        self.mounted.handle(ctx).await
     }
 }

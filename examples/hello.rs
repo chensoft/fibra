@@ -5,7 +5,7 @@ async fn main() -> FibraResult<()> {
     // create a main router with a predefined logger
     let mut app = Fibra::new();
     // app.mount(addon::Logger::default());
-    // app.route("/", app_root)?;
+    app.route("/", "It Works!")?;
     // app.route("/index.html", |ctx: Context| async { ctx.rewrite("/", b"todo".into()).await })?;
 
     // create a subrouter with a subdomain that starts with 'api'
@@ -28,23 +28,7 @@ async fn main() -> FibraResult<()> {
     app.run().await
 }
 
-// async fn app_root(_ctx: Context) -> FibraResult<Response> {
-//     Ok("It Works!".into())
-// }
-// 
-// async fn api_root(_ctx: Context) -> FibraResult<Response> {
-//     Ok("".into())
-// }
-// 
-// async fn v1_root(_ctx: Context) -> FibraResult<Response> {
-//     Ok("".into())
-// }
-// 
 // async fn v1_user(_ctx: Context) -> FibraResult<Response> {
-//     Ok("".into())
-// }
-// 
-// async fn v2_root(_ctx: Context) -> FibraResult<Response> {
 //     Ok("".into())
 // }
 // 

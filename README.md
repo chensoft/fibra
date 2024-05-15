@@ -1,6 +1,8 @@
 Fibra
 ==========================
 
+## ⚠️ Caution: Not Ready for Production! ⚠️
+
 Fast and Powerful HTTP router written in Rust
 
 [![Crates.io][crates-badge]][crates-url]

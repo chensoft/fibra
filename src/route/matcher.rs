@@ -19,19 +19,23 @@ impl Matcher {
 
         Ok(list.last_mut().unwrap_or_else(|| unreachable!()))
     }
-
-    pub fn matches() -> Option<()> {
-        todo!()
-    }
 }
 
 #[async_trait]
 impl Handler for Matcher {
-    async fn handle(&self, _ctx: Context) -> FibraResult<Response> {
-        // match self.preway.get(&path) {
-        //     Some(pkg) => pkg.handle(ctx).await,
-        //     None => ctx.next().await
-        // }
-        todo!()
+    async fn handle(&self, mut ctx: Context) -> FibraResult<Response> {
+        if let (Some(routes), params) = self.routes.capture(ctx.path().as_bytes()) {
+            if !params.is_empty() {
+                let new: IndexMap<String, String> = params.into_iter().map(|(k, v)| {
+                    (unsafe { String::from_utf8_unchecked(k.to_vec()) }, unsafe { std::str::from_utf8_unchecked(v).to_string() })
+                }).collect();
+
+                ctx.params_mut().extend(new);
+            }
+
+            return routes.handle(ctx).await;
+        }
+
+        ctx.next().await
     }
 }

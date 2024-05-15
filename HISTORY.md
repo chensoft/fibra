@@ -1,4 +1,4 @@
-## [Unreleased] - 2024-05-xx
+## [0.0.1] - 2024-05-xx
 
 ### Added
 
@@ -10,13 +10,11 @@
 - Regex matching
 - URL rewrite
 - URL redirect
-- Domain routing
-- Subdomain routing
+- Domain filtering
+- Subdomain filtering
 - Subrouter support
-- Cookie support
-- Session management
-- Multiple listener
 - Handy response
+- Multiple listener
 
 ## [Todo]
 

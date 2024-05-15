@@ -24,7 +24,7 @@ pub struct Context {
     queries: IndexMap<String, String>,
 
     /// Internal routing stack
-    routing: Vec<(*const dyn Handler, usize)>,
+    routing: Vec<*const dyn Handler>,
 }
 
 unsafe impl Send for Context {}
@@ -487,6 +487,10 @@ impl Context {
         &self.params
     }
 
+    pub fn params_mut(&mut self) -> &mut IndexMap<String, String> {
+        &mut self.params
+    }
+
     pub fn param(&self, key: &str) -> &str {
         self.params.get(key).map(|v| v.as_str()).unwrap_or("")
     }
@@ -508,39 +512,17 @@ impl Context {
 }
 
 impl Context {
+    pub async fn next(mut self) -> FibraResult<Response> {
+        if let Some(handler) = self.routing.pop() {
+            return unsafe { &*handler }.handle(self).await;
+        }
+
+        Err(FibraError::PathNotFound)
+    }
+
     #[inline]
     pub fn push(&mut self, cur: *const dyn Handler) {
-        self.routing.push((cur, 0));
-    }
-
-    #[inline]
-    pub fn pop(&mut self) {
-        self.routing.pop();
-    }
-
-    pub async fn next(self) -> FibraResult<Response> {
-        // while let Some((cur, idx)) = self.routing.last_mut() {
-        //     let top = unsafe { &**cur };
-        //     let cld = match top.select(*idx) {
-        //         Some(obj) => obj,
-        //         None => {
-        //             self.pop();
-        //             continue;
-        //         }
-        //     };
-        // 
-        //     *idx += 1;
-        // 
-        //     return cld.handle(self).await;
-        // }
-        // 
-        // Err(FibraError::PathNotFound("todo".into())) // todo
-
-        Ok("abc".into())
-    }
-
-    pub fn reset(self) {
-        todo!()
+        self.routing.push(cur);
     }
 
     /// Reject current request with FORBIDDEN by default
@@ -605,10 +587,13 @@ impl Context {
 /// Construct from client request
 impl From<(Arc<Fibra>, Arc<Connection>, Request)> for Context {
     fn from((app, conn, req): (Arc<Fibra>, Arc<Connection>, Request)) -> Self {
-        // todo push root to routing
         let served = conn.count_add(1);
         let queries = form_urlencoded::parse(req.query().as_bytes()).into_owned().collect();
-        Self { app, conn, served, req, params: IndexMap::new(), queries, routing: vec![] }
+        let pointer = Arc::as_ptr(&app);
+
+        let mut myself = Self { app, conn, served, req, params: IndexMap::new(), queries, routing: vec![] };
+        myself.push(pointer);
+        myself
     }
 }
 

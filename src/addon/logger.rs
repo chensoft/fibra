@@ -2,6 +2,7 @@
 use crate::route::*;
 use crate::types::*;
 
+/// Log Support
 pub struct Logger {
 //     pub logger: logkit::Logger,
 //     pub level: logkit::Level,

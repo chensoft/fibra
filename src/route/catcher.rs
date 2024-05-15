@@ -60,7 +60,7 @@ impl Default for Catcher {
     fn default() -> Self {
         let preset = Box::new(|err| {
             match err {
-                FibraError::PathNotFound(_) => Status::NOT_FOUND.into(),
+                FibraError::PathNotFound => Status::NOT_FOUND.into(),
                 _ => Status::INTERNAL_SERVER_ERROR.into()
             }
         });

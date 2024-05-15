@@ -9,12 +9,6 @@ pub trait Handler: AnyHandler + Send + Sync + 'static {
     /// a current request object, multiple requests may reside on one connection, and these
     /// requests will be handled one by one on different context objects
     async fn handle(&self, ctx: Context) -> FibraResult<Response>;
-
-    /// Internal method to get the child handler of its parent
-    #[allow(unused_variables)]
-    fn select(&self, idx: usize) -> Option<&BoxHandler> {
-        None
-    }
 }
 
 /// Box Handler
@@ -123,6 +117,28 @@ impl<F, R> Handler for F
 {
     async fn handle(&self, ctx: Context) -> FibraResult<Response> {
         self(ctx).await
+    }
+}
+
+#[async_trait]
+impl Handler for Vec<BoxHandler> {
+    async fn handle(&self, mut ctx: Context) -> FibraResult<Response> {
+        for h in self.iter().rev() {
+            ctx.push(h.as_ref());
+        }
+
+        ctx.next().await
+    }
+}
+
+#[async_trait]
+impl Handler for Vec<Routine> {
+    async fn handle(&self, mut ctx: Context) -> FibraResult<Response> {
+        for h in self.iter().rev() {
+            ctx.push(h);
+        }
+
+        ctx.next().await
     }
 }
 
