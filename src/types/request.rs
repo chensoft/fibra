@@ -297,7 +297,7 @@ impl Request {
     /// use fibra::*;
     ///
     /// let mut req = Request::default();
-    /// req.headers_mut().insert(header::CACHE_CONTROL, "no-cache".into_value());
+    /// req.headers_mut().insert(header::CACHE_CONTROL, "no-cache".into_header_value());
     ///
     /// assert_eq!(req.headers_ref().get(header::CACHE_CONTROL).map(|v| v.as_bytes()), Some("no-cache".as_bytes()));
     /// ```
@@ -314,7 +314,7 @@ impl Request {
     /// use fibra::*;
     ///
     /// let mut map = HeaderMap::new();
-    /// map.insert(header::CACHE_CONTROL, "no-cache".into_value());
+    /// map.insert(header::CACHE_CONTROL, "no-cache".into_header_value());
     ///
     /// let mut req = Request::default().headers(map);
     ///
@@ -367,7 +367,7 @@ impl Request {
     /// ```
     #[inline]
     pub fn header(mut self, key: impl IntoHeaderName, val: impl IntoHeaderValue) -> Self {
-        self.headers.insert(key, val.into_value());
+        self.headers.insert(key.into_header_name(), val.into_header_value());
         self
     }
 

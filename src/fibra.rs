@@ -130,7 +130,7 @@ impl Fibra {
     ///
     ///     // mock a real request
     ///     let req = Request::default().uri("http://example.com/api/v2/user");
-    ///     let mut ctx = Context::from(req);
+    ///     let ctx = Context::from(req);
     ///
     ///     assert_eq!(ctx.next().await?.body_all().await?, "user2");
     ///
@@ -183,15 +183,15 @@ impl Fibra {
     ///     // mock a request with incorrect subdomain
     ///     {
     ///         let req = Request::default().uri("http://app.example.com/api/v2/user");
-    ///         let mut ctx = Context::from((app.clone(), con.clone(), req));
+    ///         let ctx = Context::from((app.clone(), con.clone(), req));
     ///
-    ///         assert_eq!(ctx.next().await?.status_ref(), &Status::NOT_FOUND);
+    ///         assert_eq!(matches!(ctx.next().await.err(), Some(FibraError::PathNotFound)), true);
     ///     }
     ///
     ///     // mock a request with correct subdomain
     ///     {
     ///         let req = Request::default().uri("http://api.example.com/api/v2/user");
-    ///         let mut ctx = Context::from((app, con, req));
+    ///         let ctx = Context::from((app, con, req));
     ///         let mut res = ctx.next().await?;
     ///
     ///         assert_eq!(res.status_ref(), &Status::OK);
@@ -219,25 +219,23 @@ impl Fibra {
     ///     app.get("/api/v1/user", "user1")?;
     ///     app.get("/api/v2/user", "user2")?;
     ///
-    ///     app.catch(|_, err| match err {
+    ///     app.catch(|err| match err {
     ///         FibraError::PathNotFound => Status::FORBIDDEN.into(),
     ///         _ => Status::SERVICE_UNAVAILABLE.into(),
     ///     });
     ///
     ///     // mock a real request
-    ///     let mut ctx = Context::from((app, Request::default().uri("http://example.com/api/v3/user")));
-    ///     let mut res = ctx.next().await?;
+    ///     let ctx = Context::from((app, Request::default().uri("http://example.com/api/v3/user")));
+    ///     let res = ctx.next().await?;
     ///
     ///     assert_eq!(res.status_ref(), &Status::FORBIDDEN);
-    ///     assert_eq!(res.body_all().await?, "/api/v3/user");
     ///
     ///     Ok(())
     /// }
     /// ```
-    pub fn catch<F>(&mut self, f: F) -> &mut Catcher where F: Fn(&Catcher, FibraError) -> Response + Send + Sync + 'static {
-        let catcher = self.catcher.get_or_insert(Catcher::default());
-        catcher.custom(f);
-        catcher
+    pub fn catch<F>(&mut self, f: F) -> &mut Self where F: Fn(FibraError) -> Response + Send + Sync + 'static {
+        self.catcher = Some(f.into());
+        self
     }
 
     /// Ensure the last item is type T, otherwise create it

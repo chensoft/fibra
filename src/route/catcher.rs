@@ -3,25 +3,14 @@ use crate::types::*;
 
 /// Catch errors and call the handler
 pub struct Catcher {
-    /// Preset handler. **Do not assume the Response as it may change without notice**
-    #[allow(clippy::type_complexity)]
-    pub preset: Box<dyn Fn(FibraError) -> Response + Send + Sync + 'static>,
-
-    /// Custom handler
-    #[allow(clippy::type_complexity)]
-    pub custom: Box<dyn Fn(&Catcher, FibraError) -> Response + Send + Sync + 'static>,
+    /// Handler
+    pub handler: Arc<dyn Fn(FibraError) -> Response + Send + Sync + 'static>,
 }
 
 impl Catcher {
-    /// Set preset handler
-    pub fn preset<F>(&mut self, f: F) -> &mut Self where F: Fn(FibraError) -> Response + Send + Sync + 'static {
-        self.preset = Box::new(f);
-        self
-    }
-
     /// Set custom handler
-    pub fn custom<F>(&mut self, f: F) -> &mut Self where F: Fn(&Catcher, FibraError) -> Response + Send + Sync + 'static {
-        self.custom = Box::new(f);
+    pub fn handler<F>(&mut self, f: F) -> &mut Self where F: Fn(FibraError) -> Response + Send + Sync + 'static {
+        self.handler = Arc::new(f);
         self
     }
 
@@ -43,14 +32,16 @@ impl Catcher {
     pub async fn protect<F>(&self, f: F) -> Response where F: Future<Output = FibraResult<Response>> {
         use futures::FutureExt;
 
+        let handler = self.handler.clone();
+
         match AssertUnwindSafe(f).catch_unwind().await {
             Ok(ret) => match ret {
                 Ok(res) => res,
-                Err(err) => (self.custom)(self, err),
+                Err(err) => handler(err),
             }
             Err(err) => match err.downcast_ref::<&str>() {
-                Some(err) => (self.custom)(self, FibraError::PanicError(err.to_string().into())),
-                None => (self.custom)(self, FibraError::PanicError("Unknown panic".into())),
+                Some(err) => handler(FibraError::PanicError(err.to_string().into())),
+                None => handler(FibraError::PanicError("Unknown panic".into())),
             }
         }
     }
@@ -58,14 +49,14 @@ impl Catcher {
 
 impl Default for Catcher {
     fn default() -> Self {
-        let preset = Box::new(|err| {
+        let handler = Arc::new(|err| {
             match err {
                 FibraError::PathNotFound => Status::NOT_FOUND.into(),
                 _ => Status::INTERNAL_SERVER_ERROR.into()
             }
         });
 
-        Self { preset, custom: Box::new(|obj, err| (obj.preset)(err)) }
+        Self { handler }
     }
 }
 
@@ -78,10 +69,11 @@ impl Default for Catcher {
 ///
 /// #[tokio::main]
 /// async fn main() -> FibraResult<()> {
-///     let catcher = Catcher::from(|obj: &Catcher, err| {
+///     let catcher = Catcher::from(|err| {
 ///         match err {
+///             FibraError::PathNotFound => Status::NOT_FOUND.into(),
 ///             FibraError::PanicError(_) => Status::SERVICE_UNAVAILABLE.into(),
-///             _ => (obj.preset)(err)
+///             _ => Status::INTERNAL_SERVER_ERROR.into()
 ///         }
 ///     });
 ///
@@ -96,9 +88,9 @@ impl Default for Catcher {
 /// ```
 impl<F> From<F> for Catcher
     where
-        F: Fn(&Catcher, FibraError) -> Response + Send + Sync + 'static
+        F: Fn(FibraError) -> Response + Send + Sync + 'static
 {
     fn from(f: F) -> Self {
-        Self { custom: Box::new(f), ..Default::default() }
+        Self { handler: Arc::new(f) }
     }
 }

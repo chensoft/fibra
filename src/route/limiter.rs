@@ -315,10 +315,9 @@ impl Limiter {
     /// assert_eq!(limiter.filter(&Context::from(Request::default().header("content-type", "text/plain"))), true);
     /// assert_eq!(limiter.filter(&Context::from(Request::default().header("content-type", "application/json"))), false);
     /// ```
-    pub fn header(&mut self, key: impl Into<HeaderName>, val: impl Into<HeaderValue>) -> &mut Self {
-        let key = key.into();
-        let val = val.into();
-
+    pub fn header(&mut self, key: impl IntoHeaderName, val: impl IntoHeaderValue) -> &mut Self {
+        let key = key.into_header_name();
+        let val = val.into_header_value();
         self.insert(move |ctx| ctx.header(&key) == Some(&val))
     }
 
@@ -336,8 +335,8 @@ impl Limiter {
     /// assert_eq!(limiter.filter(&Context::from(Request::default().header("content-type", "application/json"))), true);
     /// assert_eq!(limiter.filter(&Context::from(Request::default().header("content-type", "application/yaml"))), false);
     /// ```
-    pub fn headers(&mut self, vec: Vec<(impl Into<HeaderName>, impl Into<HeaderValue>)>) -> &mut Self {
-        let vec: Vec<_> = vec.into_iter().map(|(key, val)| (key.into(), val.into())).collect();
+    pub fn headers(&mut self, vec: Vec<(impl IntoHeaderName, impl IntoHeaderValue)>) -> &mut Self {
+        let vec: Vec<_> = vec.into_iter().map(|(key, val)| (key.into_header_name(), val.into_header_value())).collect();
 
         self.insert(move |ctx| vec.iter().any(|(key, val)| ctx.header(key) == Some(val)))
     }

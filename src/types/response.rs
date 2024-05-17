@@ -132,7 +132,7 @@ impl Response {
     /// use fibra::*;
     ///
     /// let mut res = Response::default();
-    /// res.headers_mut().insert(header::CONTENT_TYPE, mime::APPLICATION_JSON.into_value());
+    /// res.headers_mut().insert(header::CONTENT_TYPE, mime::APPLICATION_JSON.into_header_value());
     /// assert_eq!(res.headers_mut()[header::CONTENT_TYPE], mime::APPLICATION_JSON.as_ref());
     /// ```
     #[inline]
@@ -150,7 +150,7 @@ impl Response {
     /// let mut map = HeaderMap::new();
     /// let mut res = Response::default();
     ///
-    /// map.insert(header::CONTENT_TYPE, mime::APPLICATION_JSON.into_value());
+    /// map.insert(header::CONTENT_TYPE, mime::APPLICATION_JSON.into_header_value());
     /// res = res.headers(map);
     ///
     /// assert_eq!(res.headers_mut()[header::CONTENT_TYPE], mime::APPLICATION_JSON.as_ref());
@@ -186,7 +186,7 @@ impl Response {
     /// use fibra::*;
     ///
     /// let mut res = Response::default().header(header::CONTENT_TYPE, mime::APPLICATION_JSON);
-    /// res.header_mut(header::CONTENT_TYPE).map(|v| *v = mime::TEXT_PLAIN_UTF_8.into_value());
+    /// res.header_mut(header::CONTENT_TYPE).map(|v| *v = mime::TEXT_PLAIN_UTF_8.into_header_value());
     ///
     /// assert_eq!(res.header_ref(header::CONTENT_TYPE).map(|v| v.as_bytes()), Some(mime::TEXT_PLAIN_UTF_8.as_ref().as_bytes()));
     /// ```
@@ -208,7 +208,7 @@ impl Response {
     /// ```
     #[inline]
     pub fn header(mut self, key: impl IntoHeaderName, val: impl IntoHeaderValue) -> Self {
-        self.headers.insert(key, val.into_value());
+        self.headers.insert(key.into_header_name(), val.into_header_value());
         self
     }
 

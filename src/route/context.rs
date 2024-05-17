@@ -32,12 +32,12 @@ unsafe impl Sync for Context {}
 
 impl Context {
     /// The root app instance
-    pub fn app(&self) -> &Fibra {
+    pub fn app(&self) -> &Arc<Fibra> {
         &self.app
     }
 
     /// Current connection, multiple requests may belong to one connection
-    pub fn conn(&self) -> &Connection {
+    pub fn conn(&self) -> &Arc<Connection> {
         &self.conn
     }
 
@@ -615,10 +615,9 @@ impl From<(Arc<Fibra>, Arc<Connection>, Request)> for Context {
     fn from((app, conn, req): (Arc<Fibra>, Arc<Connection>, Request)) -> Self {
         let served = conn.count_add(1);
         let queries = form_urlencoded::parse(req.query().as_bytes()).into_owned().collect();
-        let pointer = Arc::as_ptr(&app);
 
         let mut myself = Self { app, conn, served, req, params: IndexMap::new(), queries, routing: vec![] };
-        myself.push(pointer);
+        myself.push(myself.app().as_ref());
         myself
     }
 }
