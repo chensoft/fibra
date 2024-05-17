@@ -32,7 +32,7 @@ pub struct Logger {
 impl Default for Logger {
     fn default() -> Self {
 //         Self::new(logkit::StderrTarget, logkit::LEVEL_INFO, chrono::SecondsFormat::Millis)
-        todo!()
+        Self {}
     }
 }
 
@@ -49,7 +49,7 @@ impl Handler for Logger {
 //         record.append("query", &ctx.req().query());
 // 
 //         let result = ctx.next().await;
-//         let finish = Local::now();
+//         let finish = SystemTime::now();
 //         let status = match &result {
 //             Ok(res) => res.status_ref().as_u16(),
 //             _ => 0,

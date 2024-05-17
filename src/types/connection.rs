@@ -73,9 +73,9 @@ impl Connection {
     /// 
     /// ```
     /// use fibra::*;
-    /// use chrono::Local;
+    /// use std::time::SystemTime;
     ///
-    /// assert_eq!(Connection::default().created_ref() <= &Local::now(), true);
+    /// assert_eq!(Connection::default().created_ref() <= &SystemTime::now(), true);
     /// ```
     #[inline]
     pub fn created_ref(&self) -> &SystemTime {
@@ -88,9 +88,9 @@ impl Connection {
     /// 
     /// ```
     /// use fibra::*;
-    /// use chrono::Local;
+    /// use std::time::SystemTime;
     ///
-    /// let now = Local::now();
+    /// let now = SystemTime::now();
     /// let mut con = Connection::default();
     /// *con.created_mut() = now;
     ///
@@ -107,9 +107,9 @@ impl Connection {
     /// 
     /// ```
     /// use fibra::*;
-    /// use chrono::Local;
+    /// use std::time::SystemTime;
     ///
-    /// let now = Local::now();
+    /// let now = SystemTime::now();
     /// let con = Connection::default().created(now);
     ///
     /// assert_eq!(con.created_ref(), &now);
@@ -146,7 +146,7 @@ impl Connection {
     /// assert_eq!(Connection::default().count_add(5), 5);
     /// ```
     pub fn count_add(&self, incr: usize) -> usize {
-        self.count.fetch_add(incr, atomic::Ordering::Relaxed)
+        self.count.fetch_add(incr, atomic::Ordering::Relaxed) + incr
     }
 
     /// Get/Set the count of requests processed

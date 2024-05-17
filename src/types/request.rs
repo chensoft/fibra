@@ -90,9 +90,9 @@ impl Request {
     ///
     /// ```
     /// use fibra::*;
-    /// use chrono::Local;
+    /// use std::time::SystemTime;
     ///
-    /// assert_eq!(Request::default().created_ref() <= &Local::now(), true);
+    /// assert_eq!(Request::default().created_ref() <= &SystemTime::now(), true);
     /// ```
     #[inline]
     pub fn created_ref(&self) -> &SystemTime {
@@ -105,9 +105,9 @@ impl Request {
     ///
     /// ```
     /// use fibra::*;
-    /// use chrono::Local;
+    /// use std::time::SystemTime;
     ///
-    /// let now = Local::now();
+    /// let now = SystemTime::now();
     /// let mut req = Request::default();
     /// *req.created_mut() = now;
     ///
@@ -124,9 +124,9 @@ impl Request {
     ///
     /// ```
     /// use fibra::*;
-    /// use chrono::Local;
+    /// use std::time::SystemTime;
     ///
-    /// let now = Local::now();
+    /// let now = SystemTime::now();
     /// let req = Request::default().created(now);
     ///
     /// assert_eq!(req.created_ref(), &now);
@@ -221,7 +221,7 @@ impl Request {
     /// ```
     /// use fibra::*;
     ///
-    /// assert_eq!(Request::default().uri(Uri::from_static("http://example.com")).uri_ref(), "http://example.com/");
+    /// assert_eq!(Request::default().uri("http://example.com").uri_ref(), "http://example.com/");
     /// ```
     #[inline]
     pub fn uri(mut self, val: impl IntoUri) -> Self {
@@ -406,7 +406,7 @@ impl Request {
     /// }
     /// ```
     pub async fn body_all(&mut self) -> FibraResult<Bytes> {
-        use hyper::body::HttpBody;
+        use body::HttpBody;
         Ok(self.body_mut().collect().await?.to_bytes())
     }
 
@@ -438,9 +438,9 @@ impl Request {
     /// ```
     /// use fibra::*;
     ///
-    /// assert_eq!(Request::default().uri(Uri::from_static("example.com")).scheme(), &Scheme::Unknown);
-    /// assert_eq!(Request::default().uri(Uri::from_static("http://example.com")).scheme(), &Scheme::HTTP);
-    /// assert_eq!(Request::default().uri(Uri::from_static("https://example.com")).scheme(), &Scheme::HTTPS);
+    /// assert_eq!(Request::default().uri("example.com").scheme(), &Scheme::Unknown);
+    /// assert_eq!(Request::default().uri("http://example.com").scheme(), &Scheme::HTTP);
+    /// assert_eq!(Request::default().uri("https://example.com").scheme(), &Scheme::HTTPS);
     /// ```
     #[inline]
     pub fn scheme(&self) -> &Scheme {
@@ -465,7 +465,7 @@ impl Request {
     /// ```
     /// use fibra::*;
     ///
-    /// assert_eq!(Request::default().uri(Uri::from_static("http://user:pass@example.com")).authority(), Some(&Authority::from_static("user:pass@example.com")));
+    /// assert_eq!(Request::default().uri("http://user:pass@example.com").authority(), Some(&Authority::from_static("user:pass@example.com")));
     /// ```
     #[inline]
     pub fn authority(&self) -> Option<&Authority> {
@@ -480,10 +480,10 @@ impl Request {
     /// use fibra::*;
     ///
     /// assert_eq!(Request::default().domain(), "");
-    /// assert_eq!(Request::default().uri(Uri::from_static("http://example.com")).domain(), "example.com");
-    /// assert_eq!(Request::default().uri(Uri::from_static("http://www.example.com")).domain(), "example.com");
-    /// assert_eq!(Request::default().uri(Uri::from_static("http://fibra.api.example.com")).domain(), "example.com");
-    /// assert_eq!(Request::default().uri(Uri::from_static("https://www.google.com.hk")).domain(), "google.com.hk");
+    /// assert_eq!(Request::default().uri("http://example.com").domain(), "example.com");
+    /// assert_eq!(Request::default().uri("http://www.example.com").domain(), "example.com");
+    /// assert_eq!(Request::default().uri("http://fibra.api.example.com").domain(), "example.com");
+    /// assert_eq!(Request::default().uri("https://www.google.com.hk").domain(), "google.com.hk");
     /// ```
     #[inline]
     pub fn domain(&self) -> &str {
@@ -501,10 +501,10 @@ impl Request {
     /// use fibra::*;
     ///
     /// assert_eq!(Request::default().subdomain(), "");
-    /// assert_eq!(Request::default().uri(Uri::from_static("http://example.com")).subdomain(), "");
-    /// assert_eq!(Request::default().uri(Uri::from_static("http://www.example.com")).subdomain(), "www");
-    /// assert_eq!(Request::default().uri(Uri::from_static("http://fibra.api.example.com")).subdomain(), "fibra.api");
-    /// assert_eq!(Request::default().uri(Uri::from_static("https://www.google.com.hk")).subdomain(), "www");
+    /// assert_eq!(Request::default().uri("http://example.com").subdomain(), "");
+    /// assert_eq!(Request::default().uri("http://www.example.com").subdomain(), "www");
+    /// assert_eq!(Request::default().uri("http://fibra.api.example.com").subdomain(), "fibra.api");
+    /// assert_eq!(Request::default().uri("https://www.google.com.hk").subdomain(), "www");
     /// ```
     #[inline]
     pub fn subdomain(&self) -> &str {
@@ -528,9 +528,9 @@ impl Request {
     /// use fibra::*;
     ///
     /// assert_eq!(Request::default().host(), "");
-    /// assert_eq!(Request::default().uri(Uri::from_static("http://example.com")).host(), "example.com");
-    /// assert_eq!(Request::default().uri(Uri::from_static("http://www.example.com")).host(), "www.example.com");
-    /// assert_eq!(Request::default().uri(Uri::from_static("http://fibra.api.example.com")).host(), "fibra.api.example.com");
+    /// assert_eq!(Request::default().uri("http://example.com").host(), "example.com");
+    /// assert_eq!(Request::default().uri("http://www.example.com").host(), "www.example.com");
+    /// assert_eq!(Request::default().uri("http://fibra.api.example.com").host(), "fibra.api.example.com");
     /// ```
     #[inline]
     pub fn host(&self) -> &str {
@@ -545,11 +545,11 @@ impl Request {
     /// use fibra::*;
     ///
     /// assert_eq!(Request::default().port(), 0);
-    /// assert_eq!(Request::default().uri(Uri::from_static("http://example.com")).port(), 80);
-    /// assert_eq!(Request::default().uri(Uri::from_static("http://example.com:3000")).port(), 3000);
-    /// assert_eq!(Request::default().uri(Uri::from_static("http://example.com:3000/blog")).port(), 3000);
-    /// assert_eq!(Request::default().uri(Uri::from_static("https://example.com")).port(), 443);
-    /// assert_eq!(Request::default().uri(Uri::from_static("https://www.example.com:8443")).port(), 8443);
+    /// assert_eq!(Request::default().uri("http://example.com").port(), 80);
+    /// assert_eq!(Request::default().uri("http://example.com:3000").port(), 3000);
+    /// assert_eq!(Request::default().uri("http://example.com:3000/blog").port(), 3000);
+    /// assert_eq!(Request::default().uri("https://example.com").port(), 443);
+    /// assert_eq!(Request::default().uri("https://www.example.com:8443").port(), 8443);
     /// ```
     #[inline]
     pub fn port(&self) -> u16 {
@@ -571,14 +571,14 @@ impl Request {
     /// use fibra::*;
     ///
     /// assert_eq!(Request::default().path(), "/");
-    /// assert_eq!(Request::default().uri(Uri::from_static("http://example.com")).path(), "/");
-    /// assert_eq!(Request::default().uri(Uri::from_static("http://example.com/")).path(), "/");
-    /// assert_eq!(Request::default().uri(Uri::from_static("http://example.com/blog")).path(), "/blog");
-    /// assert_eq!(Request::default().uri(Uri::from_static("http://example.com/blog/2024")).path(), "/blog/2024");
-    /// assert_eq!(Request::default().uri(Uri::from_static("http://example.com:3000")).path(), "/");
-    /// assert_eq!(Request::default().uri(Uri::from_static("http://example.com:3000/")).path(), "/");
-    /// assert_eq!(Request::default().uri(Uri::from_static("http://example.com:3000/blog")).path(), "/blog");
-    /// assert_eq!(Request::default().uri(Uri::from_static("http://example.com:3000/blog/2024")).path(), "/blog/2024");
+    /// assert_eq!(Request::default().uri("http://example.com").path(), "/");
+    /// assert_eq!(Request::default().uri("http://example.com/").path(), "/");
+    /// assert_eq!(Request::default().uri("http://example.com/blog").path(), "/blog");
+    /// assert_eq!(Request::default().uri("http://example.com/blog/2024").path(), "/blog/2024");
+    /// assert_eq!(Request::default().uri("http://example.com:3000").path(), "/");
+    /// assert_eq!(Request::default().uri("http://example.com:3000/").path(), "/");
+    /// assert_eq!(Request::default().uri("http://example.com:3000/blog").path(), "/blog");
+    /// assert_eq!(Request::default().uri("http://example.com:3000/blog/2024").path(), "/blog/2024");
     /// ```
     #[inline]
     pub fn path(&self) -> &str {
@@ -593,12 +593,12 @@ impl Request {
     /// use fibra::*;
     ///
     /// assert_eq!(Request::default().query(), "");
-    /// assert_eq!(Request::default().uri(Uri::from_static("http://example.com")).query(), "");
-    /// assert_eq!(Request::default().uri(Uri::from_static("http://example.com/")).query(), "");
-    /// assert_eq!(Request::default().uri(Uri::from_static("http://example.com/blog")).query(), "");
-    /// assert_eq!(Request::default().uri(Uri::from_static("http://example.com/blog?")).query(), "");
-    /// assert_eq!(Request::default().uri(Uri::from_static("http://example.com/blog?nonce=1a2b3c")).query(), "nonce=1a2b3c");
-    /// assert_eq!(Request::default().uri(Uri::from_static("http://example.com/blog?nonce=1a2b3c&signature=abcde")).query(), "nonce=1a2b3c&signature=abcde");
+    /// assert_eq!(Request::default().uri("http://example.com").query(), "");
+    /// assert_eq!(Request::default().uri("http://example.com/").query(), "");
+    /// assert_eq!(Request::default().uri("http://example.com/blog").query(), "");
+    /// assert_eq!(Request::default().uri("http://example.com/blog?").query(), "");
+    /// assert_eq!(Request::default().uri("http://example.com/blog?nonce=1a2b3c").query(), "nonce=1a2b3c");
+    /// assert_eq!(Request::default().uri("http://example.com/blog?nonce=1a2b3c&signature=abcde").query(), "nonce=1a2b3c&signature=abcde");
     /// ```
     #[inline]
     pub fn query(&self) -> &str {
@@ -613,12 +613,12 @@ impl Request {
     /// use fibra::*;
     ///
     /// assert_eq!(Request::default().href(), "/");
-    /// assert_eq!(Request::default().uri(Uri::from_static("http://example.com")).href(), "http://example.com/");
-    /// assert_eq!(Request::default().uri(Uri::from_static("http://example.com/")).href(), "http://example.com/");
-    /// assert_eq!(Request::default().uri(Uri::from_static("http://example.com/blog")).href(), "http://example.com/blog");
-    /// assert_eq!(Request::default().uri(Uri::from_static("http://example.com/blog?")).href(), "http://example.com/blog?");
-    /// assert_eq!(Request::default().uri(Uri::from_static("http://example.com/blog?nonce=1a2b3c")).href(), "http://example.com/blog?nonce=1a2b3c");
-    /// assert_eq!(Request::default().uri(Uri::from_static("http://example.com/blog?nonce=1a2b3c&signature=abcde")).href(), "http://example.com/blog?nonce=1a2b3c&signature=abcde");
+    /// assert_eq!(Request::default().uri("http://example.com").href(), "http://example.com/");
+    /// assert_eq!(Request::default().uri("http://example.com/").href(), "http://example.com/");
+    /// assert_eq!(Request::default().uri("http://example.com/blog").href(), "http://example.com/blog");
+    /// assert_eq!(Request::default().uri("http://example.com/blog?").href(), "http://example.com/blog?");
+    /// assert_eq!(Request::default().uri("http://example.com/blog?nonce=1a2b3c").href(), "http://example.com/blog?nonce=1a2b3c");
+    /// assert_eq!(Request::default().uri("http://example.com/blog?nonce=1a2b3c&signature=abcde").href(), "http://example.com/blog?nonce=1a2b3c&signature=abcde");
     /// ```
     #[inline]
     pub fn href(&self) -> String {

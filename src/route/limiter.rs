@@ -18,8 +18,10 @@ impl Limiter {
     /// ```
     /// use fibra::*;
     ///
-    /// let limiter = Limiter::default().insert(|ctx| ctx.is_get());
-    /// let context = Context::from(Request::default());
+    /// let mut limiter = Limiter::default();
+    /// let context = Context::default();
+    /// 
+    /// limiter.insert(|ctx| ctx.is_get());
     ///
     /// assert_eq!(limiter.filter(&context), true);
     /// ```
@@ -46,8 +48,10 @@ impl Limiter {
     /// ```
     /// use fibra::*;
     ///
-    /// let limiter = Limiter::default().insert(|_| false);
-    /// let context = Context::from(Request::default());
+    /// let mut limiter = Limiter::default();
+    /// let context = Context::default();
+    ///
+    /// limiter.insert(|_| false);
     ///
     /// assert_eq!(limiter.filter(&context), false);
     ///
@@ -69,7 +73,8 @@ impl Limiter {
     /// ```
     /// use fibra::*;
     ///
-    /// let limiter = Limiter::default().method(Method::PUT);
+    /// let mut limiter = Limiter::default();
+    /// limiter.method(Method::PUT);
     ///
     /// assert_eq!(limiter.filter(&Context::from(Request::default().method(Method::PUT))), true);
     /// assert_eq!(limiter.filter(&Context::from(Request::default().method(Method::GET))), false);
@@ -87,7 +92,8 @@ impl Limiter {
     /// ```
     /// use fibra::*;
     ///
-    /// let limiter = Limiter::default().methods(vec![Method::PUT, Method::PATCH]);
+    /// let mut limiter = Limiter::default();
+    /// limiter.methods(vec![Method::PUT, Method::PATCH]);
     ///
     /// assert_eq!(limiter.filter(&Context::from(Request::default().method(Method::PUT))), true);
     /// assert_eq!(limiter.filter(&Context::from(Request::default().method(Method::PATCH))), true);
@@ -107,7 +113,8 @@ impl Limiter {
     /// ```
     /// use fibra::*;
     ///
-    /// let limiter = Limiter::default().domain("example.com");
+    /// let mut limiter = Limiter::default();
+    /// limiter.domain("example.com");
     ///
     /// assert_eq!(limiter.filter(&Context::from(Request::default().uri("http://www.example.com"))), true);
     /// assert_eq!(limiter.filter(&Context::from(Request::default().uri("http://www.example.net"))), false);
@@ -125,7 +132,8 @@ impl Limiter {
     /// ```
     /// use fibra::*;
     ///
-    /// let limiter = Limiter::default().domains(vec!["example.com", "example.net"]);
+    /// let mut limiter = Limiter::default();
+    /// limiter.domains(vec!["example.com", "example.net"]);
     ///
     /// assert_eq!(limiter.filter(&Context::from(Request::default().uri("http://www.example.com"))), true);
     /// assert_eq!(limiter.filter(&Context::from(Request::default().uri("http://www.example.net"))), true);
@@ -144,7 +152,8 @@ impl Limiter {
     /// ```
     /// use fibra::*;
     ///
-    /// let limiter = Limiter::default().subdomain("api");
+    /// let mut limiter = Limiter::default();
+    /// limiter.subdomain("api");
     ///
     /// assert_eq!(limiter.filter(&Context::from(Request::default().uri("http://api.example.com"))), true);
     /// assert_eq!(limiter.filter(&Context::from(Request::default().uri("http://www.example.com"))), false);
@@ -162,7 +171,8 @@ impl Limiter {
     /// ```
     /// use fibra::*;
     ///
-    /// let limiter = Limiter::default().subdomains(vec!["api", "app"]);
+    /// let mut limiter = Limiter::default();
+    /// limiter.subdomains(vec!["api", "app"]);
     ///
     /// assert_eq!(limiter.filter(&Context::from(Request::default().uri("http://api.example.com"))), true);
     /// assert_eq!(limiter.filter(&Context::from(Request::default().uri("http://app.example.com"))), true);
@@ -181,7 +191,8 @@ impl Limiter {
     /// ```
     /// use fibra::*;
     ///
-    /// let limiter = Limiter::default().host("api.example.com");
+    /// let mut limiter = Limiter::default();
+    /// limiter.host("api.example.com");
     ///
     /// assert_eq!(limiter.filter(&Context::from(Request::default().uri("http://api.example.com"))), true);
     /// assert_eq!(limiter.filter(&Context::from(Request::default().uri("http://app.example.com"))), false);
@@ -199,7 +210,8 @@ impl Limiter {
     /// ```
     /// use fibra::*;
     ///
-    /// let limiter = Limiter::default().hosts(vec!["api.example.com", "app.example.com"]);
+    /// let mut limiter = Limiter::default();
+    /// limiter.hosts(vec!["api.example.com", "app.example.com"]);
     ///
     /// assert_eq!(limiter.filter(&Context::from(Request::default().uri("http://api.example.com"))), true);
     /// assert_eq!(limiter.filter(&Context::from(Request::default().uri("http://app.example.com"))), true);
@@ -218,7 +230,8 @@ impl Limiter {
     /// ```
     /// use fibra::*;
     ///
-    /// let limiter = Limiter::default().path("/user/12345");
+    /// let mut limiter = Limiter::default();
+    /// limiter.path("/user/12345");
     ///
     /// assert_eq!(limiter.filter(&Context::from(Request::default().uri("http://api.example.com/user/12345"))), true);
     /// assert_eq!(limiter.filter(&Context::from(Request::default().uri("http://api.example.com/user/abcde"))), false);
@@ -236,7 +249,8 @@ impl Limiter {
     /// ```
     /// use fibra::*;
     ///
-    /// let limiter = Limiter::default().paths(vec!["/user/12345", "/user/abcde"]);
+    /// let mut limiter = Limiter::default();
+    /// limiter.paths(vec!["/user/12345", "/user/abcde"]);
     ///
     /// assert_eq!(limiter.filter(&Context::from(Request::default().uri("http://api.example.com/user/12345"))), true);
     /// assert_eq!(limiter.filter(&Context::from(Request::default().uri("http://api.example.com/user/abcde"))), true);
@@ -255,7 +269,8 @@ impl Limiter {
     /// ```
     /// use fibra::*;
     ///
-    /// let limiter = Limiter::default().query("id", "12345");
+    /// let mut limiter = Limiter::default();
+    /// limiter.query("id", "12345");
     ///
     /// assert_eq!(limiter.filter(&Context::from(Request::default().uri("http://api.example.com/?id=12345"))), true);
     /// assert_eq!(limiter.filter(&Context::from(Request::default().uri("http://api.example.com/?id=abcde"))), false);
@@ -274,7 +289,8 @@ impl Limiter {
     /// ```
     /// use fibra::*;
     ///
-    /// let limiter = Limiter::default().queries(vec![("id", "12345"), ("id", "abcde")]);
+    /// let mut limiter = Limiter::default();
+    /// limiter.queries(vec![("id", "12345"), ("id", "abcde")]);
     ///
     /// assert_eq!(limiter.filter(&Context::from(Request::default().uri("http://api.example.com/?id=12345"))), true);
     /// assert_eq!(limiter.filter(&Context::from(Request::default().uri("http://api.example.com/?id=abcde"))), true);
@@ -293,7 +309,8 @@ impl Limiter {
     /// ```
     /// use fibra::*;
     ///
-    /// let limiter = Limiter::default().header("content-type", "text/plain");
+    /// let mut limiter = Limiter::default();
+    /// limiter.header("content-type", "text/plain");
     ///
     /// assert_eq!(limiter.filter(&Context::from(Request::default().header("content-type", "text/plain"))), true);
     /// assert_eq!(limiter.filter(&Context::from(Request::default().header("content-type", "application/json"))), false);
@@ -312,7 +329,8 @@ impl Limiter {
     /// ```
     /// use fibra::*;
     ///
-    /// let limiter = Limiter::default().headers(vec![("content-type", "text/plain"), ("content-type", "application/json")]);
+    /// let mut limiter = Limiter::default();
+    /// limiter.headers(vec![("content-type", "text/plain"), ("content-type", "application/json")]);
     ///
     /// assert_eq!(limiter.filter(&Context::from(Request::default().header("content-type", "text/plain"))), true);
     /// assert_eq!(limiter.filter(&Context::from(Request::default().header("content-type", "application/json"))), true);

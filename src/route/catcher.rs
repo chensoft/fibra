@@ -78,16 +78,18 @@ impl Default for Catcher {
 ///
 /// #[tokio::main]
 /// async fn main() -> FibraResult<()> {
-///     let catcher = Catcher::from(|obj, err| {
+///     let catcher = Catcher::from(|obj: &Catcher, err| {
 ///         match err {
 ///             FibraError::PanicError(_) => Status::SERVICE_UNAVAILABLE.into(),
-///             _ => obj.default(err)
+///             _ => (obj.preset)(err)
 ///         }
 ///     });
 ///
 ///     assert_eq!(catcher.protect(async { Ok(Response::from("It Works!")) }).await.body_all().await?, "It Works!");
 ///     assert_eq!(catcher.protect(async { panic!("Fatal Error") }).await.status_ref(), &Status::SERVICE_UNAVAILABLE);
-///     assert_eq!(catcher.protect(async { Err(FibraError::PathDuplicate("/".into())) }).await.status_ref(), &Status::INTERNAL_SERVER_ERROR);
+///     assert_eq!(catcher.protect(async { Err(FibraError::PathNotFound) }).await.status_ref(), &Status::NOT_FOUND);
+///     assert_eq!(catcher.protect(async { Err(FibraError::RadixError(radixmap::RadixError::PathMalformed(""))) }).await.status_ref(), &Status::INTERNAL_SERVER_ERROR);
+///     assert_eq!(catcher.protect(async { panic!("abc") }).await.status_ref(), &Status::SERVICE_UNAVAILABLE);
 ///
 ///     Ok(())
 /// }

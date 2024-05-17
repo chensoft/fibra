@@ -13,7 +13,7 @@
 ///     post("/api/v3/user") => "user3",
 /// };
 ///
-/// assert_eq!(app.handlers().len(), 2);
+/// assert_eq!(app.handlers().len(), 1); // only one Matcher here
 /// ```
 #[macro_export]
 macro_rules! fibra {

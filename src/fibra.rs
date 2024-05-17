@@ -89,7 +89,6 @@ impl Fibra {
     ///
     /// ```
     /// use fibra::*;
-    /// use std::sync::Arc;
     ///
     /// #[tokio::main]
     /// async fn main() -> FibraResult<()> {
@@ -99,9 +98,8 @@ impl Fibra {
     ///     app.get("/api/v2/user", "user2")?;
     ///
     ///     // mock a real request and check the response body
-    ///     let con = Connection::default();
     ///     let req = Request::default().uri("http://example.com/api/v2/user");
-    ///     let ctx = Context::from((Arc::new(app), Arc::new(con), req));
+    ///     let ctx = Context::from((app, req));
     ///
     ///     assert_eq!(ctx.next().await?.body_all().await?, "user2");
     ///
@@ -118,7 +116,6 @@ impl Fibra {
     ///
     /// ```
     /// use fibra::*;
-    /// use std::sync::Arc;
     ///
     /// #[tokio::main]
     /// async fn main() -> FibraResult<()> {
@@ -132,9 +129,8 @@ impl Fibra {
     ///     v2.get("/user", "user2")?;
     ///
     ///     // mock a real request
-    ///     let con = Connection::default();
     ///     let req = Request::default().uri("http://example.com/api/v2/user");
-    ///     let mut ctx = Context::from((Arc::new(app), Arc::new(con), req));
+    ///     let mut ctx = Context::from(req);
     ///
     ///     assert_eq!(ctx.next().await?.body_all().await?, "user2");
     ///
@@ -195,7 +191,7 @@ impl Fibra {
     ///     // mock a request with correct subdomain
     ///     {
     ///         let req = Request::default().uri("http://api.example.com/api/v2/user");
-    ///         let mut ctx = Context::from((app.clone(), con.clone(), req));
+    ///         let mut ctx = Context::from((app, con, req));
     ///         let mut res = ctx.next().await?;
     ///
     ///         assert_eq!(res.status_ref(), &Status::OK);
@@ -215,7 +211,6 @@ impl Fibra {
     ///
     /// ```
     /// use fibra::*;
-    /// use std::sync::Arc;
     ///
     /// #[tokio::main]
     /// async fn main() -> FibraResult<()> {
@@ -225,14 +220,12 @@ impl Fibra {
     ///     app.get("/api/v2/user", "user2")?;
     ///
     ///     app.catch(|_, err| match err {
-    ///         FibraError::PathNotFound(path) => (Status::FORBIDDEN, path).into(),
+    ///         FibraError::PathNotFound => Status::FORBIDDEN.into(),
     ///         _ => Status::SERVICE_UNAVAILABLE.into(),
     ///     });
     ///
     ///     // mock a real request
-    ///     let con = Connection::default();
-    ///     let req = Request::default().uri("http://example.com/api/v3/user");
-    ///     let mut ctx = Context::from((Arc::new(app), Arc::new(con), req));
+    ///     let mut ctx = Context::from((app, Request::default().uri("http://example.com/api/v3/user")));
     ///     let mut res = ctx.next().await?;
     ///
     ///     assert_eq!(res.status_ref(), &Status::FORBIDDEN);

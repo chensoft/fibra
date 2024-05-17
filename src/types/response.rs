@@ -247,7 +247,7 @@ impl Response {
     /// }
     /// ```
     pub async fn body_all(&mut self) -> FibraResult<Bytes> {
-        use hyper::body::HttpBody;
+        use body::HttpBody;
         Ok(self.body_mut().collect().await?.to_bytes())
     }
 
@@ -319,7 +319,7 @@ impl Response {
     ///     let mut res = Response::default().jsonp(map, "callback");
     ///
     ///     assert_eq!(res.header_ref(header::CONTENT_TYPE).map(|v| v.as_bytes()), Some(mime::APPLICATION_JSON.as_ref().as_bytes()));
-    ///     assert_eq!(res.body_all().await?, "callback({\"a\":1,\"b\":2}"));
+    ///     assert_eq!(res.body_all().await?, "callback({\"a\":1,\"b\":2})");
     ///
     ///     Ok(())
     /// }
@@ -380,10 +380,9 @@ impl Response {
     }
 
     /// Set file response with auto detecting its type
-    /// todo
     pub fn file(self) -> Self {
         // auto detect file mime, chunk transfer, stream wrap attachment header
-        self
+        todo!()
     }
 
     /// Set raw byte stream response with APPLICATION_OCTET_STREAM
@@ -428,7 +427,7 @@ impl Response {
     /// }
     ///
     /// impl Stream for FileStream {
-    ///     type Item = FibraResult<Bytes>;
+    ///     type Item = FibraResult<Vec<u8>>;
     ///
     ///     fn poll_next(mut self: std::pin::Pin<&mut Self>, _cx: &mut std::task::Context<'_>) -> Poll<Option<Self::Item>> {
     ///         let mut buffer = vec![0; 10];
@@ -745,15 +744,16 @@ impl From<Vec<u8>> for Response {
 ///
 /// ```
 /// use fibra::*;
+/// use body::HttpBody;
 ///
 /// #[tokio::main]
 /// async fn main() -> FibraResult<()> {
 ///     let raw: Response = (Status::NOT_FOUND, mime::TEXT_PLAIN_UTF_8, Status::NOT_FOUND.canonical_reason().unwrap_or("")).into();
-///     let mut res: hyper::Response<hyper::Body> = raw.into();
+///     let mut res: hyper::Response<Body> = raw.into();
 ///
 ///     assert_eq!(res.status(), Status::NOT_FOUND.as_u16());
 ///     assert_eq!(res.headers().get(header::CONTENT_TYPE).map(|v| v.as_bytes()), Some("text/plain; charset=utf-8".as_bytes()));
-///     assert_eq!(res.body_all().await?, "Not Found");
+///     assert_eq!(res.body_mut().collect().await?.to_bytes(), "Not Found");
 ///
 ///     Ok(())
 /// }

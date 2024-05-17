@@ -1,12 +1,16 @@
+//! Route Matcher
 use crate::route::*;
 use crate::types::*;
 
+/// A route matcher determines which handler to invoke for an incoming HTTP request based on
+/// the request's URL.
 #[derive(Default)]
 pub struct Matcher {
     routes: RadixMap<Vec<Routine>>
 }
 
 impl Matcher {
+    /// Inert a new route into the matcher
     pub fn insert(&mut self, path: impl Into<String>, handler: impl Handler) -> FibraResult<&mut Routine> {
         let path = path.into();
 
