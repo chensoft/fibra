@@ -2,26 +2,46 @@ use fibra::*;
 
 #[tokio::main]
 async fn main() -> FibraResult<()> {
-    // create a main router with a predefined logger
+    // create fibra app
     let mut app = Fibra::new();
-    // app.mount(addon::Logger::default());
-    app.route("/", "It Works!")?;
-    // app.route("/index.html", |ctx: Context| async { ctx.rewrite("/", "todo").await })?;
 
-    // create a subrouter with a subdomain that starts with 'api'
+    // mount some middlewares
+    app.mount(addon::Logger::default());
+
+    // use string as the response
+    // cmd: http -v localip.cc
+    app.get("/", "index")?;
+
+    // use closure as the response and rewrite it to the above handler
+    // cmd: http -v localip.cc/index.html
+    app.get("/index.html", |ctx: Context| async { ctx.rewrite("/", "").await })?;
+
+    // create a subrouter with a subdomain 'api'
+    // cmd: http -v api.localip.cc
     let api = app.group("/")?;
-    // api.limit().host("api.*");
-    api.route("/", "api")?;
+    api.limit().subdomain("api");
+    api.get("/", "api")?;
 
-    // create api/v1's subrouter
+    // create a endpoint
+    // cmd: http -v api.localip.cc/v1
+    // cmd: http -v api.localip.cc/v1/user
     let v1 = api.group("/v1")?;
-    v1.route("/", "v1")?;
-    v1.route("/user", v1_user)?;
+    v1.get("/", "v1")?;
+    v1.get("/user", v1_user)?;
 
-    // create api/v2's subrouter
+    // create a endpoint
+    // cmd: http -v api.localip.cc/v2
+    // cmd: http -v api.localip.cc/v2/user
     let v2 = api.group("/v2")?;
-    v2.route("/", "v2")?;
-    v2.route("/user", v2_user)?;
+    v2.get("/", "v2")?;
+    v2.get("/user", v2_user)?;
+
+    // handle 404 NOT_FOUND and other errors
+    // cmd: http -v localip.cc/missing
+    app.catch(|err| match err {
+        FibraError::PathNotFound => (Status::NOT_FOUND, "Oops! Page not found.").into(),
+        _ => Status::INTERNAL_SERVER_ERROR.into(),
+    });
 
     // bind on a port and run the server
     app.bind("0.0.0.0:3000")?;
@@ -29,9 +49,9 @@ async fn main() -> FibraResult<()> {
 }
 
 async fn v1_user(_ctx: Context) -> FibraResult<Response> {
-    Ok("".into())
+    Ok("I'm User1".into())
 }
 
 async fn v2_user(_ctx: Context) -> FibraResult<Response> {
-    Ok("".into())
+    Ok("I'm User2".into())
 }

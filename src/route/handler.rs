@@ -51,8 +51,8 @@ impl<T: Any> AnyHandler for T {
 /// #[async_trait]
 /// impl Handler for HandlerB { async fn handle(&self, _ctx: Context) -> FibraResult<Response> { unimplemented!() } }
 ///
-/// let mut handler_a: Box<dyn Handler> = Box::new(HandlerA);
-/// let mut handler_b: Box<dyn Handler> = Box::new(HandlerB);
+/// let mut handler_a: BoxHandler = Box::new(HandlerA);
+/// let mut handler_b: BoxHandler = Box::new(HandlerB);
 ///
 /// assert_eq!(handler_a.as_handler::<HandlerA>().is_some(), true);
 /// assert_eq!(handler_a.as_handler::<HandlerB>().is_some(), false);
