@@ -17,6 +17,8 @@ pub struct Context {
     /// Current request object
     req: Request,
 
+    // todo prefix: 
+
     /// The named params after path matching
     params: IndexMap<String, String>,
 
@@ -234,9 +236,9 @@ impl Context {
     /// ```
     /// use fibra::*;
     ///
-    /// let ctx = Context::from(Request::default().uri("http://example.com"));
+    /// let ctx = Context::from(Request::default().uri("http://localip.cc"));
     ///
-    /// assert_eq!(ctx.uri(), "http://example.com/");
+    /// assert_eq!(ctx.uri(), "http://localip.cc/");
     /// ```
     pub fn uri(&self) -> &Uri {
         self.req.uri_ref()
@@ -249,7 +251,7 @@ impl Context {
     /// ```
     /// use fibra::*;
     ///
-    /// let ctx = Context::from(Request::default().uri("https://example.com"));
+    /// let ctx = Context::from(Request::default().uri("https://localip.cc"));
     ///
     /// assert_eq!(ctx.scheme(), &Scheme::HTTPS);
     /// assert_eq!(ctx.is_secure(), true);
@@ -270,9 +272,9 @@ impl Context {
     /// ```
     /// use fibra::*;
     ///
-    /// let ctx = Context::from(Request::default().uri("http://user:pass@example.com"));
+    /// let ctx = Context::from(Request::default().uri("http://user:pass@localip.cc"));
     ///
-    /// assert_eq!(ctx.authority(), Some(&Authority::from_static("user:pass@example.com")));
+    /// assert_eq!(ctx.authority(), Some(&Authority::from_static("user:pass@localip.cc")));
     /// ```
     pub fn authority(&self) -> Option<&Authority> {
         self.req.authority()
@@ -285,9 +287,9 @@ impl Context {
     /// ```
     /// use fibra::*;
     ///
-    /// let ctx = Context::from(Request::default().uri("http://user:pass@example.com"));
+    /// let ctx = Context::from(Request::default().uri("http://user:pass@localip.cc"));
     ///
-    /// assert_eq!(ctx.domain(), "example.com");
+    /// assert_eq!(ctx.domain(), "localip.cc");
     /// ```
     pub fn domain(&self) -> &str {
         self.req.domain()
@@ -300,7 +302,7 @@ impl Context {
     /// ```
     /// use fibra::*;
     ///
-    /// let ctx = Context::from(Request::default().uri("http://user:pass@git.example.com"));
+    /// let ctx = Context::from(Request::default().uri("http://user:pass@git.localip.cc"));
     ///
     /// assert_eq!(ctx.subdomain(), "git");
     /// ```
@@ -315,9 +317,9 @@ impl Context {
     /// ```
     /// use fibra::*;
     ///
-    /// let ctx = Context::from(Request::default().uri("http://user:pass@git.example.com"));
+    /// let ctx = Context::from(Request::default().uri("http://user:pass@git.localip.cc"));
     ///
-    /// assert_eq!(ctx.host(), "git.example.com");
+    /// assert_eq!(ctx.host(), "git.localip.cc");
     /// ```
     pub fn host(&self) -> &str {
         self.req.host()
@@ -330,7 +332,7 @@ impl Context {
     /// ```
     /// use fibra::*;
     ///
-    /// let ctx = Context::from(Request::default().uri("http://example.com:3000"));
+    /// let ctx = Context::from(Request::default().uri("http://localip.cc:3000"));
     ///
     /// assert_eq!(ctx.port(), 3000);
     /// ```
@@ -345,7 +347,7 @@ impl Context {
     /// ```
     /// use fibra::*;
     ///
-    /// let ctx = Context::from(Request::default().uri("http://example.com/repo/fibra"));
+    /// let ctx = Context::from(Request::default().uri("http://localip.cc/repo/fibra"));
     ///
     /// assert_eq!(ctx.path(), "/repo/fibra");
     /// ```
@@ -360,7 +362,7 @@ impl Context {
     /// ```
     /// use fibra::*;
     ///
-    /// let ctx = Context::from(Request::default().uri("http://example.com/?foo=bar"));
+    /// let ctx = Context::from(Request::default().uri("http://localip.cc/?foo=bar"));
     ///
     /// assert_eq!(ctx.query("foo"), "bar");
     /// assert_eq!(ctx.query("key"), "");
@@ -376,7 +378,7 @@ impl Context {
     /// ```
     /// use fibra::*;
     ///
-    /// let ctx = Context::from(Request::default().uri("http://example.com/?foo=bar&key=%E4%BD%A0%E5%A5%BD"));
+    /// let ctx = Context::from(Request::default().uri("http://localip.cc/?foo=bar&key=%E4%BD%A0%E5%A5%BD"));
     ///
     /// assert_eq!(ctx.query("foo"), "bar");
     /// assert_eq!(ctx.query("key"), "你好"); // url decoded
@@ -393,9 +395,9 @@ impl Context {
     /// ```
     /// use fibra::*;
     ///
-    /// let ctx = Context::from(Request::default().uri("http://user:pass@git.example.com/repo/fibra?foo=bar&key=%E4%BD%A0%E5%A5%BD"));
+    /// let ctx = Context::from(Request::default().uri("http://user:pass@git.localip.cc/repo/fibra?foo=bar&key=%E4%BD%A0%E5%A5%BD"));
     ///
-    /// assert_eq!(ctx.href(), "http://user:pass@git.example.com/repo/fibra?foo=bar&key=%E4%BD%A0%E5%A5%BD".to_string());
+    /// assert_eq!(ctx.href(), "http://user:pass@git.localip.cc/repo/fibra?foo=bar&key=%E4%BD%A0%E5%A5%BD".to_string());
     /// ```
     pub fn href(&self) -> String {
         self.req.href()
@@ -575,9 +577,9 @@ impl Context {
     ///         get("/v1") => "v1",
     ///         get("/v2") => "v2",
     ///     };
-    ///     let ctx = Context::from((app, Request::default().uri("http://example.com/v1")));
+    ///     let ctx = Context::from((app, Request::default().uri("http://localip.cc/v1")));
     ///
-    ///     assert_eq!(ctx.rewrite("http://example.com/v2", "").await?.body_all().await?, "v2");
+    ///     assert_eq!(ctx.rewrite("http://localip.cc/v2", "").await?.body_all().await?, "v2");
     ///
     ///     Ok(())
     /// }
@@ -596,9 +598,9 @@ impl Context {
     ///
     /// #[tokio::main]
     /// async fn main() -> FibraResult<()> {
-    ///     assert_eq!(Context::default().redirect("http://example.com", None)?.status_ref(), &Status::FOUND);
-    ///     assert_eq!(Context::default().redirect("http://example.com", None)?.header_ref(header::LOCATION), Some(&HeaderValue::from_static("http://example.com/")));
-    ///     assert_eq!(Context::default().redirect("http://example.com", Some(Status::MOVED_PERMANENTLY))?.status_ref(), &Status::MOVED_PERMANENTLY);
+    ///     assert_eq!(Context::default().redirect("http://localip.cc", None)?.status_ref(), &Status::FOUND);
+    ///     assert_eq!(Context::default().redirect("http://localip.cc", None)?.header_ref(header::LOCATION), Some(&HeaderValue::from_static("http://localip.cc/")));
+    ///     assert_eq!(Context::default().redirect("http://localip.cc", Some(Status::MOVED_PERMANENTLY))?.status_ref(), &Status::MOVED_PERMANENTLY);
     ///
     ///     Ok(())
     /// }

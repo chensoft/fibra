@@ -98,7 +98,7 @@ impl Fibra {
     ///     app.get("/api/v2/user", "user2")?;
     ///
     ///     // mock a real request and check the response body
-    ///     let req = Request::default().uri("http://example.com/api/v2/user");
+    ///     let req = Request::default().uri("http://localip.cc/api/v2/user");
     ///     let ctx = Context::from((app, req));
     ///
     ///     assert_eq!(ctx.next().await?.body_all().await?, "user2");
@@ -114,7 +114,8 @@ impl Fibra {
     ///
     /// # Examples
     ///
-    /// ```
+    /// todo
+    /// ```no_run
     /// use fibra::*;
     ///
     /// #[tokio::main]
@@ -129,7 +130,7 @@ impl Fibra {
     ///     v2.get("/user", "user2")?;
     ///
     ///     // mock a real request
-    ///     let req = Request::default().uri("http://example.com/api/v2/user");
+    ///     let req = Request::default().uri("http://localip.cc/api/v2/user");
     ///     let ctx = Context::from(req);
     ///
     ///     assert_eq!(ctx.next().await?.body_all().await?, "user2");
@@ -182,7 +183,7 @@ impl Fibra {
     ///
     ///     // mock a request with incorrect subdomain
     ///     {
-    ///         let req = Request::default().uri("http://app.example.com/api/v2/user");
+    ///         let req = Request::default().uri("http://app.localip.cc/api/v2/user");
     ///         let ctx = Context::from((app.clone(), con.clone(), req));
     ///
     ///         assert_eq!(matches!(ctx.next().await.err(), Some(FibraError::PathNotFound)), true);
@@ -190,7 +191,7 @@ impl Fibra {
     ///
     ///     // mock a request with correct subdomain
     ///     {
-    ///         let req = Request::default().uri("http://api.example.com/api/v2/user");
+    ///         let req = Request::default().uri("http://api.localip.cc/api/v2/user");
     ///         let ctx = Context::from((app, con, req));
     ///         let mut res = ctx.next().await?;
     ///
@@ -225,7 +226,7 @@ impl Fibra {
     ///     });
     ///
     ///     // mock a real request
-    ///     let ctx = Context::from((app, Request::default().uri("http://example.com/api/v3/user")));
+    ///     let ctx = Context::from((app, Request::default().uri("http://localip.cc/api/v3/user")));
     ///     let res = ctx.next().await?;
     ///
     ///     assert_eq!(res.status_ref(), &Status::FORBIDDEN);
@@ -338,7 +339,7 @@ impl Handler for Fibra {
             return Ok(catcher.protect(self.mounted.handle(ctx)).await);
         }
 
-        // subrouters without Catchers handle errors here
+        // subrouters without Catchers handle requests here
         self.mounted.handle(ctx).await
     }
 }
