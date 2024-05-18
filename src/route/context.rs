@@ -17,8 +17,6 @@ pub struct Context {
     /// Current request object
     req: Request,
 
-    // todo prefix: 
-
     /// The named params after path matching
     params: IndexMap<String, String>,
 
@@ -27,6 +25,9 @@ pub struct Context {
 
     /// Internal routing stack
     routing: Vec<*const dyn Handler>,
+
+    // request path to be matched
+    matchable: Bytes,
 }
 
 unsafe impl Send for Context {}
@@ -530,21 +531,6 @@ impl Context {
 }
 
 impl Context {
-    /// Find the next handler and execute it
-    pub async fn next(mut self) -> FibraResult<Response> {
-        if let Some(handler) = self.routing.pop() {
-            return unsafe { &*handler }.handle(self).await;
-        }
-
-        Err(FibraError::PathNotFound)
-    }
-
-    /// todo
-    #[inline]
-    pub fn push(&mut self, cur: *const dyn Handler) {
-        self.routing.push(cur);
-    }
-
     /// Reject current request with FORBIDDEN by default
     ///
     /// # Examples
@@ -610,6 +596,25 @@ impl Context {
         let redirect = status.unwrap_or(Status::FOUND);
         Ok(Response::default().status(redirect).header(header::LOCATION, location))
     }
+
+    /// Find the next handler and execute it
+    pub async fn next(mut self) -> FibraResult<Response> {
+        if let Some(handler) = self.routing.pop() {
+            return unsafe { &*handler }.handle(self).await;
+        }
+
+        Err(FibraError::PathNotFound)
+    }
+
+    /// todo
+    #[inline]
+    pub fn push(&mut self, cur: *const dyn Handler) {
+        self.routing.push(cur);
+    }
+    
+    pub fn matchable(&self) {
+        todo!()
+    }
 }
 
 /// Construct from client request
@@ -617,8 +622,9 @@ impl From<(Arc<Fibra>, Arc<Connection>, Request)> for Context {
     fn from((app, conn, req): (Arc<Fibra>, Arc<Connection>, Request)) -> Self {
         let served = conn.count_add(1);
         let queries = form_urlencoded::parse(req.query().as_bytes()).into_owned().collect();
+        let matchable = Bytes::from(req.path().to_string());
 
-        let mut myself = Self { app, conn, served, req, params: IndexMap::new(), queries, routing: vec![] };
+        let mut myself = Self { app, conn, served, req, params: IndexMap::new(), queries, routing: vec![], matchable };
         myself.push(myself.app().as_ref());
         myself
     }

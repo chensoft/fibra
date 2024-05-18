@@ -1,75 +1,110 @@
-// todo more config and log hook print start, settings, compact
+//! Logger Middleware
 use crate::route::*;
 use crate::types::*;
 
-/// Log Support
+/// Logger Middleware
+///
+/// # Examples
+///
+/// ```
+/// use fibra::*;
+///
+/// let mut app = Fibra::new();
+/// app.mount(addon::Logger::default());
+/// ```
 pub struct Logger {
-//     pub logger: logkit::Logger,
-//     pub level: logkit::Level,
-//     pub precision: chrono::SecondsFormat,
+    logger: logkit::Logger,
+    level: String,
 }
 
-// impl Logger {
-//     pub fn todo remove or default instead(target: impl logkit::Target, level: logkit::Level, precision: chrono::SecondsFormat) -> Self {
-//         let mut logger = logkit::Logger::new(None);
-//         logger.mount(logkit::LevelPlugin);
-//         logger.route(target);
-// 
-//         Self {logger, level, precision}
-//     }
-// 
-//     pub fn level(mut self, level: logkit::Level) -> Self {
-//         self.level = level;
-//         self
-//     }
-// 
-//     pub fn precision(mut self, precision: chrono::SecondsFormat) -> Self {
-//         self.precision = precision;
-//         self
-//     }
-// }
+impl Logger {
+    /// Get the inner logger
+    pub fn logger(&self) -> &logkit::Logger {
+        &self.logger
+    }
+
+    /// Get the inner logger
+    pub fn logger_mut(&mut self) -> &mut logkit::Logger {
+        &mut self.logger
+    }
+
+    /// Set write target of the logger
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use fibra::*;
+    ///
+    /// let mut app = Fibra::new();
+    /// app.mount(addon::Logger::default().route(logkit::StdoutTarget));
+    /// ```
+    pub fn route(mut self, target: impl logkit::Target) -> Self {
+        self.logger.route(target);
+        self
+    }
+
+    /// Set our log's default level
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use fibra::*;
+    ///
+    /// let mut app = Fibra::new();
+    /// app.mount(addon::Logger::default().level(logkit::LEVEL_DEBUG));
+    /// ```
+    pub fn level(mut self, level: logkit::Level) -> Self {
+        self.level = logkit::level_to_str(level).map(|v| v.to_string()).unwrap_or(level.to_string());
+        self
+    }
+}
 
 impl Default for Logger {
     fn default() -> Self {
-//         Self::new(logkit::StderrTarget, logkit::LEVEL_INFO, chrono::SecondsFormat::Millis)
-        Self {}
+        Self { logger: logkit::Logger::new(Some(&logkit::StderrTarget)), level: "info".to_string() }
     }
 }
 
 #[async_trait]
 impl Handler for Logger {
-    async fn handle(&self, _ctx: Context) -> FibraResult<Response> {
-//         let launch = *ctx.created();
-//         let client = ctx.remote().to_string();
-// 
-//         let mut record = self.logger.spawn(self.level).unwrap_or_else(|| unreachable!());
-//         record.append("time", &launch.to_rfc3339_opts(self.precision, false));
-//         record.append("method", &ctx.method().as_str());
-//         record.append("path", &ctx.path());
-//         record.append("query", &ctx.req().query());
-// 
-//         let result = ctx.next().await;
-//         let finish = SystemTime::now();
-//         let status = match &result {
-//             Ok(res) => res.status_ref().as_u16(),
-//             _ => 0,
-//         };
-// 
-//         let offset = finish - launch;
-//         let offset = match self.precision {
-//             chrono::SecondsFormat::Secs => offset.num_seconds(),
-//             chrono::SecondsFormat::Millis => offset.num_milliseconds(),
-//             chrono::SecondsFormat::Micros => offset.num_microseconds().unwrap_or(offset.num_milliseconds() * 1000),
-//             _ => offset.num_nanoseconds().unwrap_or(offset.num_milliseconds() * 1000000),
-//         };
-// 
-//         record.append("status", &status);
-//         record.append("elapsed", &offset);
-//         record.append("client", &client);
-// 
-//         self.logger.flush(record);
-// 
-//         result
-        todo!()
+    async fn handle(&self, ctx: Context) -> FibraResult<Response> {
+        let begin = ctx.created().duration_since(UNIX_EPOCH)?.as_millis();
+        let reqid = ctx.reqid();
+
+        // request log
+        let mut record = self.logger.spawn(0, logkit::Source::default()).unwrap_or_else(|| unreachable!());
+        record.append("time", &begin);
+        record.append("level", &self.level);
+        record.append("kind", &"req");
+        record.append("reqid", &reqid);
+        record.append("method", &ctx.method().as_str());
+        record.append("path", &ctx.path());
+        record.append("query", &ctx.req().query());
+        record.append("ip", &ctx.remote().ip().to_string());
+
+        self.logger.flush(record);
+
+        // call handler
+        let result = ctx.next().await;
+        let finish = SystemTime::now().duration_since(UNIX_EPOCH)?.as_millis();
+        let offset = finish - begin;
+        let status = match &result {
+            Ok(res) => res.status_ref().as_u16(),
+            Err(FibraError::PathNotFound) => Status::NOT_FOUND.as_u16(),
+            _ => 0,
+        };
+
+        // response log
+        let mut record = self.logger.spawn(0, logkit::Source::default()).unwrap_or_else(|| unreachable!());
+        record.append("time", &begin);
+        record.append("level", &self.level);
+        record.append("kind", &"res");
+        record.append("reqid", &reqid);
+        record.append("status", &status);
+        record.append("elapsed", &offset);
+
+        self.logger.flush(record);
+
+        result
     }
 }

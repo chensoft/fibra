@@ -4,7 +4,7 @@ use crate::types::*;
 /// Catch errors and call the handler
 pub struct Catcher {
     /// Handler
-    pub handler: Arc<dyn Fn(FibraError) -> Response + Send + Sync + 'static>,
+    handler: Arc<dyn Fn(FibraError) -> Response + Send + Sync + 'static>,
 }
 
 impl Catcher {

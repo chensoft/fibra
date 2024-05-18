@@ -7,7 +7,7 @@ use crate::types::*;
 pub struct Limiter {
     /// Store all filters
     #[allow(clippy::type_complexity)]
-    pub limits: Vec<Box<dyn Fn(&Context) -> bool + Send + Sync + 'static>>
+    limits: Vec<Box<dyn Fn(&Context) -> bool + Send + Sync + 'static>>
 }
 
 impl Limiter {

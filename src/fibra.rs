@@ -151,8 +151,8 @@ impl Fibra {
     ///
     /// let mut app = Fibra::new();
     ///
-    /// app.mount(addon::Logger{});
-    /// app.mount(addon::Logger{});
+    /// app.mount(addon::Logger::default());
+    /// app.mount(addon::Logger::default());
     ///
     /// assert_eq!(app.handlers().len(), 2);
     /// ```

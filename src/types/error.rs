@@ -12,6 +12,9 @@ pub enum FibraError {
     IoError(#[from] std::io::Error),
 
     #[error("{0}")]
+    TimeError(#[from] std::time::SystemTimeError),
+
+    #[error("{0}")]
     RadixError(#[from] radixmap::RadixError),
 
     #[error("{0}")]
