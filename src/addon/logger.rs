@@ -68,15 +68,15 @@ impl Default for Logger {
 #[async_trait]
 impl Handler for Logger {
     async fn handle(&self, ctx: Context) -> FibraResult<Response> {
-        let begin = ctx.created().duration_since(UNIX_EPOCH)?.as_nanos();
-        let reqid = ctx.reqid();
+        let begin = ctx.created().duration_since(UNIX_EPOCH)?;
+        let reqid = ctx.reqid().to_string();
 
         // request log
         let mut record = self.logger.spawn(0, logkit::Source::default()).unwrap_or_else(|| unreachable!());
-        record.append("time", &begin);
+        record.append("time", &begin.as_millis());
         record.append("level", &self.level);
+        record.append("id", &reqid);
         record.append("kind", &"req");
-        record.append("reqid", &reqid);
         record.append("method", &ctx.method().as_str());
         record.append("path", &ctx.path());
         record.append("query", &ctx.req().query());
@@ -86,7 +86,7 @@ impl Handler for Logger {
 
         // call handler
         let result = ctx.next().await;
-        let offset = (SystemTime::now().duration_since(UNIX_EPOCH)?.as_nanos() - begin) as f64 / 1_000_000_000.0;
+        let offset = (SystemTime::now().duration_since(UNIX_EPOCH)?.as_nanos() - begin.as_nanos()) as f64 / 1_000_000_000.0;
         let status = match &result {
             Ok(res) => res.status_ref().as_u16(),
             Err(FibraError::PathNotFound) => Status::NOT_FOUND.as_u16(),
@@ -95,10 +95,10 @@ impl Handler for Logger {
 
         // response log
         let mut record = self.logger.spawn(0, logkit::Source::default()).unwrap_or_else(|| unreachable!());
-        record.append("time", &begin);
+        record.append("time", &begin.as_millis());
         record.append("level", &self.level);
+        record.append("id", &reqid);
         record.append("kind", &"res");
-        record.append("reqid", &reqid);
         record.append("status", &status);
         record.append("elapsed", &offset);
 

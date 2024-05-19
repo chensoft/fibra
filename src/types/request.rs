@@ -5,7 +5,7 @@ use crate::types::*;
 /// single connection if the client is using HTTP/1x's Keep-Alive feature or HTTP/2
 pub struct Request {
     /// The unique identifier of this request
-    id: u128,
+    id: String,
 
     /// The time the request was created
     created: SystemTime,
@@ -45,11 +45,11 @@ impl Request {
     /// ```
     /// use fibra::*;
     ///
-    /// assert_eq!(*Request::default().id_ref() > 0, true);
+    /// assert_eq!(Request::default().id_ref().is_empty(), false);
     /// ```
     #[inline]
-    pub fn id_ref(&self) -> &u128 {
-        &self.id
+    pub fn id_ref(&self) -> &str {
+        self.id.as_str()
     }
 
     /// Get/Set the unique identifier of this request
@@ -60,12 +60,12 @@ impl Request {
     /// use fibra::*;
     ///
     /// let mut req = Request::default();
-    /// *req.id_mut() = 12345;
+    /// *req.id_mut() = "12345".to_string();
     ///
-    /// assert_eq!(req.id_ref(), &12345);
+    /// assert_eq!(req.id_ref(), "12345");
     /// ```
     #[inline]
-    pub fn id_mut(&mut self) -> &mut u128 {
+    pub fn id_mut(&mut self) -> &mut String {
         &mut self.id
     }
 
@@ -76,11 +76,11 @@ impl Request {
     /// ```
     /// use fibra::*;
     ///
-    /// assert_eq!(Request::default().id(12345).id_ref(), &12345);
+    /// assert_eq!(Request::default().id("12345").id_ref(), "12345");
     /// ```
     #[inline]
-    pub fn id(mut self, val: u128) -> Self {
-        self.id = val;
+    pub fn id(mut self, val: impl Into<String>) -> Self {
+        self.id = val.into();
         self
     }
 
@@ -641,7 +641,7 @@ impl From<hyper::Request<Body>> for Request {
         let (head, body) = from.into_parts();
 
         Self {
-            id: Ulid::from_datetime(time).0,
+            id: Ulid::from_datetime(time).to_string(),
             created: time,
             method: head.method,
             uri: head.uri,

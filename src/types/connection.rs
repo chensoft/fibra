@@ -5,7 +5,7 @@ use crate::types::*;
 /// connection if using HTTP/1x's Keep-Alive feature or HTTP/2.
 pub struct Connection {
     /// The unique identifier of this connection
-    id: u128,
+    id: String,
 
     /// The time the connection was created
     created: SystemTime,
@@ -28,11 +28,11 @@ impl Connection {
     /// ```
     /// use fibra::*;
     ///
-    /// assert_eq!(*Connection::default().id_ref() > 0, true);
+    /// assert_eq!(Connection::default().id_ref().is_empty(), false);
     /// ```
     #[inline]
-    pub fn id_ref(&self) -> &u128 {
-        &self.id
+    pub fn id_ref(&self) -> &str {
+        self.id.as_str()
     }
 
     /// Get/Set the unique identifier of this connection
@@ -43,12 +43,12 @@ impl Connection {
     /// use fibra::*;
     ///
     /// let mut con = Connection::default();
-    /// *con.id_mut() = 12345;
+    /// *con.id_mut() = "12345".to_string();
     ///
-    /// assert_eq!(con.id_ref(), &12345);
+    /// assert_eq!(con.id_ref(), "12345");
     /// ```
     #[inline]
-    pub fn id_mut(&mut self) -> &mut u128 {
+    pub fn id_mut(&mut self) -> &mut String {
         &mut self.id
     }
 
@@ -59,11 +59,11 @@ impl Connection {
     /// ```
     /// use fibra::*;
     ///
-    /// assert_eq!(Connection::default().id(12345).id_ref(), &12345);
+    /// assert_eq!(Connection::default().id("12345").id_ref(), "12345");
     /// ```
     #[inline]
-    pub fn id(mut self, val: u128) -> Self {
-        self.id = val;
+    pub fn id(mut self, val: impl Into<String>) -> Self {
+        self.id = val.into();
         self
     }
 
@@ -292,6 +292,6 @@ impl Default for Connection {
 impl<S: Into<SocketAddr>, P: Into<SocketAddr>> From<(S, P)> for Connection {
     #[inline]
     fn from((sock, peer): (S, P)) -> Self {
-        Self { id: Ulid::new().0, count: 0.into(), created: SystemTime::now(), sockaddr: sock.into(), peeraddr: peer.into() }
+        Self { id: Ulid::new().to_string(), count: 0.into(), created: SystemTime::now(), sockaddr: sock.into(), peeraddr: peer.into() }
     }
 }

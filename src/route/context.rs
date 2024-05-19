@@ -51,10 +51,10 @@ impl Context {
     /// ```
     /// use fibra::*;
     ///
-    /// assert_eq!(Context::default().connid() > 0, true);
+    /// assert_eq!(Context::default().connid().is_empty(), false);
     /// ```
-    pub fn connid(&self) -> u128 {
-        *self.conn.id_ref()
+    pub fn connid(&self) -> &str {
+        self.conn.id_ref()
     }
 
     /// Current connection's established time
@@ -140,11 +140,11 @@ impl Context {
     ///
     /// let ctx = Context::default();
     ///
-    /// assert_eq!(ctx.reqid() > 0, true);
+    /// assert_eq!(ctx.reqid().is_empty(), false);
     /// assert_ne!(ctx.reqid(), Context::default().reqid()); // reqid is unique
     /// ```
-    pub fn reqid(&self) -> u128 {
-        *self.req.id_ref()
+    pub fn reqid(&self) -> &str {
+        self.req.id_ref()
     }
 
     /// Request's created time

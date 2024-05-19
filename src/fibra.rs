@@ -48,39 +48,43 @@ impl Fibra {
     }
 
     /// Register a route for GET method
-    pub fn get(&mut self, path: impl Into<String>, handler: impl Handler) -> FibraResult<&mut Self> {
-        self.route(path, handler)?.limit().method(Method::GET);
-        Ok(self)
+    pub fn get(&mut self, path: impl Into<String>, handler: impl Handler) -> FibraResult<&mut Routine> {
+        let routine = self.route(path, handler)?;
+        routine.limit().method(Method::GET);
+        Ok(routine)
     }
 
     /// Register a route for POST method
-    pub fn post(&mut self, path: impl Into<String>, handler: impl Handler) -> FibraResult<&mut Self> {
-        self.route(path, handler)?.limit().method(Method::POST);
-        Ok(self)
+    pub fn post(&mut self, path: impl Into<String>, handler: impl Handler) -> FibraResult<&mut Routine> {
+        let routine = self.route(path, handler)?;
+        routine.limit().method(Method::POST);
+        Ok(routine)
     }
 
     /// Register a route for PUT method
-    pub fn put(&mut self, path: impl Into<String>, handler: impl Handler) -> FibraResult<&mut Self> {
-        self.route(path, handler)?.limit().method(Method::PUT);
-        Ok(self)
+    pub fn put(&mut self, path: impl Into<String>, handler: impl Handler) -> FibraResult<&mut Routine> {
+        let routine = self.route(path, handler)?;
+        routine.limit().method(Method::PUT);
+        Ok(routine)
     }
 
     /// Register a route for DELETE method
-    pub fn delete(&mut self, path: impl Into<String>, handler: impl Handler) -> FibraResult<&mut Self> {
-        self.route(path, handler)?.limit().method(Method::DELETE);
-        Ok(self)
+    pub fn delete(&mut self, path: impl Into<String>, handler: impl Handler) -> FibraResult<&mut Routine> {
+        let routine = self.route(path, handler)?;
+        routine.limit().method(Method::DELETE);
+        Ok(routine)
     }
 
     /// Register a route for PATCH method
-    pub fn patch(&mut self, path: impl Into<String>, handler: impl Handler) -> FibraResult<&mut Self> {
-        self.route(path, handler)?.limit().method(Method::PATCH);
-        Ok(self)
+    pub fn patch(&mut self, path: impl Into<String>, handler: impl Handler) -> FibraResult<&mut Routine> {
+        let routine = self.route(path, handler)?;
+        routine.limit().method(Method::PATCH);
+        Ok(routine)
     }
 
     /// Register a route for all methods
-    pub fn all(&mut self, path: impl Into<String>, handler: impl Handler) -> FibraResult<&mut Self> {
-        self.route(path, handler)?;
-        Ok(self)
+    pub fn all(&mut self, path: impl Into<String>, handler: impl Handler) -> FibraResult<&mut Routine> {
+        self.route(path, handler)
     }
 
     /// Register a route
