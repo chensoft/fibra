@@ -343,7 +343,7 @@ impl Handler for Fibra {
 
         // block requests that fail the test
         if let Some(limiter) = &self.limiter {
-            if !limiter.filter(&ctx) {
+            if !limiter.test(&ctx) {
                 return ctx.next().await;
             }
         }

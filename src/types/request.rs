@@ -438,24 +438,18 @@ impl Request {
     /// ```
     /// use fibra::*;
     ///
-    /// assert_eq!(Request::default().uri("localip.cc").scheme(), &Scheme::Unknown);
+    /// assert_eq!(Request::default().uri("localip.cc").scheme(), &Scheme::HTTP);
     /// assert_eq!(Request::default().uri("http://localip.cc").scheme(), &Scheme::HTTP);
     /// assert_eq!(Request::default().uri("https://localip.cc").scheme(), &Scheme::HTTPS);
     /// ```
     #[inline]
     pub fn scheme(&self) -> &Scheme {
         // todo check tls socket, scheme is none when self comes from hyper connection
-        let scheme = self.uri.scheme();
-
-        if scheme == Some(&hyper::http::uri::Scheme::HTTP) {
-            return &Scheme::HTTP;
-        }
-
-        if scheme == Some(&hyper::http::uri::Scheme::HTTPS) {
+        if self.uri.scheme() == Some(&hyper::http::uri::Scheme::HTTPS) {
             return &Scheme::HTTPS;
         }
 
-        &Scheme::Unknown
+        &Scheme::HTTP
     }
 
     /// Get the authority
@@ -528,12 +522,26 @@ impl Request {
     /// use fibra::*;
     ///
     /// assert_eq!(Request::default().host(), "");
+    ///
     /// assert_eq!(Request::default().uri("http://localip.cc").host(), "localip.cc");
+    /// assert_eq!(Request::default().uri("http://localip.cc:3000").host(), "localip.cc");
     /// assert_eq!(Request::default().uri("http://www.localip.cc").host(), "www.localip.cc");
-    /// assert_eq!(Request::default().uri("http://fibra.api.localip.cc").host(), "fibra.api.localip.cc");
+    ///
+    /// assert_eq!(Request::default().header(header::HOST, "localip.cc").host(), "localip.cc");
+    /// assert_eq!(Request::default().header(header::HOST, "localip.cc:3000").host(), "localip.cc");
+    /// assert_eq!(Request::default().header(header::HOST, "www.localip.cc").host(), "www.localip.cc");
     /// ```
     #[inline]
     pub fn host(&self) -> &str {
+        if let Some(host) = self.header_ref(header::HOST) {
+            if let Ok(host) = std::str::from_utf8(host.as_bytes()) {
+                return match host.rfind(':') {
+                    None => host,
+                    Some(find) => &host[..find],
+                };
+            }
+        }
+
         self.uri.host().unwrap_or("")
     }
 
@@ -544,21 +552,31 @@ impl Request {
     /// ```
     /// use fibra::*;
     ///
-    /// assert_eq!(Request::default().port(), 0);
+    /// assert_eq!(Request::default().port(), 80);
+    ///
     /// assert_eq!(Request::default().uri("http://localip.cc").port(), 80);
     /// assert_eq!(Request::default().uri("http://localip.cc:3000").port(), 3000);
-    /// assert_eq!(Request::default().uri("http://localip.cc:3000/blog").port(), 3000);
     /// assert_eq!(Request::default().uri("https://localip.cc").port(), 443);
     /// assert_eq!(Request::default().uri("https://www.localip.cc:8443").port(), 8443);
+    ///
+    /// assert_eq!(Request::default().header(header::HOST, "localip.cc").port(), 80);
+    /// assert_eq!(Request::default().header(header::HOST, "localip.cc:3000").port(), 3000);
     /// ```
     #[inline]
     pub fn port(&self) -> u16 {
+        if let Some(host) = self.header_ref(header::HOST) {
+            if let Ok(host) = std::str::from_utf8(host.as_bytes()) {
+                if let Some(find) = host.rfind(':') {
+                    return host[find + 1..].parse().unwrap_or(0)
+                }
+            }
+        }
+
         match self.uri.port_u16() {
             Some(port) => port,
             None => match self.scheme() {
                 Scheme::HTTP => 80,
                 Scheme::HTTPS => 443,
-                Scheme::Unknown => 0,
             }
         }
     }

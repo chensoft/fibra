@@ -21,17 +21,17 @@ impl Limiter {
     /// let mut limiter = Limiter::default();
     /// let context = Context::default();
     /// 
-    /// limiter.insert(|ctx| ctx.is_get());
+    /// limiter.push(|ctx| ctx.is_get());
     ///
-    /// assert_eq!(limiter.filter(&context), true);
+    /// assert_eq!(limiter.test(&context), true);
     /// ```
-    pub fn insert<F>(&mut self, f: F) -> &mut Self where F: Fn(&Context) -> bool + Send + Sync + 'static {
+    pub fn push<F>(&mut self, f: F) -> &mut Self where F: Fn(&Context) -> bool + Send + Sync + 'static {
         self.limits.push(Box::new(f));
         self
     }
 
     /// Check filters and return the first false result
-    pub fn filter(&self, ctx: &Context) -> bool {
+    pub fn test(&self, ctx: &Context) -> bool {
         self.limits.iter().find_map(|f| {
             let pass = f(ctx);
             match pass {
@@ -51,13 +51,13 @@ impl Limiter {
     /// let mut limiter = Limiter::default();
     /// let context = Context::default();
     ///
-    /// limiter.insert(|_| false);
+    /// limiter.push(|_| false);
     ///
-    /// assert_eq!(limiter.filter(&context), false);
+    /// assert_eq!(limiter.test(&context), false);
     ///
     /// limiter.clear();
     ///
-    /// assert_eq!(limiter.filter(&context), true);
+    /// assert_eq!(limiter.test(&context), true);
     /// ```
     pub fn clear(&mut self) -> &mut Self {
         self.limits.clear();
@@ -76,13 +76,13 @@ impl Limiter {
     /// let mut limiter = Limiter::default();
     /// limiter.method(Method::PUT);
     ///
-    /// assert_eq!(limiter.filter(&Context::from(Request::default().method(Method::PUT))), true);
-    /// assert_eq!(limiter.filter(&Context::from(Request::default().method(Method::GET))), false);
+    /// assert_eq!(limiter.test(&Context::from(Request::default().method(Method::PUT))), true);
+    /// assert_eq!(limiter.test(&Context::from(Request::default().method(Method::GET))), false);
     /// ```
     pub fn method(&mut self, val: impl Into<Method>) -> &mut Self {
         let val = val.into();
 
-        self.insert(move |ctx| ctx.method() == val)
+        self.push(move |ctx| ctx.method() == val)
     }
 
     /// Limit multiple methods, any pass will do
@@ -95,15 +95,15 @@ impl Limiter {
     /// let mut limiter = Limiter::default();
     /// limiter.methods(vec![Method::PUT, Method::PATCH]);
     ///
-    /// assert_eq!(limiter.filter(&Context::from(Request::default().method(Method::PUT))), true);
-    /// assert_eq!(limiter.filter(&Context::from(Request::default().method(Method::PATCH))), true);
-    /// assert_eq!(limiter.filter(&Context::from(Request::default().method(Method::GET))), false);
-    /// assert_eq!(limiter.filter(&Context::from(Request::default().method(Method::POST))), false);
+    /// assert_eq!(limiter.test(&Context::from(Request::default().method(Method::PUT))), true);
+    /// assert_eq!(limiter.test(&Context::from(Request::default().method(Method::PATCH))), true);
+    /// assert_eq!(limiter.test(&Context::from(Request::default().method(Method::GET))), false);
+    /// assert_eq!(limiter.test(&Context::from(Request::default().method(Method::POST))), false);
     /// ```
     pub fn methods(&mut self, vec: Vec<impl Into<Method>>) -> &mut Self {
         let vec: Vec<Method> = vec.into_iter().map(Into::into).collect();
 
-        self.insert(move |ctx| vec.iter().any(|val| ctx.method() == val))
+        self.push(move |ctx| vec.iter().any(|val| ctx.method() == val))
     }
 
     /// Limit domain name
@@ -116,13 +116,13 @@ impl Limiter {
     /// let mut limiter = Limiter::default();
     /// limiter.domain("localip.cc");
     ///
-    /// assert_eq!(limiter.filter(&Context::from(Request::default().uri("http://www.localip.cc"))), true);
-    /// assert_eq!(limiter.filter(&Context::from(Request::default().uri("http://www.example.net"))), false);
+    /// assert_eq!(limiter.test(&Context::from(Request::default().uri("http://www.localip.cc"))), true);
+    /// assert_eq!(limiter.test(&Context::from(Request::default().uri("http://www.example.net"))), false);
     /// ```
     pub fn domain(&mut self, val: impl Into<String>) -> &mut Self {
         let val = val.into();
 
-        self.insert(move |ctx| ctx.domain() == val)
+        self.push(move |ctx| ctx.domain() == val)
     }
 
     /// Limit domain names
@@ -135,14 +135,14 @@ impl Limiter {
     /// let mut limiter = Limiter::default();
     /// limiter.domains(vec!["localip.cc", "example.net"]);
     ///
-    /// assert_eq!(limiter.filter(&Context::from(Request::default().uri("http://www.localip.cc"))), true);
-    /// assert_eq!(limiter.filter(&Context::from(Request::default().uri("http://www.example.net"))), true);
-    /// assert_eq!(limiter.filter(&Context::from(Request::default().uri("http://www.example.org"))), false);
+    /// assert_eq!(limiter.test(&Context::from(Request::default().uri("http://www.localip.cc"))), true);
+    /// assert_eq!(limiter.test(&Context::from(Request::default().uri("http://www.example.net"))), true);
+    /// assert_eq!(limiter.test(&Context::from(Request::default().uri("http://www.example.org"))), false);
     /// ```
     pub fn domains(&mut self, vec: Vec<impl Into<String>>) -> &mut Self {
         let vec: Vec<_> = vec.into_iter().map(Into::into).collect();
 
-        self.insert(move |ctx| vec.iter().any(|val| ctx.domain() == val))
+        self.push(move |ctx| vec.iter().any(|val| ctx.domain() == val))
     }
 
     /// Limit subdomain
@@ -155,13 +155,13 @@ impl Limiter {
     /// let mut limiter = Limiter::default();
     /// limiter.subdomain("api");
     ///
-    /// assert_eq!(limiter.filter(&Context::from(Request::default().uri("http://api.localip.cc"))), true);
-    /// assert_eq!(limiter.filter(&Context::from(Request::default().uri("http://www.localip.cc"))), false);
+    /// assert_eq!(limiter.test(&Context::from(Request::default().uri("http://api.localip.cc"))), true);
+    /// assert_eq!(limiter.test(&Context::from(Request::default().uri("http://www.localip.cc"))), false);
     /// ```
     pub fn subdomain(&mut self, val: impl Into<String>) -> &mut Self {
         let val = val.into();
 
-        self.insert(move |ctx| ctx.subdomain() == val)
+        self.push(move |ctx| ctx.subdomain() == val)
     }
 
     /// Limit subdomains
@@ -174,14 +174,14 @@ impl Limiter {
     /// let mut limiter = Limiter::default();
     /// limiter.subdomains(vec!["api", "app"]);
     ///
-    /// assert_eq!(limiter.filter(&Context::from(Request::default().uri("http://api.localip.cc"))), true);
-    /// assert_eq!(limiter.filter(&Context::from(Request::default().uri("http://app.localip.cc"))), true);
-    /// assert_eq!(limiter.filter(&Context::from(Request::default().uri("http://www.localip.cc"))), false);
+    /// assert_eq!(limiter.test(&Context::from(Request::default().uri("http://api.localip.cc"))), true);
+    /// assert_eq!(limiter.test(&Context::from(Request::default().uri("http://app.localip.cc"))), true);
+    /// assert_eq!(limiter.test(&Context::from(Request::default().uri("http://www.localip.cc"))), false);
     /// ```
     pub fn subdomains(&mut self, vec: Vec<impl Into<String>>) -> &mut Self {
         let vec: Vec<_> = vec.into_iter().map(Into::into).collect();
 
-        self.insert(move |ctx| vec.iter().any(|val| ctx.subdomain() == val))
+        self.push(move |ctx| vec.iter().any(|val| ctx.subdomain() == val))
     }
 
     /// Limit host
@@ -194,13 +194,13 @@ impl Limiter {
     /// let mut limiter = Limiter::default();
     /// limiter.host("api.localip.cc");
     ///
-    /// assert_eq!(limiter.filter(&Context::from(Request::default().uri("http://api.localip.cc"))), true);
-    /// assert_eq!(limiter.filter(&Context::from(Request::default().uri("http://app.localip.cc"))), false);
+    /// assert_eq!(limiter.test(&Context::from(Request::default().uri("http://api.localip.cc"))), true);
+    /// assert_eq!(limiter.test(&Context::from(Request::default().uri("http://app.localip.cc"))), false);
     /// ```
     pub fn host(&mut self, val: impl Into<String>) -> &mut Self {
         let val = val.into();
 
-        self.insert(move |ctx| ctx.host() == val)
+        self.push(move |ctx| ctx.host() == val)
     }
 
     /// Limit hosts
@@ -213,14 +213,14 @@ impl Limiter {
     /// let mut limiter = Limiter::default();
     /// limiter.hosts(vec!["api.localip.cc", "app.localip.cc"]);
     ///
-    /// assert_eq!(limiter.filter(&Context::from(Request::default().uri("http://api.localip.cc"))), true);
-    /// assert_eq!(limiter.filter(&Context::from(Request::default().uri("http://app.localip.cc"))), true);
-    /// assert_eq!(limiter.filter(&Context::from(Request::default().uri("http://www.localip.cc"))), false);
+    /// assert_eq!(limiter.test(&Context::from(Request::default().uri("http://api.localip.cc"))), true);
+    /// assert_eq!(limiter.test(&Context::from(Request::default().uri("http://app.localip.cc"))), true);
+    /// assert_eq!(limiter.test(&Context::from(Request::default().uri("http://www.localip.cc"))), false);
     /// ```
     pub fn hosts(&mut self, vec: Vec<impl Into<String>>) -> &mut Self {
         let vec: Vec<_> = vec.into_iter().map(Into::into).collect();
 
-        self.insert(move |ctx| vec.iter().any(|val| ctx.host() == val))
+        self.push(move |ctx| vec.iter().any(|val| ctx.host() == val))
     }
 
     /// Limit path
@@ -233,13 +233,13 @@ impl Limiter {
     /// let mut limiter = Limiter::default();
     /// limiter.path("/user/12345");
     ///
-    /// assert_eq!(limiter.filter(&Context::from(Request::default().uri("http://api.localip.cc/user/12345"))), true);
-    /// assert_eq!(limiter.filter(&Context::from(Request::default().uri("http://api.localip.cc/user/abcde"))), false);
+    /// assert_eq!(limiter.test(&Context::from(Request::default().uri("http://api.localip.cc/user/12345"))), true);
+    /// assert_eq!(limiter.test(&Context::from(Request::default().uri("http://api.localip.cc/user/abcde"))), false);
     /// ```
     pub fn path(&mut self, val: impl Into<String>) -> &mut Self {
         let val = val.into();
 
-        self.insert(move |ctx| ctx.path() == val)
+        self.push(move |ctx| ctx.path() == val)
     }
 
     /// Limit paths
@@ -252,14 +252,14 @@ impl Limiter {
     /// let mut limiter = Limiter::default();
     /// limiter.paths(vec!["/user/12345", "/user/abcde"]);
     ///
-    /// assert_eq!(limiter.filter(&Context::from(Request::default().uri("http://api.localip.cc/user/12345"))), true);
-    /// assert_eq!(limiter.filter(&Context::from(Request::default().uri("http://api.localip.cc/user/abcde"))), true);
-    /// assert_eq!(limiter.filter(&Context::from(Request::default().uri("http://api.localip.cc/user/qwert"))), false);
+    /// assert_eq!(limiter.test(&Context::from(Request::default().uri("http://api.localip.cc/user/12345"))), true);
+    /// assert_eq!(limiter.test(&Context::from(Request::default().uri("http://api.localip.cc/user/abcde"))), true);
+    /// assert_eq!(limiter.test(&Context::from(Request::default().uri("http://api.localip.cc/user/qwert"))), false);
     /// ```
     pub fn paths(&mut self, vec: Vec<impl Into<String>>) -> &mut Self {
         let vec: Vec<_> = vec.into_iter().map(Into::into).collect();
 
-        self.insert(move |ctx| vec.iter().any(|val| ctx.path() == val))
+        self.push(move |ctx| vec.iter().any(|val| ctx.path() == val))
     }
 
     /// Limit query
@@ -272,14 +272,14 @@ impl Limiter {
     /// let mut limiter = Limiter::default();
     /// limiter.query("id", "12345");
     ///
-    /// assert_eq!(limiter.filter(&Context::from(Request::default().uri("http://api.localip.cc/?id=12345"))), true);
-    /// assert_eq!(limiter.filter(&Context::from(Request::default().uri("http://api.localip.cc/?id=abcde"))), false);
+    /// assert_eq!(limiter.test(&Context::from(Request::default().uri("http://api.localip.cc/?id=12345"))), true);
+    /// assert_eq!(limiter.test(&Context::from(Request::default().uri("http://api.localip.cc/?id=abcde"))), false);
     /// ```
     pub fn query(&mut self, key: impl Into<String>, val: impl Into<String>) -> &mut Self {
         let key = key.into();
         let val = val.into();
 
-        self.insert(move |ctx| ctx.query(key.as_str()) == val)
+        self.push(move |ctx| ctx.query(key.as_str()) == val)
     }
 
     /// Limit queries
@@ -292,14 +292,14 @@ impl Limiter {
     /// let mut limiter = Limiter::default();
     /// limiter.queries(vec![("id", "12345"), ("id", "abcde")]);
     ///
-    /// assert_eq!(limiter.filter(&Context::from(Request::default().uri("http://api.localip.cc/?id=12345"))), true);
-    /// assert_eq!(limiter.filter(&Context::from(Request::default().uri("http://api.localip.cc/?id=abcde"))), true);
-    /// assert_eq!(limiter.filter(&Context::from(Request::default().uri("http://api.localip.cc/?id=qwert"))), false);
+    /// assert_eq!(limiter.test(&Context::from(Request::default().uri("http://api.localip.cc/?id=12345"))), true);
+    /// assert_eq!(limiter.test(&Context::from(Request::default().uri("http://api.localip.cc/?id=abcde"))), true);
+    /// assert_eq!(limiter.test(&Context::from(Request::default().uri("http://api.localip.cc/?id=qwert"))), false);
     /// ```
     pub fn queries(&mut self, vec: Vec<(impl Into<String>, impl Into<String>)>) -> &mut Self {
         let vec: Vec<_> = vec.into_iter().map(|(key, val)| (key.into(), val.into())).collect();
 
-        self.insert(move |ctx| vec.iter().any(|(key, val)| ctx.query(key.as_str()) == val))
+        self.push(move |ctx| vec.iter().any(|(key, val)| ctx.query(key.as_str()) == val))
     }
 
     /// Limit header
@@ -312,13 +312,13 @@ impl Limiter {
     /// let mut limiter = Limiter::default();
     /// limiter.header("content-type", "text/plain");
     ///
-    /// assert_eq!(limiter.filter(&Context::from(Request::default().header("content-type", "text/plain"))), true);
-    /// assert_eq!(limiter.filter(&Context::from(Request::default().header("content-type", "application/json"))), false);
+    /// assert_eq!(limiter.test(&Context::from(Request::default().header("content-type", "text/plain"))), true);
+    /// assert_eq!(limiter.test(&Context::from(Request::default().header("content-type", "application/json"))), false);
     /// ```
     pub fn header(&mut self, key: impl IntoHeaderName, val: impl IntoHeaderValue) -> &mut Self {
         let key = key.into_header_name();
         let val = val.into_header_value();
-        self.insert(move |ctx| ctx.header(&key) == Some(&val))
+        self.push(move |ctx| ctx.header(&key) == Some(&val))
     }
 
     /// Limit headers
@@ -331,13 +331,13 @@ impl Limiter {
     /// let mut limiter = Limiter::default();
     /// limiter.headers(vec![("content-type", "text/plain"), ("content-type", "application/json")]);
     ///
-    /// assert_eq!(limiter.filter(&Context::from(Request::default().header("content-type", "text/plain"))), true);
-    /// assert_eq!(limiter.filter(&Context::from(Request::default().header("content-type", "application/json"))), true);
-    /// assert_eq!(limiter.filter(&Context::from(Request::default().header("content-type", "application/yaml"))), false);
+    /// assert_eq!(limiter.test(&Context::from(Request::default().header("content-type", "text/plain"))), true);
+    /// assert_eq!(limiter.test(&Context::from(Request::default().header("content-type", "application/json"))), true);
+    /// assert_eq!(limiter.test(&Context::from(Request::default().header("content-type", "application/yaml"))), false);
     /// ```
     pub fn headers(&mut self, vec: Vec<(impl IntoHeaderName, impl IntoHeaderValue)>) -> &mut Self {
         let vec: Vec<_> = vec.into_iter().map(|(key, val)| (key.into_header_name(), val.into_header_value())).collect();
 
-        self.insert(move |ctx| vec.iter().any(|(key, val)| ctx.header(key) == Some(val)))
+        self.push(move |ctx| vec.iter().any(|(key, val)| ctx.header(key) == Some(val)))
     }
 }

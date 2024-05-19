@@ -32,7 +32,7 @@ impl Routine {
 impl Handler for Routine {
     async fn handle(&self, ctx: Context) -> FibraResult<Response> {
         if let Some(limiter) = &self.limiter {
-            if !limiter.filter(&ctx) {
+            if !limiter.test(&ctx) {
                 return ctx.next().await;
             }
         }

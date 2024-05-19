@@ -10,7 +10,7 @@ async fn main() -> FibraResult<()> {
 
     // use string as the response
     // cmd: http -v localip.cc:3000
-    app.get("/", "index")?.limit().subdomain("");
+    app.get("/", "hello")?.limit().subdomain("");
 
     // use closure as the response and rewrite it to the above handler
     // cmd: http -v localip.cc:3000/index.html

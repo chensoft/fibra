@@ -80,6 +80,7 @@ impl Handler for Logger {
         record.append("method", &ctx.method().as_str());
         record.append("path", &ctx.path());
         record.append("query", &ctx.req().query());
+        record.append("host", &ctx.host());
         record.append("ip", &ctx.remote().ip().to_string());
 
         self.logger.flush(record);

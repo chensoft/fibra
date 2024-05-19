@@ -8,14 +8,4 @@ pub enum Scheme {
 
     /// HTTPS
     HTTPS,
-
-    /// Unknown
-    Unknown,
-}
-
-impl Default for Scheme {
-    #[inline]
-    fn default() -> Self {
-        Self::Unknown
-    }
 }
