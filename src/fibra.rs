@@ -114,8 +114,7 @@ impl Fibra {
     ///
     /// # Examples
     ///
-    /// todo
-    /// ```no_run
+    /// ```
     /// use fibra::*;
     ///
     /// #[tokio::main]
@@ -131,7 +130,7 @@ impl Fibra {
     ///
     ///     // mock a real request
     ///     let req = Request::default().uri("http://localip.cc/api/v2/user");
-    ///     let ctx = Context::from(req);
+    ///     let ctx = Context::from((app, req));
     ///
     ///     assert_eq!(ctx.next().await?.body_all().await?, "user2");
     ///
@@ -139,6 +138,9 @@ impl Fibra {
     /// }
     /// ```
     pub fn group(&mut self, path: impl Into<String>) -> FibraResult<&mut Fibra> {
+        let mut path = path.into();
+        path.push('*');
+
         Ok(self.route(path, Fibra::new())?.treat::<Fibra>().unwrap_or_else(|| unreachable!()))
     }
 
@@ -325,7 +327,16 @@ impl Fibra {
 
 #[async_trait]
 impl Handler for Fibra {
-    async fn handle(&self, ctx: Context) -> FibraResult<Response> {
+    async fn handle(&self, mut ctx: Context) -> FibraResult<Response> {
+        // use * as the unmatched path
+        let rest = ctx.param("*").len();
+
+        if rest > 0 {
+            let fore = ctx.rest().len() - rest;
+            *ctx.rest() = ctx.rest().slice(fore..);
+            ctx.params_mut().swap_remove("*");
+        }
+
         // block requests that fail the test
         if let Some(limiter) = &self.limiter {
             if !limiter.filter(&ctx) {

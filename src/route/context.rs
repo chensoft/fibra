@@ -17,6 +17,9 @@ pub struct Context {
     /// Current request object
     req: Request,
 
+    // request path to be matched
+    rest: Bytes,
+
     /// The named params after path matching
     params: IndexMap<String, String>,
 
@@ -25,9 +28,6 @@ pub struct Context {
 
     /// Internal routing stack
     routing: Vec<*const dyn Handler>,
-
-    // request path to be matched
-    matchable: Bytes,
 }
 
 unsafe impl Send for Context {}
@@ -611,20 +611,21 @@ impl Context {
     pub fn push(&mut self, cur: *const dyn Handler) {
         self.routing.push(cur);
     }
-    
-    pub fn matchable(&self) {
-        todo!()
+
+    /// remaining path to be matched
+    pub fn rest(&mut self) -> &mut Bytes {
+        &mut self.rest
     }
 }
 
 /// Construct from client request
 impl From<(Arc<Fibra>, Arc<Connection>, Request)> for Context {
     fn from((app, conn, req): (Arc<Fibra>, Arc<Connection>, Request)) -> Self {
+        let rest = Bytes::from(req.path().to_string());
         let served = conn.count_add(1);
         let queries = form_urlencoded::parse(req.query().as_bytes()).into_owned().collect();
-        let matchable = Bytes::from(req.path().to_string());
 
-        let mut myself = Self { app, conn, served, req, params: IndexMap::new(), queries, routing: vec![], matchable };
+        let mut myself = Self { app, conn, served, req, rest, params: IndexMap::new(), queries, routing: vec![] };
         myself.push(myself.app().as_ref());
         myself
     }

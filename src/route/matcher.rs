@@ -28,7 +28,7 @@ impl Matcher {
 #[async_trait]
 impl Handler for Matcher {
     async fn handle(&self, mut ctx: Context) -> FibraResult<Response> {
-        if let (Some(routes), params) = self.routes.capture(ctx.path().as_bytes()) {
+        if let (Some(routes), params) = self.routes.capture(ctx.rest()) {
             if !params.is_empty() {
                 let new: IndexMap<String, String> = params.into_iter().map(|(k, v)| {
                     (unsafe { String::from_utf8_unchecked(k.to_vec()) }, unsafe { std::str::from_utf8_unchecked(v).to_string() })

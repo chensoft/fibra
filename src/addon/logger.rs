@@ -68,7 +68,7 @@ impl Default for Logger {
 #[async_trait]
 impl Handler for Logger {
     async fn handle(&self, ctx: Context) -> FibraResult<Response> {
-        let begin = ctx.created().duration_since(UNIX_EPOCH)?.as_millis();
+        let begin = ctx.created().duration_since(UNIX_EPOCH)?.as_nanos();
         let reqid = ctx.reqid();
 
         // request log
@@ -86,8 +86,7 @@ impl Handler for Logger {
 
         // call handler
         let result = ctx.next().await;
-        let finish = SystemTime::now().duration_since(UNIX_EPOCH)?.as_millis();
-        let offset = finish - begin;
+        let offset = (SystemTime::now().duration_since(UNIX_EPOCH)?.as_nanos() - begin) as f64 / 1_000_000_000.0;
         let status = match &result {
             Ok(res) => res.status_ref().as_u16(),
             Err(FibraError::PathNotFound) => Status::NOT_FOUND.as_u16(),
