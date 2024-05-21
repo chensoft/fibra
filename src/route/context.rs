@@ -547,7 +547,7 @@ impl Context {
         Ok(status.unwrap_or(Status::FORBIDDEN).into())
     }
 
-    /// Rewrite the current request with a different URI and Body, and re-handle the request transparently
+    /// Rewrite the current request server-side without the client perceiving it
     ///
     /// # Examples
     ///
@@ -562,13 +562,18 @@ impl Context {
     ///     };
     ///     let ctx = Context::from((app, Request::default().uri("http://localip.cc/v1")));
     ///
-    ///     assert_eq!(ctx.rewrite("http://localip.cc/v2", "").await?.body_all().await?, "v2");
+    ///     assert_eq!(ctx.rewrite("http://localip.cc/v2", None).await?.body_all().await?, "v2");
     ///
     ///     Ok(())
     /// }
     /// ```
-    pub async fn rewrite(self, to: impl IntoUri, body: impl Into<Body>) -> FibraResult<Response> {
-        let ctx = Context::from((self.app, self.conn, self.req.uri(to).body(body)));
+    pub async fn rewrite(mut self, to: impl AsRef<str>, body: Option<Body>) -> FibraResult<Response> {
+        let body = match body {
+            Some(val) => val,
+            None => std::mem::take(self.req.body_mut()),
+        };
+
+        let ctx = Context::from((self.app, self.conn, self.req.uri(Uri::try_from(to.as_ref())?).body(body)));
         ctx.next().await
     }
 

@@ -15,7 +15,7 @@
 //! - Domain filtering
 //! - Subdomain filtering
 //! - Subrouter support
-//! - Response builder
+//! - Varied responses
 //! - Multiple listeners
 //!
 //! ## Examples

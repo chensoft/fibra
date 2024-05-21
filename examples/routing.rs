@@ -20,7 +20,7 @@ async fn main() -> FibraResult<()> {
     // $ http -v localip.cc:3000/about.html
     app.get("/*.html", |ctx: Context| {
         let name = ctx.param("*").to_string();
-        async { Ok(name.into()) }
+        async { Ok((Status::OK, mime::TEXT_HTML_UTF_8, name).into()) }
     })?;
 
     // regex matching
