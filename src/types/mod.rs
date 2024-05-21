@@ -18,6 +18,7 @@ pub(crate) use std::net::TcpListener as StdTcpListener;
 pub(crate) use mime::Mime;
 pub(crate) use ulid::Ulid;
 pub(crate) use bytes::Bytes;
+pub(crate) use bytes::BytesMut;
 pub(crate) use socket2::Socket;
 pub(crate) use futures::Stream;
 pub(crate) use thiserror::Error;

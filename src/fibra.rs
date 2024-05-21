@@ -10,7 +10,7 @@ use crate::types::*;
 pub struct Fibra {
     /// Initial is used to store the prefix or base path of the current router. It represents the
     /// initial or starting path segment that all routes within this router should have in common.
-    initial: String,
+    initial: Bytes,
 
     /// Limiter is used to determine if certain preconditions are met. If the conditions
     /// are not satisfied, no further processing will occur within this router.
@@ -37,42 +37,42 @@ impl Fibra {
     }
 
     /// Register a route for GET method
-    pub fn get(&mut self, path: impl Into<String>, handler: impl Handler) -> FibraResult<&mut Routine> {
+    pub fn get(&mut self, path: impl Into<Bytes>, handler: impl Handler) -> FibraResult<&mut Routine> {
         let routine = self.route(path, handler)?;
         routine.limit().method(Method::GET);
         Ok(routine)
     }
 
     /// Register a route for POST method
-    pub fn post(&mut self, path: impl Into<String>, handler: impl Handler) -> FibraResult<&mut Routine> {
+    pub fn post(&mut self, path: impl Into<Bytes>, handler: impl Handler) -> FibraResult<&mut Routine> {
         let routine = self.route(path, handler)?;
         routine.limit().method(Method::POST);
         Ok(routine)
     }
 
     /// Register a route for PUT method
-    pub fn put(&mut self, path: impl Into<String>, handler: impl Handler) -> FibraResult<&mut Routine> {
+    pub fn put(&mut self, path: impl Into<Bytes>, handler: impl Handler) -> FibraResult<&mut Routine> {
         let routine = self.route(path, handler)?;
         routine.limit().method(Method::PUT);
         Ok(routine)
     }
 
     /// Register a route for DELETE method
-    pub fn delete(&mut self, path: impl Into<String>, handler: impl Handler) -> FibraResult<&mut Routine> {
+    pub fn delete(&mut self, path: impl Into<Bytes>, handler: impl Handler) -> FibraResult<&mut Routine> {
         let routine = self.route(path, handler)?;
         routine.limit().method(Method::DELETE);
         Ok(routine)
     }
 
     /// Register a route for PATCH method
-    pub fn patch(&mut self, path: impl Into<String>, handler: impl Handler) -> FibraResult<&mut Routine> {
+    pub fn patch(&mut self, path: impl Into<Bytes>, handler: impl Handler) -> FibraResult<&mut Routine> {
         let routine = self.route(path, handler)?;
         routine.limit().method(Method::PATCH);
         Ok(routine)
     }
 
     /// Register a route for all methods
-    pub fn all(&mut self, path: impl Into<String>, handler: impl Handler) -> FibraResult<&mut Routine> {
+    pub fn all(&mut self, path: impl Into<Bytes>, handler: impl Handler) -> FibraResult<&mut Routine> {
         self.route(path, handler)
     }
 
@@ -99,11 +99,19 @@ impl Fibra {
     ///     Ok(())
     /// }
     /// ```
-    pub fn route(&mut self, path: impl Into<String>, handler: impl Handler) -> FibraResult<&mut Routine> {
-        let path = match self.initial.is_empty() {
-            true => path.into(),
-            false => self.initial.clone() + path.into().trim_end_matches("/"),
-        };
+    pub fn route(&mut self, path: impl Into<Bytes>, handler: impl Handler) -> FibraResult<&mut Routine> {
+        let mut path = path.into();
+
+        if !self.initial.is_empty() {
+            let last = path.iter().rposition(|&v| v != b'/').map(|v| v + 1).unwrap_or_else(|| 0);
+            let mut data = BytesMut::with_capacity(self.initial.len() + path.len());
+
+            data.extend(self.initial.as_ref());
+            data.extend(path.slice(..last));
+
+            path = data.freeze();
+        }
+
         self.ensure::<Matcher>().insert(path, handler)
     }
 
@@ -133,11 +141,17 @@ impl Fibra {
     ///     Ok(())
     /// }
     /// ```
-    pub fn group(&mut self, prefix: impl Into<String>) -> FibraResult<&mut Fibra> {
-        let pre = self.initial.clone() + prefix.into().trim_end_matches("/");
-        let sub = self.mount(Fibra::new());
+    pub fn group(&mut self, prefix: impl Into<Bytes>) -> FibraResult<&mut Fibra> {
+        let pre = prefix.into();
+        let pos = pre.iter().rposition(|&v| v != b'/').map(|v| v + 1).unwrap_or_else(|| 0);
 
-        sub.initial = pre;
+        let mut val = BytesMut::with_capacity(self.initial.len() + pre.len());
+
+        val.extend(self.initial.as_ref());
+        val.extend(pre.slice(..pos));
+
+        let sub = self.mount(Fibra::new());
+        sub.initial = val.freeze();
 
         Ok(sub)
     }
@@ -327,7 +341,7 @@ impl Fibra {
 impl Handler for Fibra {
     async fn handle(&self, ctx: Context) -> FibraResult<Response> {
         // match the beginning segment
-        if !ctx.path().starts_with(self.initial.as_str()) {
+        if !ctx.path().as_bytes().starts_with(self.initial.as_ref()) {
             return ctx.next().await;
         }
 

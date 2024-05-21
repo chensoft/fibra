@@ -659,7 +659,7 @@ impl From<hyper::Request<Body>> for Request {
         let (head, body) = from.into_parts();
 
         Self {
-            id: Ulid::from_datetime(time).to_string(), // todo bs58 encode
+            id: Ulid::from_datetime(time).to_string(),
             created: time,
             method: head.method,
             uri: head.uri,

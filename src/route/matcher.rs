@@ -11,7 +11,7 @@ pub struct Matcher {
 
 impl Matcher {
     /// Inert a new route into the matcher
-    pub fn insert(&mut self, path: impl Into<String>, handler: impl Handler) -> FibraResult<&mut Routine> {
+    pub fn insert(&mut self, path: impl Into<Bytes>, handler: impl Handler) -> FibraResult<&mut Routine> {
         let path = path.into();
 
         if !self.routes.contains_key(path.as_ref()) {

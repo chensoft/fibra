@@ -119,7 +119,7 @@ impl Limiter {
     /// assert_eq!(limiter.test(&Context::from(Request::default().uri("http://www.localip.cc"))), true);
     /// assert_eq!(limiter.test(&Context::from(Request::default().uri("http://www.example.net"))), false);
     /// ```
-    pub fn domain(&mut self, val: impl Into<String>) -> &mut Self {
+    pub fn domain(&mut self, val: impl Into<Bytes>) -> &mut Self {
         let val = val.into();
 
         self.push(move |ctx| ctx.domain() == val)
@@ -139,7 +139,7 @@ impl Limiter {
     /// assert_eq!(limiter.test(&Context::from(Request::default().uri("http://www.example.net"))), true);
     /// assert_eq!(limiter.test(&Context::from(Request::default().uri("http://www.example.org"))), false);
     /// ```
-    pub fn domains(&mut self, vec: Vec<impl Into<String>>) -> &mut Self {
+    pub fn domains(&mut self, vec: Vec<impl Into<Bytes>>) -> &mut Self {
         let vec: Vec<_> = vec.into_iter().map(Into::into).collect();
 
         self.push(move |ctx| vec.iter().any(|val| ctx.domain() == val))
@@ -158,7 +158,7 @@ impl Limiter {
     /// assert_eq!(limiter.test(&Context::from(Request::default().uri("http://api.localip.cc"))), true);
     /// assert_eq!(limiter.test(&Context::from(Request::default().uri("http://www.localip.cc"))), false);
     /// ```
-    pub fn subdomain(&mut self, val: impl Into<String>) -> &mut Self {
+    pub fn subdomain(&mut self, val: impl Into<Bytes>) -> &mut Self {
         let val = val.into();
 
         self.push(move |ctx| ctx.subdomain() == val)
@@ -178,7 +178,7 @@ impl Limiter {
     /// assert_eq!(limiter.test(&Context::from(Request::default().uri("http://app.localip.cc"))), true);
     /// assert_eq!(limiter.test(&Context::from(Request::default().uri("http://www.localip.cc"))), false);
     /// ```
-    pub fn subdomains(&mut self, vec: Vec<impl Into<String>>) -> &mut Self {
+    pub fn subdomains(&mut self, vec: Vec<impl Into<Bytes>>) -> &mut Self {
         let vec: Vec<_> = vec.into_iter().map(Into::into).collect();
 
         self.push(move |ctx| vec.iter().any(|val| ctx.subdomain() == val))
@@ -197,7 +197,7 @@ impl Limiter {
     /// assert_eq!(limiter.test(&Context::from(Request::default().uri("http://api.localip.cc"))), true);
     /// assert_eq!(limiter.test(&Context::from(Request::default().uri("http://app.localip.cc"))), false);
     /// ```
-    pub fn host(&mut self, val: impl Into<String>) -> &mut Self {
+    pub fn host(&mut self, val: impl Into<Bytes>) -> &mut Self {
         let val = val.into();
 
         self.push(move |ctx| ctx.host() == val)
@@ -217,7 +217,7 @@ impl Limiter {
     /// assert_eq!(limiter.test(&Context::from(Request::default().uri("http://app.localip.cc"))), true);
     /// assert_eq!(limiter.test(&Context::from(Request::default().uri("http://www.localip.cc"))), false);
     /// ```
-    pub fn hosts(&mut self, vec: Vec<impl Into<String>>) -> &mut Self {
+    pub fn hosts(&mut self, vec: Vec<impl Into<Bytes>>) -> &mut Self {
         let vec: Vec<_> = vec.into_iter().map(Into::into).collect();
 
         self.push(move |ctx| vec.iter().any(|val| ctx.host() == val))
@@ -236,7 +236,7 @@ impl Limiter {
     /// assert_eq!(limiter.test(&Context::from(Request::default().uri("http://api.localip.cc/user/12345"))), true);
     /// assert_eq!(limiter.test(&Context::from(Request::default().uri("http://api.localip.cc/user/abcde"))), false);
     /// ```
-    pub fn path(&mut self, val: impl Into<String>) -> &mut Self {
+    pub fn path(&mut self, val: impl Into<Bytes>) -> &mut Self {
         let val = val.into();
 
         self.push(move |ctx| ctx.path() == val)
@@ -256,7 +256,7 @@ impl Limiter {
     /// assert_eq!(limiter.test(&Context::from(Request::default().uri("http://api.localip.cc/user/abcde"))), true);
     /// assert_eq!(limiter.test(&Context::from(Request::default().uri("http://api.localip.cc/user/qwert"))), false);
     /// ```
-    pub fn paths(&mut self, vec: Vec<impl Into<String>>) -> &mut Self {
+    pub fn paths(&mut self, vec: Vec<impl Into<Bytes>>) -> &mut Self {
         let vec: Vec<_> = vec.into_iter().map(Into::into).collect();
 
         self.push(move |ctx| vec.iter().any(|val| ctx.path() == val))
@@ -275,7 +275,7 @@ impl Limiter {
     /// assert_eq!(limiter.test(&Context::from(Request::default().uri("http://api.localip.cc/?id=12345"))), true);
     /// assert_eq!(limiter.test(&Context::from(Request::default().uri("http://api.localip.cc/?id=abcde"))), false);
     /// ```
-    pub fn query(&mut self, key: impl Into<String>, val: impl Into<String>) -> &mut Self {
+    pub fn query(&mut self, key: impl Into<String>, val: impl Into<Bytes>) -> &mut Self {
         let key = key.into();
         let val = val.into();
 
@@ -296,7 +296,7 @@ impl Limiter {
     /// assert_eq!(limiter.test(&Context::from(Request::default().uri("http://api.localip.cc/?id=abcde"))), true);
     /// assert_eq!(limiter.test(&Context::from(Request::default().uri("http://api.localip.cc/?id=qwert"))), false);
     /// ```
-    pub fn queries(&mut self, vec: Vec<(impl Into<String>, impl Into<String>)>) -> &mut Self {
+    pub fn queries(&mut self, vec: Vec<(impl Into<String>, impl Into<Bytes>)>) -> &mut Self {
         let vec: Vec<_> = vec.into_iter().map(|(key, val)| (key.into(), val.into())).collect();
 
         self.push(move |ctx| vec.iter().any(|(key, val)| ctx.query(key.as_str()) == val))
