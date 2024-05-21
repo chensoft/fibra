@@ -18,7 +18,7 @@ impl Matcher {
             self.routes.insert(path.clone(), vec![])?; // todo use entry or_insert
         }
 
-        let list = self.routes.get_mut(path.as_ref()).unwrap_or_else(|| unreachable!());
+        let list = self.routes.raw_mut(path.as_ref()).unwrap_or_else(|| unreachable!());
         list.push(Routine::from(handler));
 
         Ok(list.last_mut().unwrap_or_else(|| unreachable!()))

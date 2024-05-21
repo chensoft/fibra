@@ -27,32 +27,51 @@ Fast and Powerful HTTP router written in Rust
 
 ## Features
 
-- Powerful router
 - Async-ready API
-- Flex middleware
+- Powerful router
+- Flex middlewares
 - Named params
-- Regex matching
 - Glob support
+- Regex matching
 - URL rewrite
 - URL redirect
-- Subdomain support
+- Domain filtering
+- Subdomain filtering
 - Subrouter support
-- Cache storage
-- Multiple listener
+- Response builder
+- Multiple listeners
 
 ## Example
 
-```rust
+```Cargo.toml
+[dependencies]
+fibra = "0.x"
+tokio = { version = "1", features = ["full"] }
 ```
+
+```rust
+use fibra::*;
+
+#[tokio::main]
+async fn main() -> FibraResult<()> {
+    let mut app = Fibra::new();
+    app.mount(addon::Logger::default());
+    app.get("/", "Hello World!")?;
+    app.bind("0.0.0.0:3000")?;
+    app.run().await
+}
+```
+
+**Refer to the examples folder for more use cases.**
 
 ## Benchmark
 
-- MacBook Air, Apple M2 24G, Sonoma 14.4, Rust 1.77
+- MacBook Air, Apple M2 24G, Sonoma 14.5, Rust 1.78
 
 | Name              |              Time               |
 |:------------------|:-------------------------------:|
 
-- AWS c5.2xlarge, 8C 16G, Ubuntu 22.04, Rust 1.77
+- AWS c5.2xlarge, 8C 16G, Ubuntu 22.04, Rust 1.78
 
 | Name              |              Time               |
 |:------------------|:-------------------------------:|

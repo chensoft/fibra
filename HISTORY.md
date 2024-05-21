@@ -2,9 +2,9 @@
 
 ### Added
 
-- Powerful router
 - Async-ready API
-- Flex middleware
+- Powerful router
+- Flex middlewares
 - Named params
 - Glob support
 - Regex matching
@@ -13,8 +13,8 @@
 - Domain filtering
 - Subdomain filtering
 - Subrouter support
-- Handy response
-- Multiple listener
+- Response builder
+- Multiple listeners
 
 ## [Todo]
 

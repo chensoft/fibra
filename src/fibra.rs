@@ -6,21 +6,6 @@ use crate::types::*;
 /// all routing logic and operations. It processes incoming requests, matching them to predefined
 /// handlers. Fibra also handles middlewares and errors, making it essential for building flexible
 /// and robust web apps.
-///
-/// # Examples
-///
-/// ```no_run
-/// use fibra::*;
-///
-/// #[tokio::main]
-/// async fn main() -> FibraResult<()> {
-///     let mut app = Fibra::new();
-///     app.get("/", "Hello World!")?;
-///     app.get("/user/:id", |ctx: Context| async move { Ok(ctx.param("id").to_string().into()) })?;
-///     app.bind("0.0.0.0:3000")?;
-///     app.run().await
-/// }
-/// ```
 #[derive(Default)]
 pub struct Fibra {
     /// Initial is used to store the prefix or base path of the current router. It represents the
@@ -131,8 +116,7 @@ impl Fibra {
     ///
     /// #[tokio::main]
     /// async fn main() -> FibraResult<()> {
-    ///     let mut app = Fibra::new();
-    ///     let api = app.group("/api")?;
+    ///     let mut api = Fibra::new();
     ///
     ///     let v1 = api.group("/v1")?;
     ///     v1.get("/user", "user1")?;
@@ -141,8 +125,8 @@ impl Fibra {
     ///     v2.get("/user", "user2")?;
     ///
     ///     // mock a real request
-    ///     let req = Request::default().uri("http://localip.cc/api/v2/user");
-    ///     let ctx = Context::from((app, req));
+    ///     let req = Request::default().uri("http://api.localip.cc/v2/user");
+    ///     let ctx = Context::from((api, req));
     ///
     ///     assert_eq!(ctx.next().await?.body_all().await?, "user2");
     ///
@@ -189,8 +173,8 @@ impl Fibra {
     /// async fn main() -> FibraResult<()> {
     ///     let mut app = Fibra::new();
     ///
-    ///     app.get("/api/v1/user", "user1")?;
-    ///     app.get("/api/v2/user", "user2")?;
+    ///     app.get("/v1/user", "user1")?;
+    ///     app.get("/v2/user", "user2")?;
     ///
     ///     app.limit().subdomain("api"); // domain name must begin with 'api'
     ///
@@ -199,7 +183,7 @@ impl Fibra {
     ///
     ///     // mock a request with incorrect subdomain
     ///     {
-    ///         let req = Request::default().uri("http://app.localip.cc/api/v2/user");
+    ///         let req = Request::default().uri("http://app.localip.cc/v2/user");
     ///         let ctx = Context::from((app.clone(), con.clone(), req));
     ///
     ///         assert_eq!(matches!(ctx.next().await.err(), Some(FibraError::PathNotFound)), true);
@@ -207,7 +191,7 @@ impl Fibra {
     ///
     ///     // mock a request with correct subdomain
     ///     {
-    ///         let req = Request::default().uri("http://api.localip.cc/api/v2/user");
+    ///         let req = Request::default().uri("http://api.localip.cc/v2/user");
     ///         let ctx = Context::from((app, con, req));
     ///         let mut res = ctx.next().await?;
     ///
@@ -222,7 +206,7 @@ impl Fibra {
         self.limiter.get_or_insert(Limiter::default())
     }
 
-    /// Set custom error handler
+    /// Handle 404 not found and errors
     ///
     /// # Examples
     ///
@@ -237,7 +221,7 @@ impl Fibra {
     ///     app.get("/api/v2/user", "user2")?;
     ///
     ///     app.catch(|err| match err {
-    ///         FibraError::PathNotFound => Status::FORBIDDEN.into(),
+    ///         FibraError::PathNotFound => Status::NOT_FOUND.into(),
     ///         _ => Status::SERVICE_UNAVAILABLE.into(),
     ///     });
     ///
@@ -245,7 +229,7 @@ impl Fibra {
     ///     let ctx = Context::from((app, Request::default().uri("http://localip.cc/api/v3/user")));
     ///     let res = ctx.next().await?;
     ///
-    ///     assert_eq!(res.status_ref(), &Status::FORBIDDEN);
+    ///     assert_eq!(res.status_ref(), &Status::NOT_FOUND);
     ///
     ///     Ok(())
     /// }
@@ -282,7 +266,7 @@ impl Fibra {
         &self.mounted
     }
 
-    /// Bind tcp listener to a special address, we support calling this multiple times to listening on multiple addresses
+    /// Bind tcp listener to a local address, calling this multiple times to listening on multiple addresses
     ///
     /// # Examples
     ///
@@ -354,13 +338,13 @@ impl Handler for Fibra {
             }
         }
 
-        // the root node always has a Catcher
-        // subrouters with Catchers also handle errors here
+        // the root router and subrouters with a Catcher will handle errors here
         if let Some(catcher) = &self.catcher {
             return Ok(catcher.protect(self.mounted.handle(ctx)).await);
         }
 
-        // subrouters without Catchers handle requests here
+        // subrouters without a Catcher will handle requests here. If an error occurs, it will
+        // propagate up to the nearest parent that has a Catcher to handle it.
         self.mounted.handle(ctx).await
     }
 }
