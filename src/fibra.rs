@@ -23,6 +23,10 @@ use crate::types::*;
 /// ```
 #[derive(Default)]
 pub struct Fibra {
+    /// Initial is used to store the prefix or base path of the current router. It represents the
+    /// initial or starting path segment that all routes within this router should have in common.
+    initial: String,
+
     /// Limiter is used to determine if certain preconditions are met. If the conditions
     /// are not satisfied, no further processing will occur within this router.
     limiter: Option<Limiter>,
@@ -111,6 +115,10 @@ impl Fibra {
     /// }
     /// ```
     pub fn route(&mut self, path: impl Into<String>, handler: impl Handler) -> FibraResult<&mut Routine> {
+        let path = match self.initial.is_empty() {
+            true => path.into(),
+            false => self.initial.clone() + path.into().trim_end_matches("/"),
+        };
         self.ensure::<Matcher>().insert(path, handler)
     }
 
@@ -141,11 +149,13 @@ impl Fibra {
     ///     Ok(())
     /// }
     /// ```
-    pub fn group(&mut self, path: impl Into<String>) -> FibraResult<&mut Fibra> {
-        let mut path = path.into();
-        path.push('*');
+    pub fn group(&mut self, prefix: impl Into<String>) -> FibraResult<&mut Fibra> {
+        let pre = self.initial.clone() + prefix.into().trim_end_matches("/");
+        let sub = self.mount(Fibra::new());
 
-        Ok(self.route(path, Fibra::new())?.treat::<Fibra>().unwrap_or_else(|| unreachable!()))
+        sub.initial = pre;
+
+        Ok(sub)
     }
 
     /// Mount a handler
@@ -331,14 +341,10 @@ impl Fibra {
 
 #[async_trait]
 impl Handler for Fibra {
-    async fn handle(&self, mut ctx: Context) -> FibraResult<Response> {
-        // use * as the unmatched path
-        let rest = ctx.param("*").len();
-
-        if rest > 0 {
-            let fore = ctx.rest().len() - rest;
-            *ctx.rest() = ctx.rest().slice(fore..);
-            ctx.params_mut().swap_remove("*");
+    async fn handle(&self, ctx: Context) -> FibraResult<Response> {
+        // match the beginning segment
+        if !ctx.path().starts_with(self.initial.as_str()) {
+            return ctx.next().await;
         }
 
         // block requests that fail the test

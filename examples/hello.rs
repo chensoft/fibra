@@ -2,6 +2,10 @@ use fibra::*;
 
 #[tokio::main]
 async fn main() -> FibraResult<()> {
+    // todo mount a real Auth
+    // todo modify this sample, remove app just api like ai server
+    let _todo: bytes::Bytes = "".into(); // todo all Into<String> use Bytes
+    
     // create fibra app
     let mut app = Fibra::new();
 
@@ -39,7 +43,7 @@ async fn main() -> FibraResult<()> {
     // handle 404 NOT_FOUND and other errors
     // cmd: http -v localip.cc:3000/missing
     app.catch(|err| match err {
-        FibraError::PathNotFound => (Status::NOT_FOUND, "Oops! Page not found.").into(),
+        FibraError::PathNotFound => (Status::NOT_FOUND, "Oops! Page not found.").into(), // todo notice use subdomain to request
         _ => Status::INTERNAL_SERVER_ERROR.into(),
     });
 

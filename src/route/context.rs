@@ -17,9 +17,6 @@ pub struct Context {
     /// Current request object
     req: Request,
 
-    // request path to be matched
-    rest: Bytes,
-
     /// The named params after path matching
     params: IndexMap<String, String>,
 
@@ -611,21 +608,15 @@ impl Context {
     pub fn push(&mut self, cur: *const dyn Handler) {
         self.routing.push(cur);
     }
-
-    /// remaining path to be matched
-    pub fn rest(&mut self) -> &mut Bytes {
-        &mut self.rest
-    }
 }
 
 /// Construct from client request
 impl From<(Arc<Fibra>, Arc<Connection>, Request)> for Context {
     fn from((app, conn, req): (Arc<Fibra>, Arc<Connection>, Request)) -> Self {
-        let rest = Bytes::from(req.path().to_string());
         let served = conn.count_add(1);
         let queries = form_urlencoded::parse(req.query().as_bytes()).into_owned().collect();
 
-        let mut myself = Self { app, conn, served, req, rest, params: IndexMap::new(), queries, routing: vec![] };
+        let mut myself = Self { app, conn, served, req, params: IndexMap::new(), queries, routing: vec![] };
         myself.push(myself.app().as_ref());
         myself
     }
@@ -634,7 +625,7 @@ impl From<(Arc<Fibra>, Arc<Connection>, Request)> for Context {
 /// FOR MOCK USE ONLY
 impl Default for Context {
     fn default() -> Self {
-        (Arc::new(Fibra::default()), Arc::new(Connection::default()), Request::default()).into()
+        (Arc::new(Fibra::new()), Arc::new(Connection::default()), Request::default()).into()
     }
 }
 
@@ -648,14 +639,14 @@ impl From<Fibra> for Context {
 /// FOR MOCK USE ONLY
 impl From<Connection> for Context {
     fn from(con: Connection) -> Self {
-        (Arc::new(Fibra::default()), Arc::new(con), Request::default()).into()
+        (Arc::new(Fibra::new()), Arc::new(con), Request::default()).into()
     }
 }
 
 /// FOR MOCK USE ONLY
 impl From<Request> for Context {
     fn from(req: Request) -> Self {
-        (Arc::new(Fibra::default()), Arc::new(Connection::default()), req).into()
+        (Arc::new(Fibra::new()), Arc::new(Connection::default()), req).into()
     }
 }
 

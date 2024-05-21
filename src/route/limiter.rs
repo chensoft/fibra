@@ -20,7 +20,7 @@ impl Limiter {
     ///
     /// let mut limiter = Limiter::default();
     /// let context = Context::default();
-    /// 
+    ///
     /// limiter.push(|ctx| ctx.is_get());
     ///
     /// assert_eq!(limiter.test(&context), true);
