@@ -13,7 +13,9 @@
 - Domain filtering
 - Subdomain filtering
 - Subrouter support
+- Stream support
 - Varied responses
+- Dual-stack support
 - Multiple listeners
 
 ## [Todo]
@@ -23,6 +25,7 @@
 - form decode, use decoder
 - reuse ctx, req, res, con
 - lru cache serve hottest path, map to handler directly, record handlers call chain
+- automatically adjust backlog value according to traffic
 
 ### Improve
 
@@ -30,6 +33,7 @@
 - embed in another framework
 - sync callback support
 - handle HEAD req without write resp body
+- regex do not support {} inside
 
 ### Features
 

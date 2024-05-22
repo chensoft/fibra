@@ -15,6 +15,9 @@ pub enum FibraError {
     TimeError(#[from] std::time::SystemTimeError),
 
     #[error("{0}")]
+    ParseIntError(#[from] std::num::ParseIntError),
+
+    #[error("{0}")]
     RadixError(#[from] radixmap::RadixError),
 
     #[error("{0}")]
@@ -31,6 +34,9 @@ pub enum FibraError {
 
     #[error("path not found")]
     PathNotFound,
+
+    #[error("addr not available")]
+    AddrNotAvailable,
 }
 
 /// Custom Result

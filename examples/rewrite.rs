@@ -23,7 +23,7 @@ async fn main() -> FibraResult<()> {
         async { ctx.rewrite(href, None).await }
     })?;
 
-    app.bind("0.0.0.0:3000")?;
+    app.bind(3000)?;
     app.run().await
 }
 

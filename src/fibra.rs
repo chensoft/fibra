@@ -286,17 +286,21 @@ impl Fibra {
     ///
     /// ```
     /// use fibra::*;
+    /// use socket2::{Socket, Domain, Type, Protocol};
     ///
     /// let mut app = Fibra::new();
     ///
-    /// assert_eq!(app.bind("0.0.0.0:0").is_ok(), true); // first random port
-    /// assert_eq!(app.bind("0.0.0.0:0").is_ok(), true); // second random port
-    /// assert_eq!(app.bind("0.0.0.0:65536").is_ok(), false); // invalid port
+    /// // 0 means random port
+    /// assert_eq!(app.bind(0).is_ok(), true);           // dual-stack, v4 & v6
+    /// assert_eq!(app.bind(":0").is_ok(), true);        // dual-stack, v4 & v6
+    /// assert_eq!(app.bind("[::]:0").is_ok(), true);    // dual-stack, v4 & v6
+    /// assert_eq!(app.bind("[::1]:0").is_ok(), true);   // ipv6-only
+    /// assert_eq!(app.bind("0.0.0.0:0").is_ok(), true); // ipv4-only
+    /// assert_eq!(app.bind(Socket::new(Domain::IPV4, Type::STREAM, Some(Protocol::TCP))).is_ok(), true); // raw socket
     /// ```
-    pub fn bind(&mut self, addr: impl ToSocketAddrs) -> FibraResult<&mut Socket> {
-        let last = self.sockets.len();
-        self.sockets.push(StdTcpListener::bind(addr)?.into());
-        Ok(&mut self.sockets[last])
+    pub fn bind(&mut self, addr: impl TryIntoListener) -> FibraResult<&mut Socket> {
+        self.sockets.push(addr.try_into_listener()?);
+        Ok(self.sockets.last_mut().unwrap_or_else(|| unreachable!()))
     }
 
     /// Run the server, check the examples folder to see its usage
@@ -305,10 +309,11 @@ impl Fibra {
         use hyper::server::conn::AddrStream;
         use hyper::service::{make_service_fn, service_fn};
 
+        let mut sockets = std::mem::take(&mut self.sockets);
+
         // root router must have a catcher
         self.catcher.get_or_insert(Catcher::default());
 
-        let mut sockets = std::mem::take(&mut self.sockets);
         let app = Arc::new(self);
         let srv = make_service_fn(|conn: &AddrStream| {
             let app = app.clone();
