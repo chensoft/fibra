@@ -198,6 +198,30 @@ impl Handler for (Status, &'static str) {
 /// #[tokio::main]
 /// async fn main() -> FibraResult<()> {
 ///     let ctx = Context::new();
+///     let mut res = (mime::APPLICATION_JSON, "{}").handle(ctx).await?;
+///
+///     assert_eq!(res.status_ref(), &Status::OK);
+///     assert_eq!(res.header_ref(header::CONTENT_TYPE).map(|v| v.as_bytes()), Some(mime::APPLICATION_JSON.as_ref().as_bytes()));
+///     assert_eq!(res.body_all().await?, "{}");
+///
+///     Ok(())
+/// }
+/// ```
+#[async_trait]
+impl Handler for (Mime, &'static str) {
+    async fn handle(&self, _ctx: Context) -> FibraResult<Response> {
+        Ok((self.0.clone(), self.1).into())
+    }
+}
+
+/// Impl Handler for static value
+///
+/// ```
+/// use fibra::*;
+///
+/// #[tokio::main]
+/// async fn main() -> FibraResult<()> {
+///     let ctx = Context::new();
 ///     let mut res = ().handle(ctx).await?;
 ///
 ///     assert_eq!(res.body_all().await?, "");
@@ -255,7 +279,3 @@ impl Handler for &'static str {
         Ok((*self).into())
     }
 }
-
-// todo String, Vec u8 and handler for Response itself
-// todo need (mime, text) to response
-// todo trait IntoHandler

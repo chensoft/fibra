@@ -34,10 +34,12 @@
 - sync callback support
 - handle HEAD req without write resp body
 - regex do not support {} inside
+- matcher use entry or_insert
+- Scheme check tls socket, scheme is none when self comes from hyper connection
 
 ### Features
 
-- fibra config, case sensitive matching
+- Response: add file fn, auto detect file mime, chunk transfer, stream wrap attachment header
 - tls support with tls info, ver, sni
 - h2 support: extension, server push, stream priority, RST_STREAM cancel request in flight, res push support via addon HTTP Link Headers
 - h3 support

@@ -384,12 +384,6 @@ impl Response {
         self.header(header::CONTENT_TYPE, mime::TEXT_HTML_UTF_8).body(val.into())
     }
 
-    /// Set file response with auto detecting its type
-    pub fn file(self) -> Self {
-        // auto detect file mime, chunk transfer, stream wrap attachment header
-        todo!()
-    }
-
     /// Set raw byte stream response with APPLICATION_OCTET_STREAM
     ///
     /// # Examples
@@ -475,7 +469,7 @@ impl Response {
 ///
 /// #[tokio::main]
 /// async fn main() -> FibraResult<()> {
-///     let mut res: Response = (Status::NOT_FOUND, mime::TEXT_PLAIN_UTF_8, Status::NOT_FOUND.canonical_reason().unwrap_or("")).into();
+///     let mut res: Response = (Status::NOT_FOUND, mime::TEXT_PLAIN_UTF_8, "Not Found").into();
 ///
 ///     assert_eq!(res.status_ref(), &Status::NOT_FOUND);
 ///     assert_eq!(res.header_ref(header::CONTENT_TYPE).map(|v| v.as_bytes()), Some("text/plain; charset=utf-8".as_bytes()));
@@ -590,6 +584,33 @@ impl From<(Status, Vec<u8>)> for Response {
     #[inline]
     fn from((status, body): (Status, Vec<u8>)) -> Self {
         (status, mime::APPLICATION_OCTET_STREAM, body).into()
+    }
+}
+
+/// Conversion
+///
+/// # Examples
+///
+/// ```
+/// use fibra::*;
+///
+/// #[tokio::main]
+/// async fn main() -> FibraResult<()> {
+///     let mut res: Response = (mime::TEXT_PLAIN_UTF_8, "OK").into();
+///
+///     assert_eq!(res.status_ref(), &Status::OK);
+///     assert_eq!(res.header_ref(header::CONTENT_TYPE).map(|v| v.as_bytes()), Some("text/plain; charset=utf-8".as_bytes()));
+///     assert_eq!(res.body_all().await?, "OK");
+///
+///     Ok(())
+/// }
+/// ```
+impl<T> From<(Mime, T)> for Response
+    where T: Into<Body>
+{
+    #[inline]
+    fn from((mime, body): (Mime, T)) -> Self {
+        (Status::OK, mime, body).into()
     }
 }
 

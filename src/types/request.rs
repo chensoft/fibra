@@ -449,7 +449,6 @@ impl Request {
     /// ```
     #[inline]
     pub fn scheme(&self) -> &Scheme {
-        // todo check tls socket, scheme is none when self comes from hyper connection
         if self.uri.scheme() == Some(&hyper::http::uri::Scheme::HTTPS) {
             return &Scheme::HTTPS;
         }

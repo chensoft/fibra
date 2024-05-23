@@ -20,7 +20,7 @@ impl Matcher {
         let path = path.into();
 
         if !self.routes.contains_key(path.as_ref()) {
-            self.routes.insert(path.clone(), vec![])?; // todo use entry or_insert
+            self.routes.insert(path.clone(), vec![])?;
         }
 
         let list = self.routes.raw_mut(path.as_ref()).unwrap_or_else(|| unreachable!());
