@@ -3,7 +3,7 @@ use fibra::*;
 #[tokio::main]
 async fn main() -> FibraResult<()> {
     let mut app = Fibra::new();
-    app.mount(addon::Logger::default());
+    app.mount(addon::Logger::new());
 
     // plain text
     // $ http -v localip.cc:3000

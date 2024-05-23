@@ -5,11 +5,11 @@ use tokio::runtime::Runtime;
 
 fn run(c: &mut Criterion) {
     let app = Arc::new(fibra!{});
-    let con = Arc::new(Connection::default());
+    let con = Arc::new(Connection::new());
 
     c.bench_function("run_baseline", |b| {
         b.to_async(&Runtime::new().unwrap()).iter(|| async {
-            let req = Request::default();
+            let req = Request::new();
             let ctx = Context::from((app.clone(), con.clone(), req));
 
             let _ = black_box(ctx.next().await);

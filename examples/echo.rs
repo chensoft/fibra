@@ -4,7 +4,7 @@ use bytes::BytesMut;
 #[tokio::main]
 async fn main() -> FibraResult<()> {
     let mut app = Fibra::new();
-    app.mount(addon::Logger::default());
+    app.mount(addon::Logger::new());
 
     // <- http -v localip.cc:3000 name=echo
     // -> {"name":"echo"}
@@ -32,5 +32,5 @@ async fn echo(mut ctx: Context) -> FibraResult<Response> {
         body.extend(chunk);
     }
 
-    Ok(Response::default().header(header::CONTENT_TYPE, kind).body(body.freeze()))
+    Ok(Response::new().header(header::CONTENT_TYPE, kind).body(body.freeze()))
 }

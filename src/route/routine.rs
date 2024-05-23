@@ -12,14 +12,14 @@ pub struct Routine {
 }
 
 impl Routine {
-    /// Create a new routine
+    /// Create a new object
     pub fn from(handler: impl Handler) -> Self {
         Self { limiter: None, handler: Box::new(handler) }
     }
 
     /// Get the limiter
     pub fn limit(&mut self) -> &mut Limiter {
-        self.limiter.get_or_insert(Limiter::default())
+        self.limiter.get_or_insert(Limiter::new())
     }
 
     /// Treat the handler as type T

@@ -18,6 +18,11 @@ pub struct Response {
 }
 
 impl Response {
+    /// Create a new object
+    pub fn new() -> Self {
+        Self::default()
+    }
+
     /// Get the http version
     ///
     /// # Examples
@@ -25,7 +30,7 @@ impl Response {
     /// ```
     /// use fibra::*;
     ///
-    /// assert_eq!(Response::default().version_ref(), &Version::HTTP_11);
+    /// assert_eq!(Response::new().version_ref(), &Version::HTTP_11);
     /// ```
     #[inline]
     pub fn version_ref(&self) -> &Version {
@@ -39,7 +44,7 @@ impl Response {
     /// ```
     /// use fibra::*;
     ///
-    /// let mut res = Response::default();
+    /// let mut res = Response::new();
     /// *res.version_mut() = Version::HTTP_10;
     /// assert_eq!(res.version_mut(), &Version::HTTP_10);
     /// ```
@@ -55,7 +60,7 @@ impl Response {
     /// ```
     /// use fibra::*;
     ///
-    /// let mut res = Response::default().version(Version::HTTP_10);
+    /// let mut res = Response::new().version(Version::HTTP_10);
     /// assert_eq!(res.version_mut(), &Version::HTTP_10);
     /// ```
     #[inline]
@@ -71,7 +76,7 @@ impl Response {
     /// ```
     /// use fibra::*;
     ///
-    /// assert_eq!(Response::default().status_ref(), &Status::OK);
+    /// assert_eq!(Response::new().status_ref(), &Status::OK);
     /// ```
     #[inline]
     pub fn status_ref(&self) -> &Status {
@@ -85,7 +90,7 @@ impl Response {
     /// ```
     /// use fibra::*;
     ///
-    /// let mut res = Response::default();
+    /// let mut res = Response::new();
     /// *res.status_mut() = Status::NOT_FOUND;
     /// assert_eq!(res.status_mut(), &Status::NOT_FOUND);
     /// ```
@@ -101,7 +106,7 @@ impl Response {
     /// ```
     /// use fibra::*;
     ///
-    /// let mut res = Response::default().status(Status::NOT_FOUND);
+    /// let mut res = Response::new().status(Status::NOT_FOUND);
     /// assert_eq!(res.status_mut(), &Status::NOT_FOUND);
     /// ```
     #[inline]
@@ -117,7 +122,7 @@ impl Response {
     /// ```
     /// use fibra::*;
     ///
-    /// assert_eq!(Response::default().headers_ref().len(), 0);
+    /// assert_eq!(Response::new().headers_ref().len(), 0);
     /// ```
     #[inline]
     pub fn headers_ref(&self) -> &HeaderMap {
@@ -131,7 +136,7 @@ impl Response {
     /// ```
     /// use fibra::*;
     ///
-    /// let mut res = Response::default();
+    /// let mut res = Response::new();
     /// res.headers_mut().insert(header::CONTENT_TYPE, mime::APPLICATION_JSON.into_header_value());
     /// assert_eq!(res.headers_mut()[header::CONTENT_TYPE], mime::APPLICATION_JSON.as_ref());
     /// ```
@@ -148,7 +153,7 @@ impl Response {
     /// use fibra::*;
     ///
     /// let mut map = HeaderMap::new();
-    /// let mut res = Response::default();
+    /// let mut res = Response::new();
     ///
     /// map.insert(header::CONTENT_TYPE, mime::APPLICATION_JSON.into_header_value());
     /// res = res.headers(map);
@@ -168,7 +173,7 @@ impl Response {
     /// ```
     /// use fibra::*;
     ///
-    /// let mut res = Response::default();
+    /// let mut res = Response::new();
     /// res = res.header(header::CONTENT_TYPE, mime::APPLICATION_JSON);
     ///
     /// assert_eq!(res.header_ref(header::CONTENT_TYPE).map(|v| v.as_bytes()), Some(mime::APPLICATION_JSON.as_ref().as_bytes()));
@@ -185,7 +190,7 @@ impl Response {
     /// ```
     /// use fibra::*;
     ///
-    /// let mut res = Response::default().header(header::CONTENT_TYPE, mime::APPLICATION_JSON);
+    /// let mut res = Response::new().header(header::CONTENT_TYPE, mime::APPLICATION_JSON);
     /// res.header_mut(header::CONTENT_TYPE).map(|v| *v = mime::TEXT_PLAIN_UTF_8.into_header_value());
     ///
     /// assert_eq!(res.header_ref(header::CONTENT_TYPE).map(|v| v.as_bytes()), Some(mime::TEXT_PLAIN_UTF_8.as_ref().as_bytes()));
@@ -202,7 +207,7 @@ impl Response {
     /// ```
     /// use fibra::*;
     ///
-    /// let mut res = Response::default().header(header::CONTENT_TYPE, mime::TEXT_HTML_UTF_8);
+    /// let mut res = Response::new().header(header::CONTENT_TYPE, mime::TEXT_HTML_UTF_8);
     ///
     /// assert_eq!(res.header_ref(header::CONTENT_TYPE).map(|v| v.as_bytes()), Some(mime::TEXT_HTML_UTF_8.as_ref().as_bytes()));
     /// ```
@@ -219,7 +224,7 @@ impl Response {
     /// ```
     /// use fibra::*;
     ///
-    /// Response::default().body_ref();
+    /// Response::new().body_ref();
     /// ```
     #[inline]
     pub fn body_ref(&self) -> &Body {
@@ -241,7 +246,7 @@ impl Response {
     ///
     /// #[tokio::main]
     /// async fn main() -> FibraResult<()> {
-    ///     let mut res = Response::default().body("Hello World!");
+    ///     let mut res = Response::new().body("Hello World!");
     ///     assert_eq!(res.body_all().await?, "Hello World!");
     ///     Ok(())
     /// }
@@ -260,7 +265,7 @@ impl Response {
     ///
     /// #[tokio::main]
     /// async fn main() -> FibraResult<()> {
-    ///     let mut res = Response::default().body("Hello World!");
+    ///     let mut res = Response::new().body("Hello World!");
     ///     assert_eq!(res.body_all().await?, "Hello World!");
     ///     Ok(())
     /// }
@@ -286,7 +291,7 @@ impl Response {
     ///         "b" => 2,
     ///     );
     ///
-    ///     let mut res = Response::default().json(map);
+    ///     let mut res = Response::new().json(map);
     ///
     ///     assert_eq!(res.header_ref(header::CONTENT_TYPE).map(|v| v.as_bytes()), Some(mime::APPLICATION_JSON.as_ref().as_bytes()));
     ///     assert_eq!(res.body_all().await?, "{\"a\":1,\"b\":2}");
@@ -316,7 +321,7 @@ impl Response {
     ///         "b" => 2,
     ///     );
     ///
-    ///     let mut res = Response::default().jsonp(map, "callback");
+    ///     let mut res = Response::new().jsonp(map, "callback");
     ///
     ///     assert_eq!(res.header_ref(header::CONTENT_TYPE).map(|v| v.as_bytes()), Some(mime::APPLICATION_JSON.as_ref().as_bytes()));
     ///     assert_eq!(res.body_all().await?, "callback({\"a\":1,\"b\":2})");
@@ -344,7 +349,7 @@ impl Response {
     ///
     /// #[tokio::main]
     /// async fn main() -> FibraResult<()> {
-    ///     let mut res = Response::default().text("It Works!");
+    ///     let mut res = Response::new().text("It Works!");
     ///
     ///     assert_eq!(res.header_ref(header::CONTENT_TYPE).map(|v| v.as_bytes()), Some(mime::TEXT_PLAIN_UTF_8.as_ref().as_bytes()));
     ///     assert_eq!(res.body_all().await?, "It Works!");
@@ -366,7 +371,7 @@ impl Response {
     ///
     /// #[tokio::main]
     /// async fn main() -> FibraResult<()> {
-    ///     let mut res = Response::default().html("<html><body>It Works!</body></html>");
+    ///     let mut res = Response::new().html("<html><body>It Works!</body></html>");
     ///
     ///     assert_eq!(res.header_ref(header::CONTENT_TYPE).map(|v| v.as_bytes()), Some(mime::TEXT_HTML_UTF_8.as_ref().as_bytes()));
     ///     assert_eq!(res.body_all().await?, "<html><body>It Works!</body></html>");
@@ -394,7 +399,7 @@ impl Response {
     ///
     /// #[tokio::main]
     /// async fn main() -> FibraResult<()> {
-    ///     let mut res = Response::default().bytes(b"abc".to_vec());
+    ///     let mut res = Response::new().bytes(b"abc".to_vec());
     ///
     ///     assert_eq!(res.header_ref(header::CONTENT_TYPE).map(|v| v.as_bytes()), Some(mime::APPLICATION_OCTET_STREAM.as_ref().as_bytes()));
     ///     assert_eq!(res.body_all().await?, b"abc".to_vec());
@@ -444,7 +449,7 @@ impl Response {
     ///
     /// #[tokio::main]
     /// async fn main() -> FibraResult<()> {
-    ///     let mut res = Response::default().stream(FileStream::new()?);
+    ///     let mut res = Response::new().stream(FileStream::new()?);
     ///
     ///     assert_eq!(res.body_all().await?, "Actions speak louder than words");
     ///
@@ -484,7 +489,7 @@ impl<T> From<(Status, Mime, T)> for Response
 {
     #[inline]
     fn from((status, mime, body): (Status, Mime, T)) -> Self {
-        Self::default().status(status).header(header::CONTENT_TYPE, mime).body(body)
+        Self::new().status(status).header(header::CONTENT_TYPE, mime).body(body)
     }
 }
 

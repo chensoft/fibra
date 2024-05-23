@@ -42,7 +42,7 @@
 - h2 support: extension, server push, stream priority, RST_STREAM cancel request in flight, res push support via addon HTTP Link Headers
 - h3 support
 - content type, referer, user agent, is keepalive, content encoding, accept, accept-encoding, accept-language, length, type...
-- addon: realip, port, caching, Cache-Control If-Modified-Since, cors, limiter, Accepts
+- addon: realip, port, caching, Cache-Control If-Modified-Since, cors, limiter, Accepts, logger customize
 - limits: conn's num, conn's num per ip, reqs per conn, req read timeout, handler timeout, max header count, max body size, keepalive time
 - websocket support
 - cookie support

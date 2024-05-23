@@ -10,7 +10,7 @@ use crate::types::*;
 /// use fibra::*;
 ///
 /// let mut app = Fibra::new();
-/// app.mount(addon::Logger::default());
+/// app.mount(addon::Logger::new());
 /// ```
 pub struct Logger {
     logger: logkit::Logger,
@@ -18,6 +18,11 @@ pub struct Logger {
 }
 
 impl Logger {
+    /// Create a new object
+    pub fn new() -> Self {
+        Self { logger: logkit::Logger::new(Some(&logkit::StderrTarget)), level: "info".to_string() }
+    }
+
     /// Get the inner logger
     pub fn logger(&self) -> &logkit::Logger {
         &self.logger
@@ -36,7 +41,7 @@ impl Logger {
     /// use fibra::*;
     ///
     /// let mut app = Fibra::new();
-    /// app.mount(addon::Logger::default().route(logkit::StdoutTarget));
+    /// app.mount(addon::Logger::new().route(logkit::StdoutTarget));
     /// ```
     pub fn route(mut self, target: impl logkit::Target) -> Self {
         self.logger.route(target);
@@ -51,7 +56,7 @@ impl Logger {
     /// use fibra::*;
     ///
     /// let mut app = Fibra::new();
-    /// app.mount(addon::Logger::default().level(logkit::LEVEL_DEBUG));
+    /// app.mount(addon::Logger::new().level(logkit::LEVEL_DEBUG));
     /// ```
     pub fn level(mut self, level: logkit::Level) -> Self {
         self.level = logkit::level_to_str(level).map(|v| v.to_string()).unwrap_or(level.to_string());
@@ -61,7 +66,7 @@ impl Logger {
 
 impl Default for Logger {
     fn default() -> Self {
-        Self { logger: logkit::Logger::new(Some(&logkit::StderrTarget)), level: "info".to_string() }
+        Self::new()
     }
 }
 

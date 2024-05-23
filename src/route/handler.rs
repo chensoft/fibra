@@ -95,8 +95,8 @@ impl AsHandler for BoxHandler {
 ///
 /// #[tokio::main]
 /// async fn main() -> FibraResult<()> {
-///     let ctx_function = Context::default();
-///     let ctx_closure = Context::default();
+///     let ctx_function = Context::new();
+///     let ctx_closure = Context::new();
 ///
 ///     let fun_function = free_function;
 ///     let fun_closure = |_ctx: Context| async { Ok("It Works!".into()) };
@@ -150,7 +150,7 @@ impl Handler for Vec<Routine> {
 ///
 /// #[tokio::main]
 /// async fn main() -> FibraResult<()> {
-///     let ctx = Context::default();
+///     let ctx = Context::new();
 ///     let mut res = (Status::OK, mime::APPLICATION_JSON, "{}").handle(ctx).await?;
 ///
 ///     assert_eq!(res.status_ref(), &Status::OK);
@@ -174,7 +174,7 @@ impl Handler for (Status, Mime, &'static str) {
 ///
 /// #[tokio::main]
 /// async fn main() -> FibraResult<()> {
-///     let ctx = Context::default();
+///     let ctx = Context::new();
 ///     let mut res = (Status::OK, "Hello World!").handle(ctx).await?;
 ///
 ///     assert_eq!(res.status_ref(), &Status::OK);
@@ -197,7 +197,7 @@ impl Handler for (Status, &'static str) {
 ///
 /// #[tokio::main]
 /// async fn main() -> FibraResult<()> {
-///     let ctx = Context::default();
+///     let ctx = Context::new();
 ///     let mut res = ().handle(ctx).await?;
 ///
 ///     assert_eq!(res.body_all().await?, "");
@@ -219,7 +219,7 @@ impl Handler for () {
 ///
 /// #[tokio::main]
 /// async fn main() -> FibraResult<()> {
-///     let ctx = Context::default();
+///     let ctx = Context::new();
 ///     let res = Status::UNAUTHORIZED.handle(ctx).await?;
 ///
 ///     assert_eq!(res.status_ref(), &Status::UNAUTHORIZED);
@@ -241,7 +241,7 @@ impl Handler for Status {
 ///
 /// #[tokio::main]
 /// async fn main() -> FibraResult<()> {
-///     let ctx = Context::default();
+///     let ctx = Context::new();
 ///     let mut res = "Hello World!".handle(ctx).await?;
 ///
 ///     assert_eq!(res.body_all().await?, "Hello World!");

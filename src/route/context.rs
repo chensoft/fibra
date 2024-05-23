@@ -31,6 +31,11 @@ unsafe impl Send for Context {}
 unsafe impl Sync for Context {}
 
 impl Context {
+    /// For mock use only
+    pub fn new() -> Self {
+        (Arc::new(Fibra::new()), Arc::new(Connection::new()), Request::new()).into()
+    }
+
     /// The root app instance
     pub fn app(&self) -> &Arc<Fibra> {
         &self.app
@@ -48,7 +53,7 @@ impl Context {
     /// ```
     /// use fibra::*;
     ///
-    /// assert_eq!(Context::default().connid().is_empty(), false);
+    /// assert_eq!(Context::new().connid().is_empty(), false);
     /// ```
     pub fn connid(&self) -> &str {
         self.conn.id_ref()
@@ -63,7 +68,7 @@ impl Context {
     /// use std::time::SystemTime;
     ///
     /// let old = SystemTime::now();
-    /// let ctx = Context::default();
+    /// let ctx = Context::new();
     ///
     /// assert_eq!(ctx.established() >= &old, true);
     /// assert_eq!(ctx.established() <= &SystemTime::now(), true);
@@ -79,7 +84,7 @@ impl Context {
     /// ```
     /// use fibra::*;
     ///
-    /// assert_eq!(Context::default().served(), 1);
+    /// assert_eq!(Context::new().served(), 1);
     /// ```
     pub fn served(&self) -> usize {
         self.served
@@ -135,10 +140,10 @@ impl Context {
     /// ```
     /// use fibra::*;
     ///
-    /// let ctx = Context::default();
+    /// let ctx = Context::new();
     ///
     /// assert_eq!(ctx.reqid().is_empty(), false);
-    /// assert_ne!(ctx.reqid(), Context::default().reqid()); // reqid is unique
+    /// assert_ne!(ctx.reqid(), Context::new().reqid()); // reqid is unique
     /// ```
     pub fn reqid(&self) -> &str {
         self.req.id_ref()
@@ -153,7 +158,7 @@ impl Context {
     /// use std::time::SystemTime;
     ///
     /// let old = SystemTime::now();
-    /// let ctx = Context::default();
+    /// let ctx = Context::new();
     ///
     /// assert_eq!(ctx.created() >= &old, true);
     /// assert_eq!(ctx.created() <= &SystemTime::now(), true);
@@ -169,7 +174,7 @@ impl Context {
     /// ```
     /// use fibra::*;
     ///
-    /// let ctx = Context::from(Request::default().method(Method::PUT));
+    /// let ctx = Context::from(Request::new().method(Method::PUT));
     ///
     /// assert_eq!(ctx.method(), &Method::PUT);
     /// assert_eq!(ctx.is_get(), false);
@@ -234,7 +239,7 @@ impl Context {
     /// ```
     /// use fibra::*;
     ///
-    /// let ctx = Context::from(Request::default().uri("http://localip.cc"));
+    /// let ctx = Context::from(Request::new().uri("http://localip.cc"));
     ///
     /// assert_eq!(ctx.uri(), "http://localip.cc/");
     /// ```
@@ -249,7 +254,7 @@ impl Context {
     /// ```
     /// use fibra::*;
     ///
-    /// let ctx = Context::from(Request::default().uri("https://localip.cc"));
+    /// let ctx = Context::from(Request::new().uri("https://localip.cc"));
     ///
     /// assert_eq!(ctx.scheme(), &Scheme::HTTPS);
     /// assert_eq!(ctx.is_secure(), true);
@@ -270,7 +275,7 @@ impl Context {
     /// ```
     /// use fibra::*;
     ///
-    /// let ctx = Context::from(Request::default().uri("http://user:pass@localip.cc"));
+    /// let ctx = Context::from(Request::new().uri("http://user:pass@localip.cc"));
     ///
     /// assert_eq!(ctx.authority(), Some(&Authority::from_static("user:pass@localip.cc")));
     /// ```
@@ -285,7 +290,7 @@ impl Context {
     /// ```
     /// use fibra::*;
     ///
-    /// let ctx = Context::from(Request::default().uri("http://user:pass@localip.cc"));
+    /// let ctx = Context::from(Request::new().uri("http://user:pass@localip.cc"));
     ///
     /// assert_eq!(ctx.domain(), "localip.cc");
     /// ```
@@ -300,7 +305,7 @@ impl Context {
     /// ```
     /// use fibra::*;
     ///
-    /// let ctx = Context::from(Request::default().uri("http://user:pass@git.localip.cc"));
+    /// let ctx = Context::from(Request::new().uri("http://user:pass@git.localip.cc"));
     ///
     /// assert_eq!(ctx.subdomain(), "git");
     /// ```
@@ -315,7 +320,7 @@ impl Context {
     /// ```
     /// use fibra::*;
     ///
-    /// let ctx = Context::from(Request::default().uri("http://user:pass@git.localip.cc"));
+    /// let ctx = Context::from(Request::new().uri("http://user:pass@git.localip.cc"));
     ///
     /// assert_eq!(ctx.host(), "git.localip.cc");
     /// ```
@@ -330,7 +335,7 @@ impl Context {
     /// ```
     /// use fibra::*;
     ///
-    /// let ctx = Context::from(Request::default().uri("http://localip.cc:3000"));
+    /// let ctx = Context::from(Request::new().uri("http://localip.cc:3000"));
     ///
     /// assert_eq!(ctx.port(), 3000);
     /// ```
@@ -345,7 +350,7 @@ impl Context {
     /// ```
     /// use fibra::*;
     ///
-    /// let ctx = Context::from(Request::default().uri("http://localip.cc/repo/fibra"));
+    /// let ctx = Context::from(Request::new().uri("http://localip.cc/repo/fibra"));
     ///
     /// assert_eq!(ctx.path(), "/repo/fibra");
     /// ```
@@ -360,7 +365,7 @@ impl Context {
     /// ```
     /// use fibra::*;
     ///
-    /// let ctx = Context::from(Request::default().uri("http://localip.cc/?foo=bar"));
+    /// let ctx = Context::from(Request::new().uri("http://localip.cc/?foo=bar"));
     ///
     /// assert_eq!(ctx.query("foo"), "bar");
     /// assert_eq!(ctx.query("key"), "");
@@ -376,7 +381,7 @@ impl Context {
     /// ```
     /// use fibra::*;
     ///
-    /// let ctx = Context::from(Request::default().uri("http://localip.cc/?foo=bar&key=%E4%BD%A0%E5%A5%BD"));
+    /// let ctx = Context::from(Request::new().uri("http://localip.cc/?foo=bar&key=%E4%BD%A0%E5%A5%BD"));
     ///
     /// assert_eq!(ctx.query("foo"), "bar");
     /// assert_eq!(ctx.query("key"), "你好"); // url decoded
@@ -393,7 +398,7 @@ impl Context {
     /// ```
     /// use fibra::*;
     ///
-    /// let ctx = Context::from(Request::default().uri("http://user:pass@git.localip.cc/repo/fibra?foo=bar&key=%E4%BD%A0%E5%A5%BD"));
+    /// let ctx = Context::from(Request::new().uri("http://user:pass@git.localip.cc/repo/fibra?foo=bar&key=%E4%BD%A0%E5%A5%BD"));
     ///
     /// assert_eq!(ctx.href(), "http://user:pass@git.localip.cc/repo/fibra?foo=bar&key=%E4%BD%A0%E5%A5%BD".to_string());
     /// ```
@@ -408,7 +413,7 @@ impl Context {
     /// ```
     /// use fibra::*;
     ///
-    /// let ctx = Context::from(Request::default().version(Version::HTTP_10));
+    /// let ctx = Context::from(Request::new().version(Version::HTTP_10));
     ///
     /// assert_eq!(ctx.version(), &Version::HTTP_10);
     /// assert_eq!(ctx.is_http10(), true);
@@ -447,7 +452,7 @@ impl Context {
     /// ```
     /// use fibra::*;
     ///
-    /// let ctx = Context::from(Request::default().header("content-type", "application/json").header("cache-control", "no-cache"));
+    /// let ctx = Context::from(Request::new().header("content-type", "application/json").header("cache-control", "no-cache"));
     ///
     /// assert_eq!(ctx.header("content-type").map(|v| v.as_bytes()), Some("application/json".as_bytes()));
     /// assert_eq!(ctx.header("cache-control").map(|v| v.as_bytes()), Some("no-cache".as_bytes()));
@@ -464,7 +469,7 @@ impl Context {
     /// ```
     /// use fibra::*;
     ///
-    /// let ctx = Context::from(Request::default().header("content-type", "application/json").header("cache-control", "no-cache"));
+    /// let ctx = Context::from(Request::new().header("content-type", "application/json").header("cache-control", "no-cache"));
     ///
     /// let headers = ctx.headers();
     ///
@@ -487,7 +492,7 @@ impl Context {
     ///     String::from("name") => String::from("user1"),
     ///     String::from("code") => String::from("12345"),
     /// };
-    /// let mut ctx = Context::default();
+    /// let mut ctx = Context::new();
     /// ctx.params_mut().extend(arg);
     ///
     /// assert_eq!(ctx.param(""), "");
@@ -537,8 +542,8 @@ impl Context {
     ///
     /// #[tokio::main]
     /// async fn main() -> FibraResult<()> {
-    ///     assert_eq!(Context::default().reject(None)?.status_ref(), &Status::FORBIDDEN);
-    ///     assert_eq!(Context::default().reject(Some(Status::BAD_REQUEST))?.status_ref(), &Status::BAD_REQUEST);
+    ///     assert_eq!(Context::new().reject(None)?.status_ref(), &Status::FORBIDDEN);
+    ///     assert_eq!(Context::new().reject(Some(Status::BAD_REQUEST))?.status_ref(), &Status::BAD_REQUEST);
     ///
     ///     Ok(())
     /// }
@@ -560,7 +565,7 @@ impl Context {
     ///         get("/v1") => "v1",
     ///         get("/v2") => "v2",
     ///     };
-    ///     let ctx = Context::from((app, Request::default().uri("http://localip.cc/v1")));
+    ///     let ctx = Context::from((app, Request::new().uri("http://localip.cc/v1")));
     ///
     ///     assert_eq!(ctx.rewrite("http://localip.cc/v2", None).await?.body_all().await?, "v2");
     ///
@@ -586,9 +591,9 @@ impl Context {
     ///
     /// #[tokio::main]
     /// async fn main() -> FibraResult<()> {
-    ///     assert_eq!(Context::default().redirect("http://localip.cc", None)?.status_ref(), &Status::FOUND);
-    ///     assert_eq!(Context::default().redirect("http://localip.cc", None)?.header_ref(header::LOCATION), Some(&HeaderValue::from_static("http://localip.cc/")));
-    ///     assert_eq!(Context::default().redirect("http://localip.cc", Some(Status::MOVED_PERMANENTLY))?.status_ref(), &Status::MOVED_PERMANENTLY);
+    ///     assert_eq!(Context::new().redirect("http://localip.cc", None)?.status_ref(), &Status::FOUND);
+    ///     assert_eq!(Context::new().redirect("http://localip.cc", None)?.header_ref(header::LOCATION), Some(&HeaderValue::from_static("http://localip.cc/")));
+    ///     assert_eq!(Context::new().redirect("http://localip.cc", Some(Status::MOVED_PERMANENTLY))?.status_ref(), &Status::MOVED_PERMANENTLY);
     ///
     ///     Ok(())
     /// }
@@ -596,7 +601,7 @@ impl Context {
     pub fn redirect(self, to: impl IntoUri, status: Option<Status>) -> FibraResult<Response> {
         let location = HeaderValue::try_from(to.into_uri().to_string())?;
         let redirect = status.unwrap_or(Status::FOUND);
-        Ok(Response::default().status(redirect).header(header::LOCATION, location))
+        Ok(Response::new().status(redirect).header(header::LOCATION, location))
     }
 
     /// Find the next handler and execute it
@@ -630,35 +635,35 @@ impl From<(Arc<Fibra>, Arc<Connection>, Request)> for Context {
 /// FOR MOCK USE ONLY
 impl Default for Context {
     fn default() -> Self {
-        (Arc::new(Fibra::new()), Arc::new(Connection::default()), Request::default()).into()
+        Self::new()
     }
 }
 
 /// FOR MOCK USE ONLY
 impl From<Fibra> for Context {
     fn from(app: Fibra) -> Self {
-        (Arc::new(app), Arc::new(Connection::default()), Request::default()).into()
+        (Arc::new(app), Arc::new(Connection::new()), Request::new()).into()
     }
 }
 
 /// FOR MOCK USE ONLY
 impl From<Connection> for Context {
     fn from(con: Connection) -> Self {
-        (Arc::new(Fibra::new()), Arc::new(con), Request::default()).into()
+        (Arc::new(Fibra::new()), Arc::new(con), Request::new()).into()
     }
 }
 
 /// FOR MOCK USE ONLY
 impl From<Request> for Context {
     fn from(req: Request) -> Self {
-        (Arc::new(Fibra::new()), Arc::new(Connection::default()), req).into()
+        (Arc::new(Fibra::new()), Arc::new(Connection::new()), req).into()
     }
 }
 
 /// FOR MOCK USE ONLY
 impl From<(Fibra, Request)> for Context {
     fn from((app, req): (Fibra, Request)) -> Self {
-        (Arc::new(app), Arc::new(Connection::default()), req).into()
+        (Arc::new(app), Arc::new(Connection::new()), req).into()
     }
 }
 

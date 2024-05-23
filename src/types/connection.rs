@@ -21,14 +21,19 @@ pub struct Connection {
 }
 
 impl Connection {
+    /// Create a new object
+    pub fn new() -> Self {
+        Self::from((([0, 0, 0, 0], 0), ([0, 0, 0, 0], 0)))
+    }
+
     /// Get the unique identifier of this connection
     ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// use fibra::*;
     ///
-    /// assert_eq!(Connection::default().id_ref().is_empty(), false);
+    /// assert_eq!(Connection::new().id_ref().is_empty(), false);
     /// ```
     #[inline]
     pub fn id_ref(&self) -> &str {
@@ -38,11 +43,11 @@ impl Connection {
     /// Get/Set the unique identifier of this connection
     ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// use fibra::*;
     ///
-    /// let mut con = Connection::default();
+    /// let mut con = Connection::new();
     /// *con.id_mut() = "12345".to_string();
     ///
     /// assert_eq!(con.id_ref(), "12345");
@@ -55,11 +60,11 @@ impl Connection {
     /// Set the unique identifier of this connection
     ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// use fibra::*;
     ///
-    /// assert_eq!(Connection::default().id("12345").id_ref(), "12345");
+    /// assert_eq!(Connection::new().id("12345").id_ref(), "12345");
     /// ```
     #[inline]
     pub fn id(mut self, val: impl Into<String>) -> Self {
@@ -70,12 +75,12 @@ impl Connection {
     /// Get the created time of this connection
     ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// use fibra::*;
     /// use std::time::SystemTime;
     ///
-    /// assert_eq!(Connection::default().created_ref() <= &SystemTime::now(), true);
+    /// assert_eq!(Connection::new().created_ref() <= &SystemTime::now(), true);
     /// ```
     #[inline]
     pub fn created_ref(&self) -> &SystemTime {
@@ -85,13 +90,13 @@ impl Connection {
     /// Get/Set the created time of this connection
     ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// use fibra::*;
     /// use std::time::SystemTime;
     ///
     /// let now = SystemTime::now();
-    /// let mut con = Connection::default();
+    /// let mut con = Connection::new();
     /// *con.created_mut() = now;
     ///
     /// assert_eq!(con.created_ref(), &now);
@@ -104,13 +109,13 @@ impl Connection {
     /// Set the created time of this connection
     ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// use fibra::*;
     /// use std::time::SystemTime;
     ///
     /// let now = SystemTime::now();
-    /// let con = Connection::default().created(now);
+    /// let con = Connection::new().created(now);
     ///
     /// assert_eq!(con.created_ref(), &now);
     /// ```
@@ -123,12 +128,12 @@ impl Connection {
     /// Get the count of requests processed
     ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// use fibra::*;
     /// use std::sync::atomic::{AtomicUsize, Ordering};
     ///
-    /// assert_eq!(Connection::default().count_ref().load(Ordering::Relaxed), 0);
+    /// assert_eq!(Connection::new().count_ref().load(Ordering::Relaxed), 0);
     /// ```
     #[inline]
     pub fn count_ref(&self) -> &AtomicUsize {
@@ -142,8 +147,8 @@ impl Connection {
     /// ```
     /// use fibra::*;
     ///
-    /// assert_eq!(Connection::default().count_add(0), 0);
-    /// assert_eq!(Connection::default().count_add(5), 5);
+    /// assert_eq!(Connection::new().count_add(0), 0);
+    /// assert_eq!(Connection::new().count_add(5), 5);
     /// ```
     pub fn count_add(&self, incr: usize) -> usize {
         self.count.fetch_add(incr, atomic::Ordering::Relaxed) + incr
@@ -152,12 +157,12 @@ impl Connection {
     /// Get/Set the count of requests processed
     ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// use fibra::*;
     /// use std::sync::atomic::{AtomicUsize, Ordering};
     ///
-    /// let mut con = Connection::default();
+    /// let mut con = Connection::new();
     /// *con.count_mut() = AtomicUsize::new(12345);
     ///
     /// assert_eq!(con.count_ref().load(Ordering::Relaxed), 12345);
@@ -170,12 +175,12 @@ impl Connection {
     /// Set the count of requests processed
     ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// use fibra::*;
     /// use std::sync::atomic::{Ordering};
     ///
-    /// assert_eq!(Connection::default().count(12345).count_ref().load(Ordering::Relaxed), 12345);
+    /// assert_eq!(Connection::new().count(12345).count_ref().load(Ordering::Relaxed), 12345);
     /// ```
     #[inline]
     pub fn count(mut self, val: usize) -> Self {
@@ -186,12 +191,12 @@ impl Connection {
     /// Get the local address
     ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// use fibra::*;
     /// use std::net::SocketAddr;
     ///
-    /// assert_eq!(Connection::default().sockaddr_ref(), &SocketAddr::from(([0, 0, 0, 0], 0)));
+    /// assert_eq!(Connection::new().sockaddr_ref(), &SocketAddr::from(([0, 0, 0, 0], 0)));
     /// ```
     #[inline]
     pub fn sockaddr_ref(&self) -> &SocketAddr {
@@ -201,12 +206,12 @@ impl Connection {
     /// Get/Set the local address
     ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// use fibra::*;
     /// use std::net::SocketAddr;
     ///
-    /// let mut con = Connection::default();
+    /// let mut con = Connection::new();
     /// *con.sockaddr_mut() = SocketAddr::from(([127, 0, 0, 1], 3000));
     ///
     /// assert_eq!(con.sockaddr_ref(), &SocketAddr::from(([127, 0, 0, 1], 3000)));
@@ -219,12 +224,12 @@ impl Connection {
     /// Set the local address
     ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// use fibra::*;
     /// use std::net::SocketAddr;
     ///
-    /// assert_eq!(Connection::default().sockaddr(([127, 0, 0, 1], 3000)).sockaddr_ref(), &SocketAddr::from(([127, 0, 0, 1], 3000)));
+    /// assert_eq!(Connection::new().sockaddr(([127, 0, 0, 1], 3000)).sockaddr_ref(), &SocketAddr::from(([127, 0, 0, 1], 3000)));
     /// ```
     #[inline]
     pub fn sockaddr(mut self, val: impl Into<SocketAddr>) -> Self {
@@ -235,12 +240,12 @@ impl Connection {
     /// Get the remote address
     ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// use fibra::*;
     /// use std::net::SocketAddr;
     ///
-    /// assert_eq!(Connection::default().peeraddr_ref(), &SocketAddr::from(([0, 0, 0, 0], 0)));
+    /// assert_eq!(Connection::new().peeraddr_ref(), &SocketAddr::from(([0, 0, 0, 0], 0)));
     /// ```
     #[inline]
     pub fn peeraddr_ref(&self) -> &SocketAddr {
@@ -250,12 +255,12 @@ impl Connection {
     /// Get/Set the remote address
     ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// use fibra::*;
     /// use std::net::SocketAddr;
     ///
-    /// let mut con = Connection::default();
+    /// let mut con = Connection::new();
     /// *con.peeraddr_mut() = SocketAddr::from(([127, 0, 0, 1], 3000));
     ///
     /// assert_eq!(con.peeraddr_ref(), &SocketAddr::from(([127, 0, 0, 1], 3000)));
@@ -268,12 +273,12 @@ impl Connection {
     /// Set the remote address
     ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// use fibra::*;
     /// use std::net::SocketAddr;
     ///
-    /// assert_eq!(Connection::default().peeraddr(([127, 0, 0, 1], 3000)).peeraddr_ref(), &SocketAddr::from(([127, 0, 0, 1], 3000)));
+    /// assert_eq!(Connection::new().peeraddr(([127, 0, 0, 1], 3000)).peeraddr_ref(), &SocketAddr::from(([127, 0, 0, 1], 3000)));
     /// ```
     #[inline]
     pub fn peeraddr(mut self, val: impl Into<SocketAddr>) -> Self {
@@ -285,7 +290,7 @@ impl Connection {
 impl Default for Connection {
     #[inline]
     fn default() -> Self {
-        Self::from((([0, 0, 0, 0], 0), ([0, 0, 0, 0], 0)))
+        Self::new()
     }
 }
 

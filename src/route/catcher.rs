@@ -8,6 +8,18 @@ pub struct Catcher {
 }
 
 impl Catcher {
+    /// Create a new object
+    pub fn new() -> Self {
+        let handler = Arc::new(|err| {
+            match err {
+                FibraError::PathNotFound => Status::NOT_FOUND.into(),
+                _ => Status::INTERNAL_SERVER_ERROR.into()
+            }
+        });
+
+        Self { handler }
+    }
+
     /// Set custom handler
     pub fn handler<F>(&mut self, f: F) -> &mut Self where F: Fn(FibraError) -> Response + Send + Sync + 'static {
         self.handler = Arc::new(f);
@@ -23,7 +35,7 @@ impl Catcher {
     ///
     /// #[tokio::main]
     /// async fn main() -> FibraResult<()> {
-    ///     let catcher = Catcher::default();
+    ///     let catcher = Catcher::new();
     ///     assert_eq!(catcher.protect(async { Ok(Response::from("It Works!")) }).await.body_all().await?, "It Works!");
     ///     assert_eq!(catcher.protect(async { panic!("Fatal Error") }).await.status_ref(), &Status::INTERNAL_SERVER_ERROR);
     ///     Ok(())
@@ -49,14 +61,7 @@ impl Catcher {
 
 impl Default for Catcher {
     fn default() -> Self {
-        let handler = Arc::new(|err| {
-            match err {
-                FibraError::PathNotFound => Status::NOT_FOUND.into(),
-                _ => Status::INTERNAL_SERVER_ERROR.into()
-            }
-        });
-
-        Self { handler }
+        Self::new()
     }
 }
 

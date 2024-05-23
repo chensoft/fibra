@@ -10,6 +10,11 @@ pub struct Matcher {
 }
 
 impl Matcher {
+    /// Create a new object
+    pub fn new() -> Self {
+        Self::default()
+    }
+
     /// Inert a new route into the matcher
     pub fn insert(&mut self, path: impl Into<Bytes>, handler: impl Handler) -> FibraResult<&mut Routine> {
         let path = path.into();
