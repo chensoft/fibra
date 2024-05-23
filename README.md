@@ -72,7 +72,7 @@ async fn main() -> FibraResult<()> {
 | Name              |              Time               |
 |:------------------|:-------------------------------:|
 
-- AWS c5.2xlarge, 8C 16G, Ubuntu 22.04, Rust 1.78
+- AWS c5.2xlarge, 8C 16G, Ubuntu 24.04, Rust 1.78
 
 | Name              |              Time               |
 |:------------------|:-------------------------------:|
