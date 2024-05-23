@@ -46,19 +46,6 @@ impl Context {
         &self.conn
     }
 
-    /// Current connection's unique id
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use fibra::*;
-    ///
-    /// assert_eq!(Context::new().connid().is_empty(), false);
-    /// ```
-    pub fn connid(&self) -> &str {
-        self.conn.id_ref()
-    }
-
     /// Current connection's established time
     ///
     /// # Examples
@@ -133,20 +120,9 @@ impl Context {
         &self.req
     }
 
-    /// Request's unique id
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use fibra::*;
-    ///
-    /// let ctx = Context::new();
-    ///
-    /// assert_eq!(ctx.reqid().is_empty(), false);
-    /// assert_ne!(ctx.reqid(), Context::new().reqid()); // reqid is unique
-    /// ```
-    pub fn reqid(&self) -> &str {
-        self.req.id_ref()
+    /// For developer use only
+    pub fn req_mut(&mut self) -> &mut Request {
+        &mut self.req
     }
 
     /// Request's created time

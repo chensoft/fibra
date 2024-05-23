@@ -4,9 +4,6 @@ use crate::types::*;
 /// A request represents a single request-response cycle. Multiple requests may exist on a
 /// single connection if the client is using HTTP/1x's Keep-Alive feature or HTTP/2
 pub struct Request {
-    /// The unique identifier of this request
-    id: String,
-
     /// The time the request was created
     created: SystemTime,
 
@@ -41,52 +38,6 @@ impl Request {
     /// Create a new object
     pub fn new() -> Self {
         Self::from(hyper::Request::default())
-    }
-
-    /// Get the unique identifier of this request
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use fibra::*;
-    ///
-    /// assert_eq!(Request::new().id_ref().is_empty(), false);
-    /// ```
-    #[inline]
-    pub fn id_ref(&self) -> &str {
-        self.id.as_str()
-    }
-
-    /// Get/Set the unique identifier of this request
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use fibra::*;
-    ///
-    /// let mut req = Request::new();
-    /// *req.id_mut() = "12345".to_string();
-    ///
-    /// assert_eq!(req.id_ref(), "12345");
-    /// ```
-    #[inline]
-    pub fn id_mut(&mut self) -> &mut String {
-        &mut self.id
-    }
-
-    /// Set the unique identifier of this request
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use fibra::*;
-    ///
-    /// assert_eq!(Request::new().id("12345").id_ref(), "12345");
-    /// ```
-    #[inline]
-    pub fn id(mut self, val: impl Into<String>) -> Self {
-        self.id = val.into();
-        self
     }
 
     /// Get the created time of this request
@@ -663,7 +614,6 @@ impl From<hyper::Request<Body>> for Request {
         let (head, body) = from.into_parts();
 
         Self {
-            id: Ulid::from_datetime(time).to_string(),
             created: time,
             method: head.method,
             uri: head.uri,

@@ -4,9 +4,6 @@ use crate::types::*;
 /// This object represents a single HTTP connection. A client can send multiple requests on a single
 /// connection if using HTTP/1x's Keep-Alive feature or HTTP/2.
 pub struct Connection {
-    /// The unique identifier of this connection
-    id: String,
-
     /// The time the connection was created
     created: SystemTime,
 
@@ -24,52 +21,6 @@ impl Connection {
     /// Create a new object
     pub fn new() -> Self {
         Self::from((([0, 0, 0, 0], 0), ([0, 0, 0, 0], 0)))
-    }
-
-    /// Get the unique identifier of this connection
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use fibra::*;
-    ///
-    /// assert_eq!(Connection::new().id_ref().is_empty(), false);
-    /// ```
-    #[inline]
-    pub fn id_ref(&self) -> &str {
-        self.id.as_str()
-    }
-
-    /// Get/Set the unique identifier of this connection
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use fibra::*;
-    ///
-    /// let mut con = Connection::new();
-    /// *con.id_mut() = "12345".to_string();
-    ///
-    /// assert_eq!(con.id_ref(), "12345");
-    /// ```
-    #[inline]
-    pub fn id_mut(&mut self) -> &mut String {
-        &mut self.id
-    }
-
-    /// Set the unique identifier of this connection
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use fibra::*;
-    ///
-    /// assert_eq!(Connection::new().id("12345").id_ref(), "12345");
-    /// ```
-    #[inline]
-    pub fn id(mut self, val: impl Into<String>) -> Self {
-        self.id = val.into();
-        self
     }
 
     /// Get the created time of this connection
@@ -297,6 +248,6 @@ impl Default for Connection {
 impl<S: Into<SocketAddr>, P: Into<SocketAddr>> From<(S, P)> for Connection {
     #[inline]
     fn from((sock, peer): (S, P)) -> Self {
-        Self { id: Ulid::new().to_string(), count: 0.into(), created: SystemTime::now(), sockaddr: sock.into(), peeraddr: peer.into() }
+        Self { count: 0.into(), created: SystemTime::now(), sockaddr: sock.into(), peeraddr: peer.into() }
     }
 }
