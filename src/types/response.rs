@@ -426,7 +426,7 @@ impl Response {
     ///
     /// impl FileStream {
     ///     pub fn new() -> FibraResult<Self> {
-    ///         std::fs::write(std::env::temp_dir().join("sample.txt"), "Actions speak louder than words")?;
+    ///         std::fs::write(std::env::temp_dir().join("sample.txt"), "The quick brown fox jumps over the lazy dog.")?;
     ///         Ok(Self(BufReader::new(std::fs::File::open(std::env::temp_dir().join("sample.txt"))?)))
     ///     }
     /// }
@@ -451,7 +451,7 @@ impl Response {
     /// async fn main() -> FibraResult<()> {
     ///     let mut res = Response::new().stream(FileStream::new()?);
     ///
-    ///     assert_eq!(res.body_all().await?, "Actions speak louder than words");
+    ///     assert_eq!(res.body_all().await?, "The quick brown fox jumps over the lazy dog.");
     ///
     ///     Ok(())
     /// }

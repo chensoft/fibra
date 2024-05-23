@@ -258,3 +258,4 @@ impl Handler for &'static str {
 
 // todo String, Vec u8 and handler for Response itself
 // todo need (mime, text) to response
+// todo trait IntoHandler
