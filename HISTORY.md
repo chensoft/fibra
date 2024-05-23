@@ -58,3 +58,4 @@
 - trailing headers after the body in h1.1
 - test: curl --http2 --parallel -v http://localip.cc:3000/first http://localip.cc:3000/second
 - test: curl --http2-prior-knowledge --parallel -v http://localip.cc:3000/first http://localip.cc:3000/second
+- graceful shutdown

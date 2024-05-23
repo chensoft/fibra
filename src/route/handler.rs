@@ -255,3 +255,6 @@ impl Handler for &'static str {
         Ok((*self).into())
     }
 }
+
+// todo String, Vec u8 and handler for Response itself
+// todo need (mime, text) to response
