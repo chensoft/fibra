@@ -7,6 +7,7 @@ pub(crate) use std::borrow::Cow;
 pub(crate) use std::sync::atomic;
 pub(crate) use std::fmt::Display;
 pub(crate) use std::fmt::Formatter;
+pub(crate) use std::cell::OnceCell;
 pub(crate) use std::future::Future;
 pub(crate) use std::net::SocketAddr;
 pub(crate) use std::time::SystemTime;

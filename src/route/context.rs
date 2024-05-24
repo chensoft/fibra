@@ -21,7 +21,7 @@ pub struct Context {
     params: IndexMap<String, String>,
 
     /// The query string of the Uri
-    queries: IndexMap<String, String>,
+    queries: OnceCell<IndexMap<String, String>>,
 
     /// Internal routing stack
     routing: Vec<*const dyn Handler>,
@@ -347,7 +347,7 @@ impl Context {
     /// assert_eq!(ctx.query("key"), "");
     /// ```
     pub fn query(&self, key: &str) -> &str {
-        self.queries.get(key).map(|v| v.as_str()).unwrap_or("")
+        self.queries().get(key).map(|v| v.as_str()).unwrap_or("")
     }
 
     /// Request's query string
@@ -364,7 +364,9 @@ impl Context {
     /// assert_eq!(ctx.queries(), &indexmap::indexmap! { "foo".to_string() => "bar".to_string(), "key".to_string() => "你好".to_string() });
     /// ```
     pub fn queries(&self) -> &IndexMap<String, String> {
-        &self.queries
+        self.queries.get_or_init(|| {
+            form_urlencoded::parse(self.req.query().as_bytes()).into_owned().collect()
+        })
     }
 
     /// Request's whole uri
@@ -600,9 +602,8 @@ impl Context {
 impl From<(Arc<Fibra>, Arc<Connection>, Request)> for Context {
     fn from((app, conn, req): (Arc<Fibra>, Arc<Connection>, Request)) -> Self {
         let served = conn.count_add(1);
-        let queries = form_urlencoded::parse(req.query().as_bytes()).into_owned().collect();
 
-        let mut myself = Self { app, conn, served, req, params: IndexMap::new(), queries, routing: vec![] };
+        let mut myself = Self { app, conn, served, req, params: IndexMap::new(), queries: OnceCell::new(), routing: vec![] };
         myself.push(myself.app().as_ref());
         myself
     }
