@@ -11,9 +11,6 @@ pub trait Handler: AnyHandler + Send + Sync + 'static {
     async fn handle(&self, ctx: Context) -> FibraResult<Response>;
 }
 
-/// Box Handler
-pub type BoxHandler = Box<dyn Handler>;
-
 /// Any support
 pub trait AnyHandler: Any {
     /// Treat object as any
@@ -32,6 +29,16 @@ impl<T: Any> AnyHandler for T {
     #[inline]
     fn as_any_mut(&mut self) -> &mut dyn Any {
         self
+    }
+}
+
+/// Box Handler
+pub type BoxHandler = Box<dyn Handler>;
+
+#[async_trait]
+impl Handler for BoxHandler {
+    async fn handle<'a>(&'a self, ctx: Context) -> FibraResult<Response> {
+        self.as_ref().handle(ctx).await
     }
 }
 
@@ -82,7 +89,19 @@ impl AsHandler for BoxHandler {
     }
 }
 
-/// Impl Handler for function and closure
+/// Impl Handler for vector
+#[async_trait]
+impl<T: Handler> Handler for Vec<T> {
+    async fn handle(&self, mut ctx: Context) -> FibraResult<Response> {
+        for h in self.iter().rev() {
+            ctx.push(h);
+        }
+
+        ctx.next().await
+    }
+}
+
+/// Impl Handler for async function and closure
 ///
 /// # Examples
 ///
@@ -118,28 +137,6 @@ impl<F, R> Handler for F
 {
     async fn handle(&self, ctx: Context) -> FibraResult<Response> {
         self(ctx).await
-    }
-}
-
-#[async_trait]
-impl Handler for Vec<BoxHandler> {
-    async fn handle(&self, mut ctx: Context) -> FibraResult<Response> {
-        for h in self.iter().rev() {
-            ctx.push(h.as_ref());
-        }
-
-        ctx.next().await
-    }
-}
-
-#[async_trait]
-impl Handler for Vec<Routine> {
-    async fn handle(&self, mut ctx: Context) -> FibraResult<Response> {
-        for h in self.iter().rev() {
-            ctx.push(h);
-        }
-
-        ctx.next().await
     }
 }
 
