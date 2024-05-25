@@ -95,7 +95,6 @@ impl Handler for Logger {
         let offset = (SystemTime::now().duration_since(UNIX_EPOCH)?.as_nanos() - begin.as_nanos()) as f64 / 1_000_000_000.0;
         let status = match &result {
             Ok(res) => res.status_ref().as_u16(),
-            Err(FibraError::PathNotFound) => Status::NOT_FOUND.as_u16(),
             _ => 0,
         };
 

@@ -32,9 +32,6 @@ pub enum FibraError {
     #[error("{0}")]
     HeaderInvalid(#[from] header::InvalidHeaderValue),
 
-    #[error("path not found")]
-    PathNotFound,
-
     #[error("addr not available")]
     AddrNotAvailable,
 }

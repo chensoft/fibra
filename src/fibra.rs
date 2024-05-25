@@ -25,6 +25,8 @@ pub struct Fibra {
     /// added as handlers.
     mounted: Vec<BoxHandler>,
 
+    // todo bundled
+
     /// Sockets is used to store all TCP listeners. We support listening on multiple addresses
     /// simultaneously. You can achieve this by calling the **bind** method multiple times.
     sockets: Vec<Socket>,
@@ -200,7 +202,7 @@ impl Fibra {
     ///         let req = Request::new().uri("http://app.localip.cc/v2/user");
     ///         let ctx = Context::from((app.clone(), con.clone(), req));
     ///
-    ///         assert_eq!(matches!(ctx.next().await.err(), Some(FibraError::PathNotFound)), true);
+    ///         assert_eq!(ctx.next().await?.status_ref(), &Status::NOT_FOUND);
     ///     }
     ///
     ///     // mock a request with correct subdomain
@@ -220,7 +222,7 @@ impl Fibra {
         self.limiter.get_or_insert(Limiter::new())
     }
 
-    /// Handle 404 not found and errors
+    /// Handle failure responses and errors
     ///
     /// # Examples
     ///
@@ -234,9 +236,8 @@ impl Fibra {
     ///     app.get("/api/v1/user", "user1")?;
     ///     app.get("/api/v2/user", "user2")?;
     ///
-    ///     app.catch(|err| match err {
-    ///         FibraError::PathNotFound => Status::NOT_FOUND.into(),
-    ///         _ => Status::SERVICE_UNAVAILABLE.into(),
+    ///     app.catch(|res, err| {
+    ///         res.body("Oops! User not found.")
     ///     });
     ///
     ///     // mock a real request
@@ -248,7 +249,7 @@ impl Fibra {
     ///     Ok(())
     /// }
     /// ```
-    pub fn catch<F>(&mut self, f: F) -> &mut Self where F: Fn(FibraError) -> Response + Send + Sync + 'static {
+    pub fn catch<F>(&mut self, f: F) -> &mut Self where F: Fn(Response, Option<FibraError>) -> Response + Send + Sync + 'static {
         self.catcher = Some(f.into());
         self
     }

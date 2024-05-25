@@ -588,7 +588,7 @@ impl Context {
             return unsafe { &*handler }.handle(self).await;
         }
 
-        Err(FibraError::PathNotFound)
+        Ok(Status::NOT_FOUND.into())
     }
 
     /// todo

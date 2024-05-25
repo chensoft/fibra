@@ -12,9 +12,8 @@ async fn main() -> FibraResult<()> {
     alice.get("/", "This is Alice's website")?; // $ http -v alice.localip.cc:3000
     alice.get("/users", alice_users)?;                  // $ http -v alice.localip.cc:3000/users
 
-    alice.catch(|err| match err {
-        FibraError::PathNotFound => (Status::NOT_FOUND, "Oops! No contents found on Alice's website.").into(),
-        _ => Status::INTERNAL_SERVER_ERROR.into(),
+    alice.catch(|res, _err| {
+        res.body("Oops! No contents found on Alice's website.")
     });
 
     // create a subrouter with a subdomain 'bob'
@@ -24,9 +23,8 @@ async fn main() -> FibraResult<()> {
     bob.get("/", "This is Bob's website")?; // $ http -v bob.localip.cc:3000
     bob.get("/users", bob_users)?;                  // $ http -v bob.localip.cc:3000/users
 
-    bob.catch(|err| match err {
-        FibraError::PathNotFound => (Status::NOT_FOUND, "Oops! No contents found on Bob's website.").into(),
-        _ => Status::INTERNAL_SERVER_ERROR.into(),
+    bob.catch(|res, _err| {
+        res.body("Oops! No contents found on Bob's website.")
     });
 
     // other requests will fall into here
@@ -35,9 +33,8 @@ async fn main() -> FibraResult<()> {
 
     // handle 404 NOT_FOUND and other errors
     // $ http -v localip.cc:3000/invalid
-    app.catch(|err| match err {
-        FibraError::PathNotFound => (Status::NOT_FOUND, "Oops! Page not found.").into(),
-        _ => Status::INTERNAL_SERVER_ERROR.into(),
+    app.catch(|res, _err| {
+        res.body("Oops! Page not found.")
     });
 
     app.bind("0.0.0.0:3000")?;
