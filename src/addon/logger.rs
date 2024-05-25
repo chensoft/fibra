@@ -3,15 +3,6 @@ use crate::route::*;
 use crate::types::*;
 
 /// Logger Middleware
-///
-/// # Examples
-///
-/// ```
-/// use fibra::*;
-///
-/// let mut app = Fibra::new();
-/// app.mount(addon::Logger::new());
-/// ```
 pub struct Logger {
     logger: logkit::Logger,
     level: String,
@@ -19,6 +10,15 @@ pub struct Logger {
 
 impl Logger {
     /// Create a new object
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use fibra::*;
+    ///
+    /// let mut app = Fibra::new();
+    /// app.mount(addon::Logger::new());
+    /// ```
     pub fn new() -> Self {
         Self { logger: logkit::Logger::new(Some(&logkit::StderrTarget)), level: "info".to_string() }
     }
@@ -74,7 +74,7 @@ impl Default for Logger {
 impl Handler for Logger {
     async fn handle(&self, ctx: Context) -> FibraResult<Response> {
         let begin = ctx.created().duration_since(UNIX_EPOCH)?;
-        let reqid = "TODO".to_string();
+        let reqid = ctx.header("X-Request-ID").map_or("", |v| v.to_str().unwrap_or("")).to_string();
 
         // request log
         let mut record = self.logger.spawn(0, logkit::Source::default()).unwrap_or_else(|| unreachable!());

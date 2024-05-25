@@ -30,7 +30,10 @@ pub enum FibraError {
     UriInvalid(#[from] hyper::http::uri::InvalidUri),
 
     #[error("{0}")]
-    HeaderInvalid(#[from] header::InvalidHeaderValue),
+    HeaderNameInvalid(#[from] header::InvalidHeaderName),
+
+    #[error("{0}")]
+    HeaderValueInvalid(#[from] header::InvalidHeaderValue),
 
     #[error("addr not available")]
     AddrNotAvailable,
