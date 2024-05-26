@@ -483,7 +483,7 @@ impl<T> From<(Status, Mime, T)> for Response
 {
     #[inline]
     fn from((status, mime, body): (Status, Mime, T)) -> Self {
-        Self::new().status(status).header(header::CONTENT_TYPE, mime).body(body)
+        Response::new().status(status).header(header::CONTENT_TYPE, mime).body(body)
     }
 }
 
@@ -499,7 +499,6 @@ impl<T> From<(Status, Mime, T)> for Response
 ///     let mut res: Response = (Status::NOT_FOUND, "Not Found").into();
 ///
 ///     assert_eq!(res.status_ref(), &Status::NOT_FOUND);
-///     assert_eq!(res.header_ref(header::CONTENT_TYPE).map(|v| v.as_bytes()), Some("text/plain; charset=utf-8".as_bytes()));
 ///     assert_eq!(res.body_all().await?, "Not Found");
 ///
 ///     Ok(())
@@ -508,7 +507,7 @@ impl<T> From<(Status, Mime, T)> for Response
 impl From<(Status, &'static str)> for Response {
     #[inline]
     fn from((status, body): (Status, &'static str)) -> Self {
-        (status, mime::TEXT_PLAIN_UTF_8, body).into()
+        Response::new().status(status).body(body)
     }
 }
 
@@ -524,7 +523,6 @@ impl From<(Status, &'static str)> for Response {
 ///     let mut res: Response = (Status::NOT_FOUND, "Not Found".to_string()).into();
 ///
 ///     assert_eq!(res.status_ref(), &Status::NOT_FOUND);
-///     assert_eq!(res.header_ref(header::CONTENT_TYPE).map(|v| v.as_bytes()), Some("text/plain; charset=utf-8".as_bytes()));
 ///     assert_eq!(res.body_all().await?, "Not Found");
 ///
 ///     Ok(())
@@ -533,7 +531,7 @@ impl From<(Status, &'static str)> for Response {
 impl From<(Status, String)> for Response {
     #[inline]
     fn from((status, body): (Status, String)) -> Self {
-        (status, mime::TEXT_PLAIN_UTF_8, body).into()
+        Response::new().status(status).body(body)
     }
 }
 
@@ -558,7 +556,7 @@ impl From<(Status, String)> for Response {
 impl From<(Status, &'static [u8])> for Response {
     #[inline]
     fn from((status, body): (Status, &'static [u8])) -> Self {
-        (status, mime::APPLICATION_OCTET_STREAM, body).into()
+        Response::new().status(status).header(header::CONTENT_TYPE, mime::APPLICATION_OCTET_STREAM).body(body)
     }
 }
 
@@ -583,7 +581,7 @@ impl From<(Status, &'static [u8])> for Response {
 impl From<(Status, Vec<u8>)> for Response {
     #[inline]
     fn from((status, body): (Status, Vec<u8>)) -> Self {
-        (status, mime::APPLICATION_OCTET_STREAM, body).into()
+        Response::new().status(status).header(header::CONTENT_TYPE, mime::APPLICATION_OCTET_STREAM).body(body)
     }
 }
 
@@ -598,7 +596,6 @@ impl From<(Status, Vec<u8>)> for Response {
 /// async fn main() -> FibraResult<()> {
 ///     let mut res: Response = (mime::TEXT_PLAIN_UTF_8, "OK").into();
 ///
-///     assert_eq!(res.status_ref(), &Status::OK);
 ///     assert_eq!(res.header_ref(header::CONTENT_TYPE).map(|v| v.as_bytes()), Some("text/plain; charset=utf-8".as_bytes()));
 ///     assert_eq!(res.body_all().await?, "OK");
 ///
@@ -610,7 +607,7 @@ impl<T> From<(Mime, T)> for Response
 {
     #[inline]
     fn from((mime, body): (Mime, T)) -> Self {
-        (Status::OK, mime, body).into()
+        Response::new().header(header::CONTENT_TYPE, mime).body(body)
     }
 }
 
@@ -626,7 +623,7 @@ impl<T> From<(Mime, T)> for Response
 ///     let mut res: Response = ().into();
 ///
 ///     assert_eq!(res.status_ref(), &Status::OK);
-///     assert_eq!(res.header_ref(header::CONTENT_TYPE).map(|v| v.as_bytes()), Some("text/plain; charset=utf-8".as_bytes()));
+///     assert_eq!(res.header_ref(header::CONTENT_TYPE), None);
 ///     assert_eq!(res.body_all().await?, "");
 ///
 ///     Ok(())
@@ -635,7 +632,7 @@ impl<T> From<(Mime, T)> for Response
 impl From<()> for Response {
     #[inline]
     fn from(_: ()) -> Self {
-        (Status::OK, mime::TEXT_PLAIN_UTF_8, "").into()
+        Response::new()
     }
 }
 
@@ -673,8 +670,6 @@ impl From<Status> for Response {
 /// async fn main() -> FibraResult<()> {
 ///     let mut res: Response = "Hello World!".into();
 ///
-///     assert_eq!(res.status_ref(), &Status::OK);
-///     assert_eq!(res.header_ref(header::CONTENT_TYPE).map(|v| v.as_bytes()), Some("text/plain; charset=utf-8".as_bytes()));
 ///     assert_eq!(res.body_all().await?, "Hello World!");
 ///
 ///     Ok(())
@@ -683,7 +678,7 @@ impl From<Status> for Response {
 impl From<&'static str> for Response {
     #[inline]
     fn from(body: &'static str) -> Self {
-        (Status::OK, mime::TEXT_PLAIN_UTF_8, body).into()
+        Response::new().body(body)
     }
 }
 
@@ -698,8 +693,6 @@ impl From<&'static str> for Response {
 /// async fn main() -> FibraResult<()> {
 ///     let mut res: Response = "Hello World!".to_string().into();
 ///
-///     assert_eq!(res.status_ref(), &Status::OK);
-///     assert_eq!(res.header_ref(header::CONTENT_TYPE).map(|v| v.as_bytes()), Some("text/plain; charset=utf-8".as_bytes()));
 ///     assert_eq!(res.body_all().await?, "Hello World!");
 ///
 ///     Ok(())
@@ -708,7 +701,7 @@ impl From<&'static str> for Response {
 impl From<String> for Response {
     #[inline]
     fn from(body: String) -> Self {
-        (Status::OK, mime::TEXT_PLAIN_UTF_8, body).into()
+        Response::new().body(body)
     }
 }
 
@@ -723,7 +716,6 @@ impl From<String> for Response {
 /// async fn main() -> FibraResult<()> {
 ///     let mut res: Response = b"Hello World!".as_slice().into();
 ///
-///     assert_eq!(res.status_ref(), &Status::OK);
 ///     assert_eq!(res.header_ref(header::CONTENT_TYPE).map(|v| v.as_bytes()), Some("application/octet-stream".as_bytes()));
 ///     assert_eq!(res.body_all().await?, "Hello World!");
 ///
@@ -733,7 +725,7 @@ impl From<String> for Response {
 impl From<&'static [u8]> for Response {
     #[inline]
     fn from(body: &'static [u8]) -> Self {
-        (Status::OK, mime::APPLICATION_OCTET_STREAM, body).into()
+        Response::new().header(header::CONTENT_TYPE, mime::APPLICATION_OCTET_STREAM).body(body)
     }
 }
 
@@ -748,7 +740,6 @@ impl From<&'static [u8]> for Response {
 /// async fn main() -> FibraResult<()> {
 ///     let mut res: Response = b"Hello World!".to_vec().into();
 ///
-///     assert_eq!(res.status_ref(), &Status::OK);
 ///     assert_eq!(res.header_ref(header::CONTENT_TYPE).map(|v| v.as_bytes()), Some("application/octet-stream".as_bytes()));
 ///     assert_eq!(res.body_all().await?, "Hello World!");
 ///
@@ -758,7 +749,7 @@ impl From<&'static [u8]> for Response {
 impl From<Vec<u8>> for Response {
     #[inline]
     fn from(body: Vec<u8>) -> Self {
-        (Status::OK, mime::APPLICATION_OCTET_STREAM, body).into()
+        Response::new().header(header::CONTENT_TYPE, mime::APPLICATION_OCTET_STREAM).body(body)
     }
 }
 

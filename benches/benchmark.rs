@@ -10,7 +10,7 @@ fn run(c: &mut Criterion) {
     c.bench_function("run_baseline", |b| {
         b.to_async(&Runtime::new().unwrap()).iter(|| async {
             let req = Request::new();
-            let ctx = Context::from((app.clone(), con.clone(), req));
+            let ctx = Context::new(app.clone(), con.clone(), req);
 
             let _ = black_box(ctx.next().await);
         });

@@ -74,7 +74,7 @@ impl Default for Logger {
 impl Handler for Logger {
     async fn handle(&self, ctx: Context) -> FibraResult<Response> {
         let begin = ctx.created().duration_since(UNIX_EPOCH)?;
-        let reqid = ctx.header("X-Request-ID").map_or("", |v| v.to_str().unwrap_or("")).to_string();
+        let reqid = ctx.header("x-request-id").map_or("", |v| v.to_str().unwrap_or("")).to_string();
 
         // request log
         let mut record = self.logger.spawn(0, logkit::Source::default()).unwrap_or_else(|| unreachable!());
