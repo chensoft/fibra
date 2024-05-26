@@ -32,11 +32,13 @@ pub struct Fibra {
 
 impl Fibra {
     /// Create a fibra router
+    #[inline]
     pub fn new() -> Self {
         Self::default()
     }
 
     /// Register a route for GET method
+    #[inline]
     pub fn get(&mut self, path: impl Into<Bytes>, handler: impl Handler) -> FibraResult<&mut Routine> {
         let routine = self.route(path, handler)?;
         routine.limit().method(Method::GET);
@@ -44,6 +46,7 @@ impl Fibra {
     }
 
     /// Register a route for POST method
+    #[inline]
     pub fn post(&mut self, path: impl Into<Bytes>, handler: impl Handler) -> FibraResult<&mut Routine> {
         let routine = self.route(path, handler)?;
         routine.limit().method(Method::POST);
@@ -51,6 +54,7 @@ impl Fibra {
     }
 
     /// Register a route for PUT method
+    #[inline]
     pub fn put(&mut self, path: impl Into<Bytes>, handler: impl Handler) -> FibraResult<&mut Routine> {
         let routine = self.route(path, handler)?;
         routine.limit().method(Method::PUT);
@@ -58,6 +62,7 @@ impl Fibra {
     }
 
     /// Register a route for DELETE method
+    #[inline]
     pub fn delete(&mut self, path: impl Into<Bytes>, handler: impl Handler) -> FibraResult<&mut Routine> {
         let routine = self.route(path, handler)?;
         routine.limit().method(Method::DELETE);
@@ -65,6 +70,7 @@ impl Fibra {
     }
 
     /// Register a route for PATCH method
+    #[inline]
     pub fn patch(&mut self, path: impl Into<Bytes>, handler: impl Handler) -> FibraResult<&mut Routine> {
         let routine = self.route(path, handler)?;
         routine.limit().method(Method::PATCH);
@@ -72,6 +78,7 @@ impl Fibra {
     }
 
     /// Register a route for all methods
+    #[inline]
     pub fn all(&mut self, path: impl Into<Bytes>, handler: impl Handler) -> FibraResult<&mut Routine> {
         self.route(path, handler)
     }
@@ -170,6 +177,7 @@ impl Fibra {
     ///
     /// assert_eq!(app.handlers().len(), 2);
     /// ```
+    #[inline]
     pub fn mount<T: Handler>(&mut self, handler: T) -> &mut T {
         self.mounted.push(Box::new(handler));
         self.mounted.last_mut().and_then(|h| h.as_handler_mut::<T>()).unwrap_or_else(|| unreachable!())
@@ -216,6 +224,7 @@ impl Fibra {
     ///     Ok(())
     /// }
     /// ```
+    #[inline]
     pub fn limit(&mut self) -> &mut Limiter {
         self.limiter.get_or_insert(Limiter::new())
     }
@@ -247,6 +256,7 @@ impl Fibra {
     ///     Ok(())
     /// }
     /// ```
+    #[inline]
     pub fn catch<F>(&mut self, f: F) -> &mut Self where F: Fn(Response, Option<FibraError>) -> Response + Send + Sync + 'static {
         self.catcher = Some(f.into());
         self
@@ -266,6 +276,7 @@ impl Fibra {
     ///
     /// assert_eq!(app.handlers().len(), 1);
     /// ```
+    #[inline]
     pub fn ensure<T: Handler + Default>(&mut self) -> &mut T {
         if self.mounted.last().and_then(|h| h.as_handler::<T>()).is_none() {
             return self.mount(T::default());
@@ -275,6 +286,7 @@ impl Fibra {
     }
 
     /// Get the mounted handlers
+    #[inline]
     pub fn handlers(&self) -> &Vec<BoxHandler> {
         &self.mounted
     }
@@ -297,6 +309,7 @@ impl Fibra {
     /// assert_eq!(app.bind("0.0.0.0:0").is_ok(), true); // ipv4-only
     /// assert_eq!(app.bind(Socket::new(Domain::IPV4, Type::STREAM, Some(Protocol::TCP))).is_ok(), true); // raw socket
     /// ```
+    #[inline]
     pub fn bind(&mut self, addr: impl TryIntoListener) -> FibraResult<&mut Socket> {
         self.sockets.push(addr.try_into_listener()?);
         Ok(self.sockets.last_mut().unwrap_or_else(|| unreachable!()))

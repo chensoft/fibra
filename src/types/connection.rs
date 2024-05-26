@@ -19,6 +19,7 @@ pub struct Connection {
 
 impl Connection {
     /// Create a new object
+    #[inline]
     pub fn new() -> Self {
         Self::from((([0, 0, 0, 0], 0), ([0, 0, 0, 0], 0)))
     }
@@ -101,6 +102,7 @@ impl Connection {
     /// assert_eq!(Connection::new().count_add(0), 0);
     /// assert_eq!(Connection::new().count_add(5), 5);
     /// ```
+    #[inline]
     pub fn count_add(&self, incr: usize) -> usize {
         self.count.fetch_add(incr, atomic::Ordering::Relaxed) + incr
     }

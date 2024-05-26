@@ -8,12 +8,14 @@ pub struct Catcher {
 
 impl Catcher {
     /// Create a new object
+    #[inline]
     pub fn new() -> Self {
         let handler = Arc::new(|res, _err| res);
         Self { handler }
     }
 
     /// Set custom handler
+    #[inline]
     pub fn handler<F>(&mut self, f: F) -> &mut Self where F: Fn(Response, Option<FibraError>) -> Response + Send + Sync + 'static {
         self.handler = Arc::new(f);
         self
@@ -54,6 +56,7 @@ impl Catcher {
 }
 
 impl Default for Catcher {
+    #[inline]
     fn default() -> Self {
         Self::new()
     }
@@ -88,6 +91,7 @@ impl<F> From<F> for Catcher
     where
         F: Fn(Response, Option<FibraError>) -> Response + Send + Sync + 'static
 {
+    #[inline]
     fn from(f: F) -> Self {
         Self { handler: Arc::new(f) }
     }

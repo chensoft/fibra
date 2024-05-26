@@ -19,6 +19,7 @@ pub struct Response {
 
 impl Response {
     /// Create a new object
+    #[inline]
     pub fn new() -> Self {
         Self::default()
     }
@@ -251,6 +252,7 @@ impl Response {
     ///     Ok(())
     /// }
     /// ```
+    #[inline]
     pub async fn body_all(&mut self) -> FibraResult<Bytes> {
         use body::HttpBody;
         Ok(self.body_mut().collect().await?.to_bytes())

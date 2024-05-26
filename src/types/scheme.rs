@@ -12,6 +12,7 @@ pub enum Scheme {
 }
 
 impl Display for Scheme {
+    #[inline]
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match self {
             Scheme::HTTP => write!(f, "http"),

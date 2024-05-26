@@ -19,16 +19,19 @@ impl Logger {
     /// let mut app = Fibra::new();
     /// app.mount(addon::Logger::new());
     /// ```
+    #[inline]
     pub fn new() -> Self {
         Self { logger: logkit::Logger::new(Some(&logkit::StderrTarget)), level: "info".to_string() }
     }
 
     /// Get the inner logger
+    #[inline]
     pub fn logger(&self) -> &logkit::Logger {
         &self.logger
     }
 
     /// Get the inner logger
+    #[inline]
     pub fn logger_mut(&mut self) -> &mut logkit::Logger {
         &mut self.logger
     }
@@ -43,6 +46,7 @@ impl Logger {
     /// let mut app = Fibra::new();
     /// app.mount(addon::Logger::new().route(logkit::StdoutTarget));
     /// ```
+    #[inline]
     pub fn route(mut self, target: impl logkit::Target) -> Self {
         self.logger.route(target);
         self
@@ -58,6 +62,7 @@ impl Logger {
     /// let mut app = Fibra::new();
     /// app.mount(addon::Logger::new().level(logkit::LEVEL_DEBUG));
     /// ```
+    #[inline]
     pub fn level(mut self, level: logkit::Level) -> Self {
         self.level = logkit::level_to_str(level).map(|v| v.to_string()).unwrap_or(level.to_string());
         self
@@ -65,6 +70,7 @@ impl Logger {
 }
 
 impl Default for Logger {
+    #[inline]
     fn default() -> Self {
         Self::new()
     }

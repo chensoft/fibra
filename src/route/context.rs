@@ -32,6 +32,7 @@ unsafe impl Sync for Context {}
 
 impl Context {
     /// Construct from client request
+    #[inline]
     pub fn new(app: Arc<Fibra>, conn: Arc<Connection>, req: Request) -> Self {
         let served = conn.count_add(1);
 
@@ -41,11 +42,13 @@ impl Context {
     }
 
     /// The root app instance
+    #[inline]
     pub fn app(&self) -> &Arc<Fibra> {
         &self.app
     }
 
     /// Current connection, multiple requests may belong to one connection
+    #[inline]
     pub fn conn(&self) -> &Arc<Connection> {
         &self.conn
     }
@@ -64,6 +67,7 @@ impl Context {
     /// assert_eq!(ctx.established() >= &old, true);
     /// assert_eq!(ctx.established() <= &SystemTime::now(), true);
     /// ```
+    #[inline]
     pub fn established(&self) -> &SystemTime {
         self.conn.created_ref()
     }
@@ -82,6 +86,7 @@ impl Context {
     /// assert_eq!(Context::from(con.clone()).served(), 2);
     /// assert_eq!(Context::from(con.clone()).served(), 3);
     /// ```
+    #[inline]
     pub fn served(&self) -> usize {
         self.served
     }
@@ -100,6 +105,7 @@ impl Context {
     /// assert_eq!(ctx.local().to_string(), "127.0.0.1:3000");
     /// assert_eq!(ctx.remote().to_string(), "8.8.8.8:80");
     /// ```
+    #[inline]
     pub fn local(&self) -> &SocketAddr {
         self.conn.sockaddr_ref()
     }
@@ -118,6 +124,7 @@ impl Context {
     /// assert_eq!(ctx.local().to_string(), "127.0.0.1:3000");
     /// assert_eq!(ctx.remote().to_string(), "8.8.8.8:80");
     /// ```
+    #[inline]
     pub fn remote(&self) -> &SocketAddr {
         self.conn.peeraddr_ref()
     }
@@ -125,11 +132,13 @@ impl Context {
 
 impl Context {
     /// Current request object
+    #[inline]
     pub fn req(&self) -> &Request {
         &self.req
     }
 
     /// For developer use only
+    #[inline]
     pub fn req_mut(&mut self) -> &mut Request {
         &mut self.req
     }
@@ -148,6 +157,7 @@ impl Context {
     /// assert_eq!(ctx.created() >= &old, true);
     /// assert_eq!(ctx.created() <= &SystemTime::now(), true);
     /// ```
+    #[inline]
     pub fn created(&self) -> &SystemTime {
         self.req.created_ref()
     }
@@ -168,51 +178,61 @@ impl Context {
     /// assert_eq!(ctx.is_delete(), false);
     /// assert_eq!(ctx.is_patch(), false);
     /// ```
+    #[inline]
     pub fn method(&self) -> &Method {
         self.req.method_ref()
     }
 
     /// Check method
+    #[inline]
     pub fn is_get(&self) -> bool {
         self.method() == Method::GET
     }
 
     /// Check method
+    #[inline]
     pub fn is_post(&self) -> bool {
         self.method() == Method::POST
     }
 
     /// Check method
+    #[inline]
     pub fn is_put(&self) -> bool {
         self.method() == Method::PUT
     }
 
     /// Check method
+    #[inline]
     pub fn is_delete(&self) -> bool {
         self.method() == Method::DELETE
     }
 
     /// Check method
+    #[inline]
     pub fn is_head(&self) -> bool {
         self.method() == Method::HEAD
     }
 
     /// Check method
+    #[inline]
     pub fn is_options(&self) -> bool {
         self.method() == Method::OPTIONS
     }
 
     /// Check method
+    #[inline]
     pub fn is_connect(&self) -> bool {
         self.method() == Method::CONNECT
     }
 
     /// Check method
+    #[inline]
     pub fn is_patch(&self) -> bool {
         self.method() == Method::PATCH
     }
 
     /// Check method
+    #[inline]
     pub fn is_trace(&self) -> bool {
         self.method() == Method::TRACE
     }
@@ -228,6 +248,7 @@ impl Context {
     ///
     /// assert_eq!(ctx.uri(), "http://localip.cc/");
     /// ```
+    #[inline]
     pub fn uri(&self) -> &Uri {
         self.req.uri_ref()
     }
@@ -244,11 +265,13 @@ impl Context {
     /// assert_eq!(ctx.scheme(), &Scheme::HTTPS);
     /// assert_eq!(ctx.is_secure(), true);
     /// ```
+    #[inline]
     pub fn scheme(&self) -> &Scheme {
         self.req.scheme()
     }
 
     /// Check the scheme
+    #[inline]
     pub fn is_secure(&self) -> bool {
         self.req.scheme() == &Scheme::HTTPS
     }
@@ -264,6 +287,7 @@ impl Context {
     ///
     /// assert_eq!(ctx.authority(), Some(&Authority::from_static("user:pass@localip.cc")));
     /// ```
+    #[inline]
     pub fn authority(&self) -> Option<&Authority> {
         self.req.authority()
     }
@@ -279,6 +303,7 @@ impl Context {
     ///
     /// assert_eq!(ctx.domain(), "localip.cc");
     /// ```
+    #[inline]
     pub fn domain(&self) -> &str {
         self.req.domain()
     }
@@ -294,6 +319,7 @@ impl Context {
     ///
     /// assert_eq!(ctx.subdomain(), "git");
     /// ```
+    #[inline]
     pub fn subdomain(&self) -> &str {
         self.req.subdomain()
     }
@@ -309,6 +335,7 @@ impl Context {
     ///
     /// assert_eq!(ctx.host(), "git.localip.cc");
     /// ```
+    #[inline]
     pub fn host(&self) -> &str {
         self.req.host()
     }
@@ -324,6 +351,7 @@ impl Context {
     ///
     /// assert_eq!(ctx.port(), 3000);
     /// ```
+    #[inline]
     pub fn port(&self) -> u16 {
         self.req.port()
     }
@@ -339,6 +367,7 @@ impl Context {
     ///
     /// assert_eq!(ctx.path(), "/repo/fibra");
     /// ```
+    #[inline]
     pub fn path(&self) -> &str {
         self.req.path()
     }
@@ -355,6 +384,7 @@ impl Context {
     /// assert_eq!(ctx.query("foo"), "bar");
     /// assert_eq!(ctx.query("key"), "");
     /// ```
+    #[inline]
     pub fn query(&self, key: &str) -> &str {
         self.queries().get(key).map(|v| v.as_str()).unwrap_or("")
     }
@@ -372,6 +402,7 @@ impl Context {
     /// assert_eq!(ctx.query("key"), "你好"); // url decoded
     /// assert_eq!(ctx.queries(), &indexmap::indexmap! { "foo".to_string() => "bar".to_string(), "key".to_string() => "你好".to_string() });
     /// ```
+    #[inline]
     pub fn queries(&self) -> &IndexMap<String, String> {
         self.queries.get_or_init(|| {
             form_urlencoded::parse(self.req.query().as_bytes()).into_owned().collect()
@@ -389,6 +420,7 @@ impl Context {
     ///
     /// assert_eq!(ctx.href(), "http://user:pass@git.localip.cc/repo/fibra?foo=bar&key=%E4%BD%A0%E5%A5%BD".to_string());
     /// ```
+    #[inline]
     pub fn href(&self) -> String {
         self.req.href()
     }
@@ -408,26 +440,31 @@ impl Context {
     /// assert_eq!(ctx.is_http1x(), true);
     /// assert_eq!(ctx.is_http2(), false);
     /// ```
+    #[inline]
     pub fn version(&self) -> &Version {
         self.req.version_ref()
     }
 
     /// Check http version
+    #[inline]
     pub fn is_http1x(&self) -> bool {
         self.is_http10() || self.is_http11()
     }
 
     /// Check http version
+    #[inline]
     pub fn is_http10(&self) -> bool {
         self.version() == &Version::HTTP_10
     }
 
     /// Check http version
+    #[inline]
     pub fn is_http11(&self) -> bool {
         self.version() == &Version::HTTP_11
     }
 
     /// Check http version
+    #[inline]
     pub fn is_http2(&self) -> bool {
         self.version() == &Version::HTTP_2
     }
@@ -445,6 +482,7 @@ impl Context {
     /// assert_eq!(ctx.header("cache-control").map(|v| v.as_bytes()), Some("no-cache".as_bytes()));
     /// assert_eq!(ctx.header("accept-encoding"), None);
     /// ```
+    #[inline]
     pub fn header(&self, key: impl AsHeaderName) -> Option<&HeaderValue> {
         self.req.header_ref(key)
     }
@@ -464,6 +502,7 @@ impl Context {
     /// assert_eq!(headers.get("cache-control").map(|v| v.as_bytes()), Some("no-cache".as_bytes()));
     /// assert_eq!(headers.get("accept-encoding"), None);
     /// ```
+    #[inline]
     pub fn headers(&self) -> &HeaderMap {
         self.req.headers_ref()
     }
@@ -487,16 +526,19 @@ impl Context {
     /// assert_eq!(ctx.param("code"), "12345");
     /// assert_eq!(ctx.param("none"), "");
     /// ```
+    #[inline]
     pub fn param(&self, key: &str) -> &str {
         self.params.get(key).map(|v| v.as_str()).unwrap_or("")
     }
 
     /// Named params after matching
+    #[inline]
     pub fn params(&self) -> &IndexMap<String, String> {
         &self.params
     }
 
     /// Named params after matching
+    #[inline]
     pub fn params_mut(&mut self) -> &mut IndexMap<String, String> {
         &mut self.params
     }
@@ -504,6 +546,7 @@ impl Context {
 
 impl Context {
     /// Read all body contents into a BufList
+    #[inline]
     pub async fn read_all(&mut self) -> BufList {
         let mut list = BufList::new();
         while let Some(bytes) = self.read_chunk().await {
@@ -513,6 +556,7 @@ impl Context {
     }
 
     /// Read one chunk into a Bytes
+    #[inline]
     pub async fn read_chunk(&mut self) -> Option<Bytes> {
         use body::HttpBody;
         self.req.body_mut().data().await.and_then(|r| r.ok())
@@ -535,6 +579,7 @@ impl Context {
     ///     Ok(())
     /// }
     /// ```
+    #[inline]
     pub fn reject(self, status: Option<Status>) -> FibraResult<Response> {
         Ok(status.unwrap_or(Status::FORBIDDEN).into())
     }
@@ -559,6 +604,7 @@ impl Context {
     ///     Ok(())
     /// }
     /// ```
+    #[inline]
     pub async fn rewrite(mut self, to: impl AsRef<str>, body: Option<Body>) -> FibraResult<Response> {
         let body = match body {
             Some(val) => val,
@@ -585,6 +631,7 @@ impl Context {
     ///     Ok(())
     /// }
     /// ```
+    #[inline]
     pub fn redirect(self, to: impl IntoUri, status: Option<Status>) -> FibraResult<Response> {
         let location = HeaderValue::try_from(to.into_uri().to_string())?;
         let redirect = status.unwrap_or(Status::FOUND);
@@ -623,6 +670,7 @@ impl Context {
 
 /// FOR MOCK USE ONLY
 impl Default for Context {
+    #[inline]
     fn default() -> Self {
         Self::new(Arc::new(Fibra::new()), Arc::new(Connection::new()), Request::new())
     }
@@ -630,6 +678,7 @@ impl Default for Context {
 
 /// FOR MOCK USE ONLY
 impl From<Fibra> for Context {
+    #[inline]
     fn from(app: Fibra) -> Self {
         Self::new(Arc::new(app), Arc::new(Connection::new()), Request::new())
     }
@@ -637,6 +686,7 @@ impl From<Fibra> for Context {
 
 /// FOR MOCK USE ONLY
 impl From<(Fibra, Request)> for Context {
+    #[inline]
     fn from((app, req): (Fibra, Request)) -> Self {
         Self::new(Arc::new(app), Arc::new(Connection::new()), req)
     }
@@ -644,6 +694,7 @@ impl From<(Fibra, Request)> for Context {
 
 /// FOR MOCK USE ONLY
 impl From<(Fibra, Connection, Request)> for Context {
+    #[inline]
     fn from((app, con, req): (Fibra, Connection, Request)) -> Self {
         Self::new(Arc::new(app), Arc::new(con), req)
     }
@@ -651,6 +702,7 @@ impl From<(Fibra, Connection, Request)> for Context {
 
 /// FOR MOCK USE ONLY
 impl From<Connection> for Context {
+    #[inline]
     fn from(con: Connection) -> Self {
         Self::new(Arc::new(Fibra::new()), Arc::new(con), Request::new())
     }
@@ -658,6 +710,7 @@ impl From<Connection> for Context {
 
 /// FOR MOCK USE ONLY
 impl From<Arc<Connection>> for Context {
+    #[inline]
     fn from(con: Arc<Connection>) -> Self {
         Self::new(Arc::new(Fibra::new()), con, Request::new())
     }
@@ -665,6 +718,7 @@ impl From<Arc<Connection>> for Context {
 
 /// FOR MOCK USE ONLY
 impl From<Request> for Context {
+    #[inline]
     fn from(req: Request) -> Self {
         Self::new(Arc::new(Fibra::new()), Arc::new(Connection::new()), req)
     }

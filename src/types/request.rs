@@ -36,6 +36,7 @@ pub struct Request {
 
 impl Request {
     /// Create a new object
+    #[inline]
     pub fn new() -> Self {
         Self::from(hyper::Request::default())
     }
@@ -361,6 +362,7 @@ impl Request {
     ///     Ok(())
     /// }
     /// ```
+    #[inline]
     pub async fn body_all(&mut self) -> FibraResult<Bytes> {
         use body::HttpBody;
         Ok(self.body_mut().collect().await?.to_bytes())

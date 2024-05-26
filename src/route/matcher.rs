@@ -11,6 +11,7 @@ pub struct Matcher {
 
 impl Matcher {
     /// Create a new object
+    #[inline]
     pub fn new() -> Self {
         Self::default()
     }

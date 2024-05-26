@@ -18,6 +18,7 @@ impl ReqID {
     /// let mut app = Fibra::new();
     /// app.mount(addon::ReqID::new());
     /// ```
+    #[inline]
     pub fn new() -> Self {
         Self { header: "x-request-id".to_string() }
     }
@@ -32,6 +33,7 @@ impl ReqID {
     /// let mut app = Fibra::new();
     /// app.mount(addon::ReqID::new().header("x-request-id"));
     /// ```
+    #[inline]
     pub fn header(mut self, header: impl Into<String>) -> Self {
         self.header = header.into();
         self
@@ -39,6 +41,7 @@ impl ReqID {
 }
 
 impl Default for ReqID {
+    #[inline]
     fn default() -> Self {
         Self::new()
     }

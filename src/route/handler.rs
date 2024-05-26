@@ -11,6 +11,7 @@ pub trait Handler: AnyHandler + Send + Sync + 'static {
     async fn handle(&self, ctx: Context) -> FibraResult<Response>;
 
     /// Internal method to get the child handler of its parent
+    #[inline]
     #[allow(unused_variables)]
     fn select(&self, idx: usize) -> Option<&dyn Handler> {
         None
@@ -43,6 +44,7 @@ pub type BoxHandler = Box<dyn Handler>;
 
 #[async_trait]
 impl Handler for BoxHandler {
+    #[inline]
     async fn handle<'a>(&'a self, ctx: Context) -> FibraResult<Response> {
         self.as_ref().handle(ctx).await
     }
@@ -86,10 +88,12 @@ pub trait AsHandler {
 }
 
 impl AsHandler for BoxHandler {
+    #[inline]
     fn as_handler<T: Handler>(&self) -> Option<&T> {
         self.as_ref().as_any().downcast_ref::<T>()
     }
 
+    #[inline]
     fn as_handler_mut<T: Handler>(&mut self) -> Option<&mut T> {
         self.as_mut().as_any_mut().downcast_mut::<T>()
     }
@@ -98,11 +102,13 @@ impl AsHandler for BoxHandler {
 /// Impl Handler for vector
 #[async_trait]
 impl<T: Handler> Handler for Vec<T> {
+    #[inline]
     async fn handle(&self, mut ctx: Context) -> FibraResult<Response> {
         ctx.push(self, true, 0);
         ctx.next().await
     }
 
+    #[inline]
     fn select(&self, idx: usize) -> Option<&dyn Handler> {
         self.get(idx).map(|handler| handler as &dyn Handler)
     }
@@ -142,6 +148,7 @@ impl<F, R> Handler for F
         F: Fn(Context) -> R + Send + Sync + 'static,
         R: Future<Output = FibraResult<Response>> + Send + 'static
 {
+    #[inline]
     async fn handle(&self, ctx: Context) -> FibraResult<Response> {
         self(ctx).await
     }
@@ -166,6 +173,7 @@ impl<F, R> Handler for F
 /// ```
 #[async_trait]
 impl Handler for (Status, Mime, &'static str) {
+    #[inline]
     async fn handle(&self, _ctx: Context) -> FibraResult<Response> {
         Ok((self.0, self.1.clone(), self.2).into())
     }
@@ -189,6 +197,7 @@ impl Handler for (Status, Mime, &'static str) {
 /// ```
 #[async_trait]
 impl Handler for (Status, &'static str) {
+    #[inline]
     async fn handle(&self, _ctx: Context) -> FibraResult<Response> {
         Ok((*self).into())
     }
@@ -213,6 +222,7 @@ impl Handler for (Status, &'static str) {
 /// ```
 #[async_trait]
 impl Handler for (Mime, &'static str) {
+    #[inline]
     async fn handle(&self, _ctx: Context) -> FibraResult<Response> {
         Ok((self.0.clone(), self.1).into())
     }
@@ -235,6 +245,7 @@ impl Handler for (Mime, &'static str) {
 /// ```
 #[async_trait]
 impl Handler for () {
+    #[inline]
     async fn handle(&self, _ctx: Context) -> FibraResult<Response> {
         Ok(().into())
     }
@@ -257,6 +268,7 @@ impl Handler for () {
 /// ```
 #[async_trait]
 impl Handler for Status {
+    #[inline]
     async fn handle(&self, _ctx: Context) -> FibraResult<Response> {
         Ok((*self).into())
     }
@@ -279,6 +291,7 @@ impl Handler for Status {
 /// ```
 #[async_trait]
 impl Handler for &'static str {
+    #[inline]
     async fn handle(&self, _ctx: Context) -> FibraResult<Response> {
         Ok((*self).into())
     }
