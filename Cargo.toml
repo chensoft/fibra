@@ -1,6 +1,6 @@
 [package]
 name = "fibra"
-version = "0.0.1"
+version = "0.1.0"
 authors = ["Jian Chen <admin@chensoft.com>"]
 edition = "2021"
 description = "Fast and Powerful HTTP router written in Rust"
