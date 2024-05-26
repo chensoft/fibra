@@ -30,10 +30,10 @@ impl ReqID {
     /// use fibra::*;
     ///
     /// let mut app = Fibra::new();
-    /// app.mount(addon::ReqID::new().name("X-Request-ID"));
+    /// app.mount(addon::ReqID::new().header("X-Request-ID"));
     /// ```
-    pub fn header(mut self, name: impl Into<String>) -> Self {
-        self.header = name.into();
+    pub fn header(mut self, header: impl Into<String>) -> Self {
+        self.header = header.into();
         self
     }
 }

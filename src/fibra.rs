@@ -25,8 +25,6 @@ pub struct Fibra {
     /// added as handlers.
     mounted: Vec<BoxHandler>,
 
-    // todo bundled
-
     /// Sockets is used to store all TCP listeners. We support listening on multiple addresses
     /// simultaneously. You can achieve this by calling the **bind** method multiple times.
     sockets: Vec<Socket>,
@@ -167,7 +165,7 @@ impl Fibra {
     ///
     /// let mut app = Fibra::new();
     ///
-    /// app.mount(addon::Logger::new());
+    /// app.mount(addon::ReqID::new());
     /// app.mount(addon::Logger::new());
     ///
     /// assert_eq!(app.handlers().len(), 2);
@@ -200,7 +198,7 @@ impl Fibra {
     ///     // mock a request with incorrect subdomain
     ///     {
     ///         let req = Request::new().uri("http://app.localip.cc/v2/user");
-    ///         let ctx = Context::from((app.clone(), con.clone(), req));
+    ///         let ctx = Context::new(app.clone(), con.clone(), req);
     ///
     ///         assert_eq!(ctx.next().await?.status_ref(), &Status::NOT_FOUND);
     ///     }
@@ -208,7 +206,7 @@ impl Fibra {
     ///     // mock a request with correct subdomain
     ///     {
     ///         let req = Request::new().uri("http://api.localip.cc/v2/user");
-    ///         let ctx = Context::from((app, con, req));
+    ///         let ctx = Context::new(app, con, req);
     ///         let mut res = ctx.next().await?;
     ///
     ///         assert_eq!(res.status_ref(), &Status::OK);
@@ -323,7 +321,7 @@ impl Fibra {
             async move {
                 Ok::<_, Infallible>(service_fn(move |req| {
                     // construct our own context object for each request
-                    let ctx = Context::from((app.clone(), con.clone(), Request::from(req)));
+                    let ctx = Context::new(app.clone(), con.clone(), Request::from(req));
 
                     // processing the request from the ctx's next method
                     async move { Ok::<_, FibraError>(ctx.next().await?.into()) }

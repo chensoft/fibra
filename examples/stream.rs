@@ -34,6 +34,8 @@ async fn main() -> FibraResult<()> {
     std::fs::write(std::env::temp_dir().join("sample.txt"), "The quick brown fox jumps over the lazy dog.")?;
 
     let mut app = Fibra::new();
+
+    app.mount(addon::ReqID::new());
     app.mount(addon::Logger::new());
 
     // read the sample by stream

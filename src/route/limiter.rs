@@ -24,7 +24,7 @@ impl Limiter {
     /// use fibra::*;
     ///
     /// let mut limiter = Limiter::new();
-    /// let context = Context::new();
+    /// let context = Context::default();
     ///
     /// limiter.push(|ctx| ctx.is_get());
     ///
@@ -54,7 +54,7 @@ impl Limiter {
     /// use fibra::*;
     ///
     /// let mut limiter = Limiter::new();
-    /// let context = Context::new();
+    /// let context = Context::default();
     ///
     /// limiter.push(|_| false);
     ///

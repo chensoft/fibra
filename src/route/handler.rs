@@ -9,6 +9,12 @@ pub trait Handler: AnyHandler + Send + Sync + 'static {
     /// a current request object, multiple requests may reside on one connection, and these
     /// requests will be handled one by one on different context objects
     async fn handle(&self, ctx: Context) -> FibraResult<Response>;
+
+    /// Internal method to get the child handler of its parent
+    #[allow(unused_variables)]
+    fn select(&self, idx: usize) -> Option<&dyn Handler> {
+        None
+    }
 }
 
 /// Any support
@@ -93,11 +99,12 @@ impl AsHandler for BoxHandler {
 #[async_trait]
 impl<T: Handler> Handler for Vec<T> {
     async fn handle(&self, mut ctx: Context) -> FibraResult<Response> {
-        for h in self.iter().rev() {
-            ctx.push(h);
-        }
-
+        ctx.push(self, true, 0);
         ctx.next().await
+    }
+
+    fn select(&self, idx: usize) -> Option<&dyn Handler> {
+        self.get(idx).map(|handler| handler as &dyn Handler)
     }
 }
 
@@ -114,8 +121,8 @@ impl<T: Handler> Handler for Vec<T> {
 ///
 /// #[tokio::main]
 /// async fn main() -> FibraResult<()> {
-///     let ctx_function = Context::new();
-///     let ctx_closure = Context::new();
+///     let ctx_function = Context::default();
+///     let ctx_closure = Context::default();
 ///
 ///     let fun_function = free_function;
 ///     let fun_closure = |_ctx: Context| async { Ok("It Works!".into()) };
@@ -147,7 +154,7 @@ impl<F, R> Handler for F
 ///
 /// #[tokio::main]
 /// async fn main() -> FibraResult<()> {
-///     let ctx = Context::new();
+///     let ctx = Context::default();
 ///     let mut res = (Status::OK, mime::APPLICATION_JSON, "{}").handle(ctx).await?;
 ///
 ///     assert_eq!(res.status_ref(), &Status::OK);
@@ -171,7 +178,7 @@ impl Handler for (Status, Mime, &'static str) {
 ///
 /// #[tokio::main]
 /// async fn main() -> FibraResult<()> {
-///     let ctx = Context::new();
+///     let ctx = Context::default();
 ///     let mut res = (Status::OK, "Hello World!").handle(ctx).await?;
 ///
 ///     assert_eq!(res.status_ref(), &Status::OK);
@@ -194,7 +201,7 @@ impl Handler for (Status, &'static str) {
 ///
 /// #[tokio::main]
 /// async fn main() -> FibraResult<()> {
-///     let ctx = Context::new();
+///     let ctx = Context::default();
 ///     let mut res = (mime::APPLICATION_JSON, "{}").handle(ctx).await?;
 ///
 ///     assert_eq!(res.status_ref(), &Status::OK);
@@ -218,7 +225,7 @@ impl Handler for (Mime, &'static str) {
 ///
 /// #[tokio::main]
 /// async fn main() -> FibraResult<()> {
-///     let ctx = Context::new();
+///     let ctx = Context::default();
 ///     let mut res = ().handle(ctx).await?;
 ///
 ///     assert_eq!(res.body_all().await?, "");
@@ -240,7 +247,7 @@ impl Handler for () {
 ///
 /// #[tokio::main]
 /// async fn main() -> FibraResult<()> {
-///     let ctx = Context::new();
+///     let ctx = Context::default();
 ///     let res = Status::UNAUTHORIZED.handle(ctx).await?;
 ///
 ///     assert_eq!(res.status_ref(), &Status::UNAUTHORIZED);
@@ -262,7 +269,7 @@ impl Handler for Status {
 ///
 /// #[tokio::main]
 /// async fn main() -> FibraResult<()> {
-///     let ctx = Context::new();
+///     let ctx = Context::default();
 ///     let mut res = "Hello World!".handle(ctx).await?;
 ///
 ///     assert_eq!(res.body_all().await?, "Hello World!");

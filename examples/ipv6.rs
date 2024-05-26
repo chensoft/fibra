@@ -3,6 +3,8 @@ use fibra::*;
 #[tokio::main]
 async fn main() -> FibraResult<()> {
     let mut app = Fibra::new();
+
+    app.mount(addon::ReqID::new());
     app.mount(addon::Logger::new());
 
     // ✅: $ http -v http://[::1]:3000

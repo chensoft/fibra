@@ -4,11 +4,14 @@ use bytes::BytesMut;
 #[tokio::main]
 async fn main() -> FibraResult<()> {
     let mut app = Fibra::new();
+
+    app.mount(addon::ReqID::new());
     app.mount(addon::Logger::new());
 
     // <- http -v localip.cc:3000 name=echo
+    // <- http -v localip.cc:3000/any name=echo
     // -> {"name":"echo"}
-    app.post("/", echo)?;
+    app.post("/*", echo)?;
 
     app.bind(3000)?;
     app.run().await

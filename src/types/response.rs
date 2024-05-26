@@ -651,8 +651,6 @@ impl From<()> for Response {
 ///     let mut res: Response = Status::INTERNAL_SERVER_ERROR.into();
 ///
 ///     assert_eq!(res.status_ref(), &Status::INTERNAL_SERVER_ERROR);
-///     assert_eq!(res.header_ref(header::CONTENT_TYPE).map(|v| v.as_bytes()), Some("text/plain; charset=utf-8".as_bytes()));
-///     assert_eq!(res.body_all().await?, "");
 ///
 ///     Ok(())
 /// }
@@ -660,7 +658,7 @@ impl From<()> for Response {
 impl From<Status> for Response {
     #[inline]
     fn from(status: Status) -> Self {
-        (status, mime::TEXT_PLAIN_UTF_8, "").into()
+        Response::new().status(status)
     }
 }
 

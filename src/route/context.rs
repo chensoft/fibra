@@ -23,17 +23,21 @@ pub struct Context {
     /// The query string of the Uri
     queries: OnceCell<IndexMap<String, String>>,
 
-    /// Internal routing stack
-    routing: Vec<*const dyn Handler>,
+    /// Internal routing stack, handler is the parent, vector is whether it's a vector, index is the index of children
+    routing: Vec<(*const dyn Handler, bool, usize)>, // (handler, index, vector)
 }
 
 unsafe impl Send for Context {}
 unsafe impl Sync for Context {}
 
 impl Context {
-    /// For mock use only
-    pub fn new() -> Self {
-        (Arc::new(Fibra::new()), Arc::new(Connection::new()), Request::new()).into()
+    /// Construct from client request
+    pub fn new(app: Arc<Fibra>, conn: Arc<Connection>, req: Request) -> Self {
+        let served = conn.count_add(1);
+
+        let mut myself = Self { app, conn, served, req, params: IndexMap::new(), queries: OnceCell::new(), routing: vec![] };
+        myself.push(myself.app().as_ref(), false, 0);
+        myself
     }
 
     /// The root app instance
@@ -55,7 +59,7 @@ impl Context {
     /// use std::time::SystemTime;
     ///
     /// let old = SystemTime::now();
-    /// let ctx = Context::new();
+    /// let ctx = Context::default();
     ///
     /// assert_eq!(ctx.established() >= &old, true);
     /// assert_eq!(ctx.established() <= &SystemTime::now(), true);
@@ -70,8 +74,13 @@ impl Context {
     ///
     /// ```
     /// use fibra::*;
+    /// use std::sync::Arc;
     ///
-    /// assert_eq!(Context::new().served(), 1);
+    /// let con = Arc::new(Connection::new());
+    ///
+    /// assert_eq!(Context::from(con.clone()).served(), 1);
+    /// assert_eq!(Context::from(con.clone()).served(), 2);
+    /// assert_eq!(Context::from(con.clone()).served(), 3);
     /// ```
     pub fn served(&self) -> usize {
         self.served
@@ -134,7 +143,7 @@ impl Context {
     /// use std::time::SystemTime;
     ///
     /// let old = SystemTime::now();
-    /// let ctx = Context::new();
+    /// let ctx = Context::default();
     ///
     /// assert_eq!(ctx.created() >= &old, true);
     /// assert_eq!(ctx.created() <= &SystemTime::now(), true);
@@ -470,7 +479,7 @@ impl Context {
     ///     String::from("name") => String::from("user1"),
     ///     String::from("code") => String::from("12345"),
     /// };
-    /// let mut ctx = Context::new();
+    /// let mut ctx = Context::default();
     /// ctx.params_mut().extend(arg);
     ///
     /// assert_eq!(ctx.param(""), "");
@@ -520,8 +529,8 @@ impl Context {
     ///
     /// #[tokio::main]
     /// async fn main() -> FibraResult<()> {
-    ///     assert_eq!(Context::new().reject(None)?.status_ref(), &Status::FORBIDDEN);
-    ///     assert_eq!(Context::new().reject(Some(Status::BAD_REQUEST))?.status_ref(), &Status::BAD_REQUEST);
+    ///     assert_eq!(Context::default().reject(None)?.status_ref(), &Status::FORBIDDEN);
+    ///     assert_eq!(Context::default().reject(Some(Status::BAD_REQUEST))?.status_ref(), &Status::BAD_REQUEST);
     ///
     ///     Ok(())
     /// }
@@ -556,7 +565,7 @@ impl Context {
             None => std::mem::take(self.req.body_mut()),
         };
 
-        let ctx = Context::from((self.app, self.conn, self.req.uri(Uri::try_from(to.as_ref())?).body(body)));
+        let ctx = Context::new(self.app, self.conn, self.req.uri(Uri::try_from(to.as_ref())?).body(body));
         ctx.next().await
     }
 
@@ -569,9 +578,9 @@ impl Context {
     ///
     /// #[tokio::main]
     /// async fn main() -> FibraResult<()> {
-    ///     assert_eq!(Context::new().redirect("http://localip.cc", None)?.status_ref(), &Status::FOUND);
-    ///     assert_eq!(Context::new().redirect("http://localip.cc", None)?.header_ref(header::LOCATION), Some(&HeaderValue::from_static("http://localip.cc/")));
-    ///     assert_eq!(Context::new().redirect("http://localip.cc", Some(Status::MOVED_PERMANENTLY))?.status_ref(), &Status::MOVED_PERMANENTLY);
+    ///     assert_eq!(Context::default().redirect("http://localip.cc", None)?.status_ref(), &Status::FOUND);
+    ///     assert_eq!(Context::default().redirect("http://localip.cc", None)?.header_ref(header::LOCATION), Some(&HeaderValue::from_static("http://localip.cc/")));
+    ///     assert_eq!(Context::default().redirect("http://localip.cc", Some(Status::MOVED_PERMANENTLY))?.status_ref(), &Status::MOVED_PERMANENTLY);
     ///
     ///     Ok(())
     /// }
@@ -584,69 +593,79 @@ impl Context {
 
     /// Find the next handler and execute it
     pub async fn next(mut self) -> FibraResult<Response> {
-        if let Some(handler) = self.routing.pop() {
-            return unsafe { &*handler }.handle(self).await;
+        while let Some((obj, vec, idx)) = self.routing.last_mut() {
+            let cur: &dyn Handler = unsafe { &**obj };
+
+            // handler itself
+            if !*vec {
+                self.routing.pop();
+                return cur.handle(self).await;
+            }
+
+            // child handler
+            if let Some(cld) = cur.select(*idx) {
+                *idx += 1;
+                return cld.handle(self).await;
+            }
+
+            self.routing.pop();
         }
 
         Ok(Status::NOT_FOUND.into())
     }
 
-    /// todo
+    /// Push the nested group of handlers into stack
     #[inline]
-    pub fn push(&mut self, cur: *const dyn Handler) {
-        self.routing.push(cur);
-    }
-}
-
-/// Construct from client request
-impl From<(Arc<Fibra>, Arc<Connection>, Request)> for Context {
-    fn from((app, conn, req): (Arc<Fibra>, Arc<Connection>, Request)) -> Self {
-        let served = conn.count_add(1);
-
-        let mut myself = Self { app, conn, served, req, params: IndexMap::new(), queries: OnceCell::new(), routing: vec![] };
-        myself.push(myself.app().as_ref());
-        myself
+    pub fn push(&mut self, obj: *const dyn Handler, vec: bool, idx: usize) {
+        self.routing.push((obj, vec, idx));
     }
 }
 
 /// FOR MOCK USE ONLY
 impl Default for Context {
     fn default() -> Self {
-        Self::new()
+        Self::new(Arc::new(Fibra::new()), Arc::new(Connection::new()), Request::new())
     }
 }
 
 /// FOR MOCK USE ONLY
 impl From<Fibra> for Context {
     fn from(app: Fibra) -> Self {
-        (Arc::new(app), Arc::new(Connection::new()), Request::new()).into()
-    }
-}
-
-/// FOR MOCK USE ONLY
-impl From<Connection> for Context {
-    fn from(con: Connection) -> Self {
-        (Arc::new(Fibra::new()), Arc::new(con), Request::new()).into()
-    }
-}
-
-/// FOR MOCK USE ONLY
-impl From<Request> for Context {
-    fn from(req: Request) -> Self {
-        (Arc::new(Fibra::new()), Arc::new(Connection::new()), req).into()
+        Self::new(Arc::new(app), Arc::new(Connection::new()), Request::new())
     }
 }
 
 /// FOR MOCK USE ONLY
 impl From<(Fibra, Request)> for Context {
     fn from((app, req): (Fibra, Request)) -> Self {
-        (Arc::new(app), Arc::new(Connection::new()), req).into()
+        Self::new(Arc::new(app), Arc::new(Connection::new()), req)
     }
 }
 
 /// FOR MOCK USE ONLY
 impl From<(Fibra, Connection, Request)> for Context {
     fn from((app, con, req): (Fibra, Connection, Request)) -> Self {
-        (Arc::new(app), Arc::new(con), req).into()
+        Self::new(Arc::new(app), Arc::new(con), req)
+    }
+}
+
+/// FOR MOCK USE ONLY
+impl From<Connection> for Context {
+    fn from(con: Connection) -> Self {
+        Self::new(Arc::new(Fibra::new()), Arc::new(con), Request::new())
+    }
+}
+
+/// FOR MOCK USE ONLY
+impl From<Arc<Connection>> for Context {
+    fn from(con: Arc<Connection>) -> Self {
+        Self::new(Arc::new(Fibra::new()), con, Request::new())
+    }
+}
+
+/// FOR MOCK USE ONLY
+impl From<Request> for Context {
+    fn from(req: Request) -> Self {
+        Self::new(Arc::new(Fibra::new()), Arc::new(Connection::new()), req)
     }
 }
