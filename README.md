@@ -65,17 +65,30 @@ async fn main() -> FibraResult<()> {
 
 **Refer to the examples folder for more use cases.**
 
+## Performance
+
+- todo use two machines, wrk
+
 ## Benchmark
 
 - MacBook Air, Apple M2 24G, Sonoma 14.5, Rust 1.78
 
-| Name              |              Time               |
-|:------------------|:-------------------------------:|
-
-- AWS c5.2xlarge, 8C 16G, Ubuntu 24.04, Rust 1.78
-
-| Name              |              Time               |
-|:------------------|:-------------------------------:|
+| Name                |              Time               |
+|:--------------------|:-------------------------------:|
+| run_baseline        | [307.88 ns 309.69 ns 311.91 ns] |
+| run_routes_1        | [898.58 ns 900.80 ns 903.07 ns] |
+| run_routes_8_front  | [904.38 ns 906.53 ns 908.77 ns] |
+| run_routes_8_middle | [905.60 ns 907.58 ns 909.63 ns] |
+| run_routes_8_back   | [929.73 ns 932.53 ns 935.54 ns] |
+| run_routes_16       | [938.56 ns 940.53 ns 942.66 ns] |
+| req_empty           | [54.292 ns 54.320 ns 54.349 ns] |
+| req_hyper           | [156.59 ns 156.73 ns 156.86 ns] |
+| req_build           | [166.22 ns 166.29 ns 166.36 ns] |
+| res_empty           | [11.436 ns 11.450 ns 11.465 ns] |
+| res_full            | [119.16 ns 119.53 ns 119.98 ns] |
+| res_status_body     | [15.415 ns 15.417 ns 15.420 ns] |
+| res_status          | [11.562 ns 11.572 ns 11.581 ns] |
+| res_body            | [15.391 ns 15.393 ns 15.397 ns] |
 
 ## Documentation
 
