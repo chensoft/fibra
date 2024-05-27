@@ -1,3 +1,10 @@
+## [0.1.1] - 2024-05-27
+
+### Fixed
+
+- Enable reuse addr on server sockets
+- Prevent time reversal from causing subtraction errors
+
 ## [0.1.0] - 2024-05-26
 
 ### Added

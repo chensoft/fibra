@@ -38,12 +38,14 @@ Fast and Powerful HTTP router written in Rust
 - Domain filtering
 - Subdomain filtering
 - Subrouter support
-- Stream support
 - Varied responses
+- Stream support
 - Dual-stack support
 - Multiple listeners
 
 ## Example
+
+### Start
 
 ```Cargo.toml
 [dependencies]
@@ -62,6 +64,19 @@ async fn main() -> FibraResult<()> {
     app.run().await
 }
 ```
+
+### Basic
+
+* [Routing Patterns](https://github.com/chensoft/fibra/blob/HEAD/examples/routing.rs)
+* [Subrouter Support](https://github.com/chensoft/fibra/blob/HEAD/examples/multisite.rs)
+* [Varied Responses](https://github.com/chensoft/fibra/blob/HEAD/examples/response.rs)
+* [Stream Support](https://github.com/chensoft/fibra/blob/HEAD/examples/stream.rs)
+* [URL Rewrite](https://github.com/chensoft/fibra/blob/HEAD/examples/rewrite.rs)
+* [IPv6 Support](https://github.com/chensoft/fibra/blob/HEAD/examples/ipv6.rs)
+
+### Tools
+
+* [Echo Server](https://github.com/chensoft/fibra/blob/HEAD/examples/echo.rs)
 
 **Refer to the examples folder for more use cases.**
 

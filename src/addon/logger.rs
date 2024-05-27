@@ -98,7 +98,8 @@ impl Handler for Logger {
 
         // call handler
         let result = ctx.next().await;
-        let offset = (SystemTime::now().duration_since(UNIX_EPOCH)?.as_nanos() - begin.as_nanos()) as f64 / 1_000_000_000.0;
+        let finish = SystemTime::now().duration_since(UNIX_EPOCH)?;
+        let offset = (finish.as_nanos() as f64 - begin.as_nanos() as f64) / 1_000_000_000.0;
         let status = match &result {
             Ok(res) => res.status_ref().as_u16(),
             _ => 0,
@@ -106,7 +107,7 @@ impl Handler for Logger {
 
         // response log
         let mut record = self.logger.spawn(0, logkit::Source::default()).unwrap_or_else(|| unreachable!());
-        record.append("time", &begin.as_millis());
+        record.append("time", &finish.as_millis());
         record.append("level", &self.level);
         record.append("id", &reqid);
         record.append("kind", &"res");
