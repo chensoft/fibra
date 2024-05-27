@@ -78,8 +78,6 @@ async fn main() -> FibraResult<()> {
 
 * [Echo Server](https://github.com/chensoft/fibra/blob/HEAD/examples/echo.rs)
 
-**Refer to the examples folder for more use cases.**
-
 ## Performance
 
 - todo use two machines, wrk
