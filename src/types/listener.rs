@@ -30,14 +30,14 @@ impl TryIntoListener for u16 {
 /// ```
 /// use fibra::*;
 ///
-/// assert_eq!(":3000".try_into_listener().is_ok(), true);           // dual-stack, v4 & v6
-/// assert_eq!("[::]:3000".try_into_listener().is_ok(), true);       // dual-stack, v4 & v6
-/// assert_eq!("[::1]:3000".try_into_listener().is_ok(), true);      // ipv6-only
-/// assert_eq!("0.0.0.0:3000".try_into_listener().is_ok(), true);    // ipv4-only
-/// assert_eq!("0.0.0.0:65536".try_into_listener().is_ok(), false);  // invalid port
-/// assert_eq!("0.0.0.256:3000".try_into_listener().is_ok(), false); // invalid addr
-/// assert_eq!("[::1]:65536".try_into_listener().is_ok(), false);    // invalid addr
-/// assert_eq!("[::256]:3000".try_into_listener().is_ok(), false);   // invalid addr
+/// assert_eq!(":0".try_into_listener().is_ok(), true);             // dual-stack, v4 & v6
+/// assert_eq!("[::]:0".try_into_listener().is_ok(), true);         // dual-stack, v4 & v6
+/// assert_eq!("[::1]:0".try_into_listener().is_ok(), true);        // ipv6-only
+/// assert_eq!("0.0.0.0:0".try_into_listener().is_ok(), true);      // ipv4-only
+/// assert_eq!("0.0.0.0:65536".try_into_listener().is_ok(), false); // invalid port
+/// assert_eq!("0.0.0.256:0".try_into_listener().is_ok(), false);   // invalid addr
+/// assert_eq!("[::1]:65536".try_into_listener().is_ok(), false);   // invalid addr
+/// assert_eq!("[::256]:0".try_into_listener().is_ok(), false);     // invalid addr
 /// ```
 impl TryIntoListener for &str {
     fn try_into_listener(self) -> FibraResult<Socket> {

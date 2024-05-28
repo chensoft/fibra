@@ -1,3 +1,9 @@
+## [0.1.2] - 2024-0x-xx
+
+### Changed
+
+- Redirect return 307 or 308
+
 ## [0.1.1] - 2024-05-27
 
 ### Fixed
