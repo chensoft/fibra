@@ -42,7 +42,8 @@
 
 ### Improve
 
-- less unreachable!
+- force return fibraresult is not good
+- provide url decode utils
 - embed in another framework
 - sync callback support
 - handle HEAD req without write resp body
