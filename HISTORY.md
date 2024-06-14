@@ -1,8 +1,12 @@
-## [0.1.2] - 2024-0x-xx
+## [0.1.2] - 2024-06-14
+
+### Added
+
+- Construct request from Parts
 
 ### Changed
 
-- Redirect return 307 or 308
+- Add enums for redirect
 
 ## [0.1.1] - 2024-05-27
 

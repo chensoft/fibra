@@ -84,7 +84,7 @@ async fn main() -> FibraResult<()> {
 
 ## Benchmark
 
-- MacBook Air, Apple M2 24G, Sonoma 14.5, Rust 1.78
+- MacBook Air, Apple M2 24G, Sonoma 14.5, Rust 1.79
 
 | Name                |              Time               |
 |:--------------------|:-------------------------------:|

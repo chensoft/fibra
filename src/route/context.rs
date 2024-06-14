@@ -624,21 +624,17 @@ impl Context {
     ///
     /// #[tokio::main]
     /// async fn main() -> FibraResult<()> {
-    ///     assert_eq!(Context::default().redirect("http://localip.cc", false)?.status_ref(), &Status::TEMPORARY_REDIRECT);
-    ///     assert_eq!(Context::default().redirect("http://localip.cc", false)?.header_ref(header::LOCATION), Some(&HeaderValue::from_static("http://localip.cc/")));
-    ///     assert_eq!(Context::default().redirect("http://localip.cc", true)?.status_ref(), &Status::PERMANENT_REDIRECT);
+    ///     assert_eq!(Context::default().redirect("http://localip.cc", Redirect::TemporaryRedirect307)?.status_ref(), &Status::TEMPORARY_REDIRECT);
+    ///     assert_eq!(Context::default().redirect("http://localip.cc", Redirect::TemporaryRedirect307)?.header_ref(header::LOCATION), Some(&HeaderValue::from_static("http://localip.cc/")));
+    ///     assert_eq!(Context::default().redirect("http://localip.cc", Redirect::PermanentRedirect308)?.status_ref(), &Status::PERMANENT_REDIRECT);
     ///
     ///     Ok(())
     /// }
     /// ```
     #[inline]
-    pub fn redirect(self, to: impl IntoUri, permanent: bool) -> FibraResult<Response> {
+    pub fn redirect(self, to: impl IntoUri, code: Redirect) -> FibraResult<Response> {
         let location = HeaderValue::try_from(to.into_uri().to_string())?;
-        let redirect = match permanent {
-            true => Status::PERMANENT_REDIRECT,
-            false => Status::TEMPORARY_REDIRECT,
-        };
-        Ok(Response::new().status(redirect).header(header::LOCATION, location))
+        Ok(Response::new().status(code).header(header::LOCATION, location))
     }
 
     /// Find the next handler and execute it
