@@ -3,7 +3,8 @@ use crate::types::*;
 use http_body_util::Full;
 use http_body_util::BodyExt;
 
-pub(crate) type BoxBody = http_body_util::combinators::BoxBody<Bytes, FibraError>;
+/// Hyper Body
+pub type BoxBody = http_body_util::combinators::BoxBody<Bytes, FibraError>;
 
 /// HTTP Body
 #[derive(Default)]
@@ -18,12 +19,27 @@ impl Body {
 
     /// Read all bytes
     #[inline]
-    pub async fn read_all(&mut self) -> BufList {
-        let mut list = BufList::new();
+    pub async fn read_all(&mut self) -> Option<Bytes> {
+        let first = match self.read_frame().await {
+            Some(obj) => obj,
+            None => return None,
+        };
+
+        let second = match self.read_frame().await {
+            Some(obj) => obj,
+            None => return Some(first),
+        };
+
+        let mut whole = BytesMut::new();
+
+        whole.extend(first);
+        whole.extend(second);
+
         while let Some(bytes) = self.read_frame().await {
-            list.push_chunk(bytes);
+            whole.extend(bytes);
         }
-        list
+
+        Some(whole.freeze())
     }
 
     /// Read one frame

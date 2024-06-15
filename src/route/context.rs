@@ -547,7 +547,7 @@ impl Context {
 impl Context {
     /// Read all body contents into a BufList
     #[inline]
-    pub async fn read_all(&mut self) -> BufList {
+    pub async fn read_all(&mut self) -> Option<Bytes> {
         self.req.body_mut().read_all().await
     }
 
@@ -594,7 +594,7 @@ impl Context {
     ///     };
     ///     let ctx = Context::from((app, Request::new().uri("http://localip.cc/v1")));
     ///
-    ///     assert_eq!(ctx.rewrite("http://localip.cc/v2", None).await?.body_all().await?, "v2");
+    ///     assert_eq!(ctx.rewrite("http://localip.cc/v2", None).await?.body_all().await.unwrap_or_default(), "v2");
     ///
     ///     Ok(())
     /// }

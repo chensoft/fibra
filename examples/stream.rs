@@ -1,4 +1,5 @@
 use fibra::*;
+use bytes::Bytes;
 use futures::Stream;
 use std::task::Poll;
 use std::io::{BufReader, Read};
@@ -12,7 +13,7 @@ impl FileStream {
 }
 
 impl Stream for FileStream {
-    type Item = FibraResult<Vec<u8>>;
+    type Item = FibraResult<Bytes>;
 
     fn poll_next(mut self: std::pin::Pin<&mut Self>, _cx: &mut std::task::Context<'_>) -> Poll<Option<Self::Item>> {
         let mut buffer = vec![0; 10];
@@ -21,7 +22,7 @@ impl Stream for FileStream {
             Ok(0) => Poll::Ready(None),
             Ok(n) => {
                 buffer.truncate(n);
-                Poll::Ready(Some(Ok(buffer)))
+                Poll::Ready(Some(Ok(buffer.into())))
             },
             Err(e) => Poll::Ready(Some(Err(e.into()))),
         }

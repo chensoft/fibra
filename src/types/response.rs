@@ -248,12 +248,12 @@ impl Response {
     /// #[tokio::main]
     /// async fn main() -> FibraResult<()> {
     ///     let mut res = Response::new().body("Hello World!");
-    ///     assert_eq!(res.body_all().await?, "Hello World!");
+    ///     assert_eq!(res.body_all().await.unwrap_or_default(), "Hello World!");
     ///     Ok(())
     /// }
     /// ```
     #[inline]
-    pub async fn body_all(&mut self) -> BufList {
+    pub async fn body_all(&mut self) -> Option<Bytes> {
         self.body_mut().read_all().await
     }
 
@@ -267,7 +267,7 @@ impl Response {
     /// #[tokio::main]
     /// async fn main() -> FibraResult<()> {
     ///     let mut res = Response::new().body("Hello World!");
-    ///     assert_eq!(res.body_all().await?, "Hello World!");
+    ///     assert_eq!(res.body_all().await.unwrap_or_default(), "Hello World!");
     ///     Ok(())
     /// }
     /// ```
@@ -295,7 +295,7 @@ impl Response {
     ///     let mut res = Response::new().json(map);
     ///
     ///     assert_eq!(res.header_ref(header::CONTENT_TYPE).map(|v| v.as_bytes()), Some(mime::APPLICATION_JSON.as_ref().as_bytes()));
-    ///     assert_eq!(res.body_all().await?, "{\"a\":1,\"b\":2}");
+    ///     assert_eq!(res.body_all().await.unwrap_or_default(), "{\"a\":1,\"b\":2}");
     ///
     ///     Ok(())
     /// }
@@ -325,7 +325,7 @@ impl Response {
     ///     let mut res = Response::new().jsonp(map, "callback");
     ///
     ///     assert_eq!(res.header_ref(header::CONTENT_TYPE).map(|v| v.as_bytes()), Some(mime::APPLICATION_JSON.as_ref().as_bytes()));
-    ///     assert_eq!(res.body_all().await?, "callback({\"a\":1,\"b\":2})");
+    ///     assert_eq!(res.body_all().await.unwrap_or_default(), "callback({\"a\":1,\"b\":2})");
     ///
     ///     Ok(())
     /// }
@@ -353,7 +353,7 @@ impl Response {
     ///     let mut res = Response::new().text("It Works!");
     ///
     ///     assert_eq!(res.header_ref(header::CONTENT_TYPE).map(|v| v.as_bytes()), Some(mime::TEXT_PLAIN_UTF_8.as_ref().as_bytes()));
-    ///     assert_eq!(res.body_all().await?, "It Works!");
+    ///     assert_eq!(res.body_all().await.unwrap_or_default(), "It Works!");
     ///
     ///     Ok(())
     /// }
@@ -375,7 +375,7 @@ impl Response {
     ///     let mut res = Response::new().html("<html><body>It Works!</body></html>");
     ///
     ///     assert_eq!(res.header_ref(header::CONTENT_TYPE).map(|v| v.as_bytes()), Some(mime::TEXT_HTML_UTF_8.as_ref().as_bytes()));
-    ///     assert_eq!(res.body_all().await?, "<html><body>It Works!</body></html>");
+    ///     assert_eq!(res.body_all().await.unwrap_or_default(), "<html><body>It Works!</body></html>");
     ///
     ///     Ok(())
     /// }
@@ -397,7 +397,7 @@ impl Response {
     ///     let mut res = Response::new().bytes(b"abc".to_vec());
     ///
     ///     assert_eq!(res.header_ref(header::CONTENT_TYPE).map(|v| v.as_bytes()), Some(mime::APPLICATION_OCTET_STREAM.as_ref().as_bytes()));
-    ///     assert_eq!(res.body_all().await?, b"abc".to_vec());
+    ///     assert_eq!(res.body_all().await.unwrap_or_default(), b"abc".to_vec());
     ///
     ///     Ok(())
     /// }
@@ -413,6 +413,7 @@ impl Response {
     ///
     /// ```
     /// use fibra::*;
+    /// use bytes::Bytes;
     /// use futures::Stream;
     /// use std::task::Poll;
     /// use std::io::{BufReader, Read};
@@ -427,7 +428,7 @@ impl Response {
     /// }
     ///
     /// impl Stream for FileStream {
-    ///     type Item = FibraResult<Vec<u8>>;
+    ///     type Item = FibraResult<Bytes>;
     ///
     ///     fn poll_next(mut self: std::pin::Pin<&mut Self>, _cx: &mut std::task::Context<'_>) -> Poll<Option<Self::Item>> {
     ///         let mut buffer = vec![0; 10];
@@ -435,7 +436,7 @@ impl Response {
     ///             Ok(0) => Poll::Ready(None),
     ///             Ok(n) => {
     ///                 buffer.truncate(n);
-    ///                 Poll::Ready(Some(Ok(buffer)))
+    ///                 Poll::Ready(Some(Ok(buffer.into())))
     ///             },
     ///             Err(e) => Poll::Ready(Some(Err(e.into()))),
     ///         }
@@ -446,7 +447,7 @@ impl Response {
     /// async fn main() -> FibraResult<()> {
     ///     let mut res = Response::new().stream(FileStream::new()?);
     ///
-    ///     assert_eq!(res.body_all().await?, "The quick brown fox jumps over the lazy dog.");
+    ///     assert_eq!(res.body_all().await.unwrap_or_default(), "The quick brown fox jumps over the lazy dog.");
     ///
     ///     Ok(())
     /// }
@@ -477,7 +478,7 @@ impl Response {
 ///
 ///     assert_eq!(res.status_ref(), &Status::NOT_FOUND);
 ///     assert_eq!(res.header_ref(header::CONTENT_TYPE).map(|v| v.as_bytes()), Some("text/plain; charset=utf-8".as_bytes()));
-///     assert_eq!(res.body_all().await?, "Not Found");
+///     assert_eq!(res.body_all().await.unwrap_or_default(), "Not Found");
 ///
 ///     Ok(())
 /// }
@@ -503,7 +504,7 @@ where T: Into<Body>
 ///     let mut res: Response = (Status::NOT_FOUND, "Not Found").into();
 ///
 ///     assert_eq!(res.status_ref(), &Status::NOT_FOUND);
-///     assert_eq!(res.body_all().await?, "Not Found");
+///     assert_eq!(res.body_all().await.unwrap_or_default(), "Not Found");
 ///
 ///     Ok(())
 /// }
@@ -527,7 +528,7 @@ impl From<(Status, &'static str)> for Response {
 ///     let mut res: Response = (Status::NOT_FOUND, "Not Found".to_string()).into();
 ///
 ///     assert_eq!(res.status_ref(), &Status::NOT_FOUND);
-///     assert_eq!(res.body_all().await?, "Not Found");
+///     assert_eq!(res.body_all().await.unwrap_or_default(), "Not Found");
 ///
 ///     Ok(())
 /// }
@@ -552,7 +553,7 @@ impl From<(Status, String)> for Response {
 ///
 ///     assert_eq!(res.status_ref(), &Status::FORBIDDEN);
 ///     assert_eq!(res.header_ref(header::CONTENT_TYPE).map(|v| v.as_bytes()), Some("application/octet-stream".as_bytes()));
-///     assert_eq!(res.body_all().await?, b"Forbidden".as_slice());
+///     assert_eq!(res.body_all().await.unwrap_or_default(), b"Forbidden".as_slice());
 ///
 ///     Ok(())
 /// }
@@ -577,7 +578,7 @@ impl From<(Status, &'static [u8])> for Response {
 ///
 ///     assert_eq!(res.status_ref(), &Status::FORBIDDEN);
 ///     assert_eq!(res.header_ref(header::CONTENT_TYPE).map(|v| v.as_bytes()), Some("application/octet-stream".as_bytes()));
-///     assert_eq!(res.body_all().await?, b"Forbidden".to_vec());
+///     assert_eq!(res.body_all().await.unwrap_or_default(), b"Forbidden".to_vec());
 ///
 ///     Ok(())
 /// }
@@ -601,7 +602,7 @@ impl From<(Status, Vec<u8>)> for Response {
 ///     let mut res: Response = (mime::TEXT_PLAIN_UTF_8, "OK").into();
 ///
 ///     assert_eq!(res.header_ref(header::CONTENT_TYPE).map(|v| v.as_bytes()), Some("text/plain; charset=utf-8".as_bytes()));
-///     assert_eq!(res.body_all().await?, "OK");
+///     assert_eq!(res.body_all().await.unwrap_or_default(), "OK");
 ///
 ///     Ok(())
 /// }
@@ -628,7 +629,7 @@ where T: Into<Body>
 ///
 ///     assert_eq!(res.status_ref(), &Status::OK);
 ///     assert_eq!(res.header_ref(header::CONTENT_TYPE), None);
-///     assert_eq!(res.body_all().await?, "");
+///     assert_eq!(res.body_all().await.unwrap_or_default(), "");
 ///
 ///     Ok(())
 /// }
@@ -674,7 +675,7 @@ impl From<Status> for Response {
 /// async fn main() -> FibraResult<()> {
 ///     let mut res: Response = "Hello World!".into();
 ///
-///     assert_eq!(res.body_all().await?, "Hello World!");
+///     assert_eq!(res.body_all().await.unwrap_or_default(), "Hello World!");
 ///
 ///     Ok(())
 /// }
@@ -697,7 +698,7 @@ impl From<&'static str> for Response {
 /// async fn main() -> FibraResult<()> {
 ///     let mut res: Response = "Hello World!".to_string().into();
 ///
-///     assert_eq!(res.body_all().await?, "Hello World!");
+///     assert_eq!(res.body_all().await.unwrap_or_default(), "Hello World!");
 ///
 ///     Ok(())
 /// }
@@ -721,7 +722,7 @@ impl From<String> for Response {
 ///     let mut res: Response = b"Hello World!".as_slice().into();
 ///
 ///     assert_eq!(res.header_ref(header::CONTENT_TYPE).map(|v| v.as_bytes()), Some("application/octet-stream".as_bytes()));
-///     assert_eq!(res.body_all().await?, "Hello World!");
+///     assert_eq!(res.body_all().await.unwrap_or_default(), "Hello World!");
 ///
 ///     Ok(())
 /// }
@@ -745,7 +746,7 @@ impl From<&'static [u8]> for Response {
 ///     let mut res: Response = b"Hello World!".to_vec().into();
 ///
 ///     assert_eq!(res.header_ref(header::CONTENT_TYPE).map(|v| v.as_bytes()), Some("application/octet-stream".as_bytes()));
-///     assert_eq!(res.body_all().await?, "Hello World!");
+///     assert_eq!(res.body_all().await.unwrap_or_default(), "Hello World!");
 ///
 ///     Ok(())
 /// }
@@ -763,16 +764,17 @@ impl From<Vec<u8>> for Response {
 ///
 /// ```
 /// use fibra::*;
-/// use body::HttpBody;
+/// use http_body_util::BodyExt;
 ///
 /// #[tokio::main]
 /// async fn main() -> FibraResult<()> {
 ///     let raw: Response = (Status::NOT_FOUND, mime::TEXT_PLAIN_UTF_8, Status::NOT_FOUND.canonical_reason().unwrap_or("")).into();
-///     let mut res: hyper::Response<Body> = raw.into();
+///     let mut res: hyper::Response<BoxBody> = raw.into();
 ///
 ///     assert_eq!(res.status(), Status::NOT_FOUND.as_u16());
 ///     assert_eq!(res.headers().get(header::CONTENT_TYPE).map(|v| v.as_bytes()), Some("text/plain; charset=utf-8".as_bytes()));
-///     assert_eq!(res.body_mut().collect().await?.to_bytes(), "Not Found");
+///     assert_eq!(res.frame().await.and_then(Result::ok).and_then(|f| f.data_ref().map(|v| v.as_ref().to_vec())), Some(b"Not Found".to_vec()));
+///     assert_eq!(res.frame().await.is_none(), true);
 ///
 ///     Ok(())
 /// }

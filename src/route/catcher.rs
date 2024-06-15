@@ -31,7 +31,7 @@ impl Catcher {
     /// #[tokio::main]
     /// async fn main() -> FibraResult<()> {
     ///     let catcher = Catcher::new();
-    ///     assert_eq!(catcher.protect(async { Ok(Response::from("It Works!")) }).await.body_all().await?, "It Works!");
+    ///     assert_eq!(catcher.protect(async { Ok(Response::from("It Works!")) }).await.body_all().await.unwrap_or_default(), "It Works!");
     ///     assert_eq!(catcher.protect(async { panic!("Fatal Error") }).await.status_ref(), &Status::INTERNAL_SERVER_ERROR);
     ///     Ok(())
     /// }
@@ -79,7 +79,7 @@ impl Default for Catcher {
 ///     });
 ///
 ///     assert_eq!(catcher.protect(async { Ok(Response::from("It Works!")) }).await.status_ref(), &Status::OK);
-///     assert_eq!(catcher.protect(async { Ok(Response::from("It Works!")) }).await.body_all().await?, "It Works!");
+///     assert_eq!(catcher.protect(async { Ok(Response::from("It Works!")) }).await.body_all().await.unwrap_or_default(), "It Works!");
 ///     assert_eq!(catcher.protect(async { Ok(Response::new().status(Status::NOT_FOUND)) }).await.status_ref(), &Status::NOT_FOUND);
 ///     assert_eq!(catcher.protect(async { panic!("Fatal Error") }).await.status_ref(), &Status::SERVICE_UNAVAILABLE);
 ///     assert_eq!(catcher.protect(async { Err(FibraError::RadixError(radixmap::RadixError::PathMalformed(""))) }).await.status_ref(), &Status::INTERNAL_SERVER_ERROR);

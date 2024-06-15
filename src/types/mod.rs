@@ -22,7 +22,6 @@ pub(crate) use bytes::BytesMut;
 pub(crate) use socket2::Socket;
 pub(crate) use futures::Stream;
 pub(crate) use thiserror::Error;
-pub(crate) use buf_list::BufList;
 pub(crate) use radixmap::RadixMap;
 pub(crate) use indexmap::IndexMap;
 pub(crate) use hyper_util::rt::TokioIo;

@@ -101,7 +101,7 @@ impl Fibra {
     ///     let req = Request::new().uri("http://localip.cc/api/v2/user");
     ///     let ctx = Context::from((app, req));
     ///
-    ///     assert_eq!(ctx.next().await?.body_all().await?, "user2");
+    ///     assert_eq!(ctx.next().await?.body_all().await.unwrap_or_default(), "user2");
     ///
     ///     Ok(())
     /// }
@@ -143,7 +143,7 @@ impl Fibra {
     ///     let req = Request::new().uri("http://api.localip.cc/v2/user");
     ///     let ctx = Context::from((api, req));
     ///
-    ///     assert_eq!(ctx.next().await?.body_all().await?, "user2");
+    ///     assert_eq!(ctx.next().await?.body_all().await.unwrap_or_default(), "user2");
     ///
     ///     Ok(())
     /// }
@@ -218,7 +218,7 @@ impl Fibra {
     ///         let mut res = ctx.next().await?;
     ///
     ///         assert_eq!(res.status_ref(), &Status::OK);
-    ///         assert_eq!(res.body_all().await?, "user2");
+    ///         assert_eq!(res.body_all().await.unwrap_or_default(), "user2");
     ///     }
     ///
     ///     Ok(())
@@ -329,16 +329,25 @@ impl Fibra {
 
         let app = Arc::new(self);
         let svc = |app: Arc<Fibra>, io: TokioIo<TcpStream>| {
-            let con = Arc::new(Connection::from((io.inner().local_addr().unwrap(), io.inner().peer_addr().unwrap())));
+            let server = match io.inner().local_addr() {
+                Ok(obj) => obj,
+                Err(_) => return,
+            };
+            let client = match io.inner().peer_addr() {
+                Ok(obj) => obj,
+                Err(_) => return,
+            };
+
+            let con = Arc::new(Connection::from((server, client)));
 
             tokio::task::spawn(async move {
-                Builder::new(hyper_util::rt::TokioExecutor::new()).serve_connection(io, service_fn(|req: hyper::Request<hyper::body::Incoming>| {
+                let _ = Builder::new(hyper_util::rt::TokioExecutor::new()).serve_connection(io, service_fn(|req: hyper::Request<hyper::body::Incoming>| {
                     // construct our own context object for each request
                     let ctx = Context::new(app.clone(), con.clone(), Request::from(req));
 
                     // processing the request from the ctx's next method
                     async move { Ok::<_, FibraError>(ctx.next().await?.into()) }
-                })).await.unwrap();
+                })).await;
             });
         };
 

@@ -358,12 +358,12 @@ impl Request {
     /// #[tokio::main]
     /// async fn main() -> FibraResult<()> {
     ///     let mut req = Request::new().body("Hello World!");
-    ///     assert_eq!(req.body_all().await?, "Hello World!");
+    ///     assert_eq!(req.body_all().await.unwrap_or_default(), "Hello World!");
     ///     Ok(())
     /// }
     /// ```
     #[inline]
-    pub async fn body_all(&mut self) -> BufList {
+    pub async fn body_all(&mut self) -> Option<Bytes> {
         self.body_mut().read_all().await
     }
 
@@ -376,7 +376,7 @@ impl Request {
     ///
     /// #[tokio::main]
     /// async fn main() -> FibraResult<()> {
-    ///     assert_eq!(Request::new().body("Hello World!").body_all().await?, "Hello World!");
+    ///     assert_eq!(Request::new().body("Hello World!").body_all().await.unwrap_or_default(), "Hello World!");
     ///     Ok(())
     /// }
     /// ```
