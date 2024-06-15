@@ -1,3 +1,9 @@
+## [0.2.0 - Unreleased] - 2024-06-xx
+
+### Changed
+
+- Upgrade hyper to 1.3.x
+
 ## [0.1.2] - 2024-06-14
 
 ### Added

@@ -548,18 +548,13 @@ impl Context {
     /// Read all body contents into a BufList
     #[inline]
     pub async fn read_all(&mut self) -> BufList {
-        let mut list = BufList::new();
-        while let Some(bytes) = self.read_chunk().await {
-            list.push_chunk(bytes);
-        }
-        list
+        self.req.body_mut().read_all().await
     }
 
-    /// Read one chunk into a Bytes
+    /// Read one frame into a Bytes
     #[inline]
-    pub async fn read_chunk(&mut self) -> Option<Bytes> {
-        use body::HttpBody;
-        self.req.body_mut().data().await.and_then(|r| r.ok())
+    pub async fn read_frame(&mut self) -> Option<Bytes> {
+        self.req.body_mut().read_frame().await
     }
 }
 

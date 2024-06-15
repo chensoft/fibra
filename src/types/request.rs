@@ -38,7 +38,7 @@ impl Request {
     /// Create a new object
     #[inline]
     pub fn new() -> Self {
-        Self::from(hyper::Request::default())
+        Self::default()
     }
 
     /// Get the created time of this request
@@ -363,9 +363,8 @@ impl Request {
     /// }
     /// ```
     #[inline]
-    pub async fn body_all(&mut self) -> FibraResult<Bytes> {
-        use body::HttpBody;
-        Ok(self.body_mut().collect().await?.to_bytes())
+    pub async fn body_all(&mut self) -> BufList {
+        self.body_mut().read_all().await
     }
 
     /// Set a new body
@@ -604,14 +603,22 @@ impl Request {
 impl Default for Request {
     #[inline]
     fn default() -> Self {
-        Self::new()
+        Self {
+            created: SystemTime::now(),
+            method: Default::default(),
+            uri: Default::default(),
+            version: Default::default(),
+            headers: Default::default(),
+            body: Default::default(),
+        }
     }
 }
 
-/// Create a new Request based on hyper's Request
-impl From<hyper::Request<Body>> for Request {
+impl From<hyper::Request<hyper::body::Incoming>> for Request {
     #[inline]
-    fn from(from: hyper::Request<Body>) -> Self {
+    fn from(from: hyper::Request<hyper::body::Incoming>) -> Self {
+        use http_body_util::BodyExt;
+
         let (head, body) = from.into_parts();
         Self {
             created: SystemTime::now(),
@@ -619,12 +626,11 @@ impl From<hyper::Request<Body>> for Request {
             uri: head.uri,
             version: head.version,
             headers: head.headers,
-            body,
+            body: body.map_err(|err| err.into()).boxed().into(),
         }
     }
 }
 
-/// Create a new Request based on hyper's Request
 impl From<hyper::http::request::Parts> for Request {
     #[inline]
     fn from(head: hyper::http::request::Parts) -> Self {
@@ -634,7 +640,7 @@ impl From<hyper::http::request::Parts> for Request {
             uri: head.uri,
             version: head.version,
             headers: head.headers,
-            body: Body::empty(),
+            body: Default::default(),
         }
     }
 }

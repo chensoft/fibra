@@ -24,7 +24,7 @@ async fn echo(mut ctx: Context) -> FibraResult<Response> {
     let limits = 1024; // 1KB
     let mut length = 0;
 
-    while let Some(chunk) = ctx.read_chunk().await {
+    while let Some(chunk) = ctx.read_frame().await {
         length += chunk.len();
 
         if length > limits {

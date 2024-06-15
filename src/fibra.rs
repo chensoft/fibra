@@ -317,35 +317,49 @@ impl Fibra {
 
     /// Run the server, check the examples folder to see its usage
     pub async fn run(mut self) -> FibraResult<()> {
-        use hyper::Server;
-        use hyper::server::conn::AddrStream;
-        use hyper::service::{make_service_fn, service_fn};
-
-        let mut sockets = std::mem::take(&mut self.sockets);
+        use hyper_util::server::conn::auto::Builder;
+        use hyper::service::service_fn;
 
         // root router must have a catcher
         self.catcher.get_or_insert(Catcher::new());
 
-        let app = Arc::new(self);
-        let srv = make_service_fn(|conn: &AddrStream| {
-            let app = app.clone();
-            let con = Arc::new(Connection::from((conn.local_addr(), conn.remote_addr())));
+        // create service handler to serve
+        let sockets = std::mem::take(&mut self.sockets);
+        let mut servers = vec![];
 
-            async move {
-                Ok::<_, Infallible>(service_fn(move |req| {
+        let app = Arc::new(self);
+        let svc = |app: Arc<Fibra>, io: TokioIo<TcpStream>| {
+            let con = Arc::new(Connection::from((io.inner().local_addr().unwrap(), io.inner().peer_addr().unwrap())));
+
+            tokio::task::spawn(async move {
+                Builder::new(hyper_util::rt::TokioExecutor::new()).serve_connection(io, service_fn(|req: hyper::Request<hyper::body::Incoming>| {
                     // construct our own context object for each request
                     let ctx = Context::new(app.clone(), con.clone(), Request::from(req));
 
                     // processing the request from the ctx's next method
                     async move { Ok::<_, FibraError>(ctx.next().await?.into()) }
-                }))
-            }
-        });
+                })).await.unwrap();
+            });
+        };
 
-        let mut servers = vec![];
+        for socket in sockets {
+            let tcp = AsyncTcpListener::from_std(socket.into())?;
+            let srv = {
+                let app = app.clone();
 
-        while let Some(socket) = sockets.pop() {
-            servers.push(Server::from_tcp(socket.into())?.serve(srv));
+                async move {
+                    loop {
+                        let (con, _) = match tcp.accept().await {
+                            Ok(obj) => obj,
+                            Err(_) => continue,
+                        };
+
+                        svc(app.clone(), TokioIo::new(con));
+                    }
+                }
+            };
+
+            servers.push(srv);
         }
 
         futures::future::join_all(servers).await;

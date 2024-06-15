@@ -253,9 +253,8 @@ impl Response {
     /// }
     /// ```
     #[inline]
-    pub async fn body_all(&mut self) -> FibraResult<Bytes> {
-        use body::HttpBody;
-        Ok(self.body_mut().collect().await?.to_bytes())
+    pub async fn body_all(&mut self) -> BufList {
+        self.body_mut().read_all().await
     }
 
     /// Set the http body without predefined content-type
@@ -383,7 +382,7 @@ impl Response {
     /// ```
     #[inline]
     pub fn html(self, val: impl Into<Body>) -> Self {
-        self.header(header::CONTENT_TYPE, mime::TEXT_HTML_UTF_8).body(val.into())
+        self.header(header::CONTENT_TYPE, mime::TEXT_HTML_UTF_8).body(val)
     }
 
     /// Set raw byte stream response with APPLICATION_OCTET_STREAM
@@ -453,12 +452,15 @@ impl Response {
     /// }
     /// ```
     #[inline]
-    pub fn stream<S, O>(self, val: S) -> Self
-        where
-            S: Stream<Item = FibraResult<O>> + Send + 'static,
-            O: Into<Bytes> + 'static,
+    pub fn stream<S>(self, val: S) -> Self
+    where
+        S: Stream<Item = FibraResult<Bytes>> + Send + Sync + 'static,
     {
-        self.body(Body::wrap_stream(val))
+        use hyper::body::Frame;
+        use futures_util::TryStreamExt;
+        use http_body_util::{BodyExt, StreamBody};
+
+        self.body(StreamBody::new(val.map_ok(Frame::data)).boxed())
     }
 }
 
@@ -481,7 +483,7 @@ impl Response {
 /// }
 /// ```
 impl<T> From<(Status, Mime, T)> for Response
-    where T: Into<Body>
+where T: Into<Body>
 {
     #[inline]
     fn from((status, mime, body): (Status, Mime, T)) -> Self {
@@ -605,7 +607,7 @@ impl From<(Status, Vec<u8>)> for Response {
 /// }
 /// ```
 impl<T> From<(Mime, T)> for Response
-    where T: Into<Body>
+where T: Into<Body>
 {
     #[inline]
     fn from((mime, body): (Mime, T)) -> Self {
@@ -775,14 +777,13 @@ impl From<Vec<u8>> for Response {
 ///     Ok(())
 /// }
 /// ```
-impl From<Response> for hyper::Response<Body> {
+impl From<Response> for hyper::Response<BoxBody> {
     #[inline]
     fn from(value: Response) -> Self {
-        let mut res = hyper::Response::default();
+        let mut res = hyper::Response::new(value.body.into());
         *res.version_mut() = value.version;
         *res.status_mut() = value.status;
         *res.headers_mut() = value.headers;
-        *res.body_mut() = value.body;
         res
     }
 }
