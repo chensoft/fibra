@@ -631,6 +631,21 @@ impl From<hyper::Request<hyper::body::Incoming>> for Request {
     }
 }
 
+impl From<hyper::Request<Body>> for Request {
+    #[inline]
+    fn from(from: hyper::Request<Body>) -> Self {
+        let (head, body) = from.into_parts();
+        Self {
+            created: SystemTime::now(),
+            method: head.method,
+            uri: head.uri,
+            version: head.version,
+            headers: head.headers,
+            body,
+        }
+    }
+}
+
 impl From<hyper::http::request::Parts> for Request {
     #[inline]
     fn from(head: hyper::http::request::Parts) -> Self {
