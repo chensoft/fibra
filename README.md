@@ -53,7 +53,7 @@ fibra = "0.x"
 tokio = { version = "1", features = ["full"] }
 ```
 
-```rust
+```rust,no_run
 use fibra::*;
 
 #[tokio::main]
@@ -102,11 +102,3 @@ async fn main() -> FibraResult<()> {
 | res_status_body     | [15.415 ns 15.417 ns 15.420 ns] |
 | res_status          | [11.562 ns 11.572 ns 11.581 ns] |
 | res_body            | [15.391 ns 15.393 ns 15.397 ns] |
-
-## Documentation
-
-The documentation is [available here](https://docs.rs/fibra).
-
-## License
-
-This software is released under the [MIT License](https://github.com/chensoft/fibra?tab=MIT-1-ov-file).
