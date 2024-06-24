@@ -63,6 +63,8 @@
 
 ### Features
 
+- file-based routing
+- addon hook Fibra allow build routes
 - Response: add file fn, auto detect file mime, chunk transfer, stream wrap attachment header
 - tls support with tls info, ver, sni
 - h2 support: extension, server push, stream priority, RST_STREAM cancel request in flight, res push support via addon HTTP Link Headers
