@@ -586,17 +586,36 @@ impl Request {
     /// ```
     /// use fibra::*;
     ///
-    /// assert_eq!(Request::new().href(), "/");
+    /// assert_eq!(Request::new().href(), "http:///");
     /// assert_eq!(Request::new().uri("http://localip.cc").href(), "http://localip.cc/");
     /// assert_eq!(Request::new().uri("http://localip.cc/").href(), "http://localip.cc/");
     /// assert_eq!(Request::new().uri("http://localip.cc/blog").href(), "http://localip.cc/blog");
-    /// assert_eq!(Request::new().uri("http://localip.cc/blog?").href(), "http://localip.cc/blog?");
+    /// assert_eq!(Request::new().uri("http://localip.cc/blog?").href(), "http://localip.cc/blog");
     /// assert_eq!(Request::new().uri("http://localip.cc/blog?nonce=1a2b3c").href(), "http://localip.cc/blog?nonce=1a2b3c");
     /// assert_eq!(Request::new().uri("http://localip.cc/blog?nonce=1a2b3c&signature=abcde").href(), "http://localip.cc/blog?nonce=1a2b3c&signature=abcde");
     /// ```
     #[inline]
     pub fn href(&self) -> String {
-        self.uri.to_string()
+        let mut prefix = self.scheme().to_string() + "://";
+        let mut suffix = self.path().to_string();
+
+        if let Some(authority) = self.authority() {
+            prefix.push_str(authority.as_str());
+        } else {
+            prefix.push_str(self.host());
+
+            if self.port() != 80 && self.port() != 443 {
+                prefix.push(':');
+                prefix.push_str(self.port().to_string().as_str());
+            }
+        }
+
+        if !self.query().is_empty() {
+            suffix.push('?');
+            suffix.push_str(self.query());
+        }
+
+        prefix + suffix.as_str()
     }
 }
 

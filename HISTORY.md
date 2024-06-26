@@ -1,3 +1,9 @@
+## [Unreleased] - 2024-0x-xx
+
+### Changed
+
+- Fix missing info in `href` method
+
 ## [0.2.0] - 2024-06-15
 
 ### Changed
@@ -52,6 +58,8 @@
 
 ### Improve
 
+- serialize json by fields' order
+- serde support, and schema derive display
 - force return fibraresult is not good
 - provide url decode utils
 - embed in another framework
@@ -63,7 +71,7 @@
 
 ### Features
 
-- file-based routing
+- file-based routing use build.rs scan and gen include file inside user's mod file
 - addon hook Fibra allow build routes
 - Response: add file fn, auto detect file mime, chunk transfer, stream wrap attachment header
 - tls support with tls info, ver, sni
