@@ -483,7 +483,7 @@ impl Context {
     /// assert_eq!(ctx.header("accept-encoding"), None);
     /// ```
     #[inline]
-    pub fn header(&self, key: impl AsHeaderName) -> Option<&HeaderValue> {
+    pub fn header(&self, key: impl AsHeaderName) -> &str {
         self.req.header_ref(key)
     }
 
@@ -503,7 +503,7 @@ impl Context {
     /// assert_eq!(headers.get("accept-encoding"), None);
     /// ```
     #[inline]
-    pub fn headers(&self) -> &HeaderMap {
+    pub fn headers(&self) -> &HeaderMap<String> {
         self.req.headers_ref()
     }
 
@@ -628,8 +628,7 @@ impl Context {
     /// ```
     #[inline]
     pub fn redirect(self, to: impl IntoUri, code: Redirect) -> FibraResult<Response> {
-        let location = HeaderValue::try_from(to.into_uri().to_string())?;
-        Ok(Response::new().status(code).header(header::LOCATION, location))
+        Ok(Response::new().status(code).header(header::LOCATION, to.into_uri().to_string()))
     }
 
     /// Find the next handler and execute it

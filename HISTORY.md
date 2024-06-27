@@ -2,6 +2,10 @@
 
 ### Changed
 
+- Use String as header value
+
+### Fixed
+
 - Fix missing info in `href` method
 
 ## [0.2.0] - 2024-06-15

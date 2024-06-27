@@ -51,7 +51,7 @@ impl Default for ReqID {
 impl Handler for ReqID {
     async fn handle(&self, mut ctx: Context) -> FibraResult<Response> {
         let key = HeaderName::try_from(self.header.as_str())?;
-        let val = HeaderValue::try_from(ulid::Ulid::from_datetime(*ctx.created()).to_string())?;
+        let val = ulid::Ulid::from_datetime(*ctx.created()).to_string();
 
         ctx.req_mut().headers_mut().insert(key.clone(), val.clone());
         let mut res = ctx.next().await;

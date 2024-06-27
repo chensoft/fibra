@@ -28,7 +28,7 @@ pub struct Request {
     version: Version,
 
     /// The headers of this request
-    headers: HeaderMap,
+    headers: HeaderMap<String>,
 
     /// The stream body of this request
     body: Body,
@@ -242,7 +242,7 @@ impl Request {
     /// assert_eq!(Request::new().headers_ref().is_empty(), true);
     /// ```
     #[inline]
-    pub fn headers_ref(&self) -> &HeaderMap {
+    pub fn headers_ref(&self) -> &HeaderMap<String> {
         &self.headers
     }
 
@@ -259,7 +259,7 @@ impl Request {
     /// assert_eq!(req.headers_ref().get(header::CACHE_CONTROL).map(|v| v.as_bytes()), Some("no-cache".as_bytes()));
     /// ```
     #[inline]
-    pub fn headers_mut(&mut self) -> &mut HeaderMap {
+    pub fn headers_mut(&mut self) -> &mut HeaderMap<String> {
         &mut self.headers
     }
 
@@ -278,7 +278,7 @@ impl Request {
     /// assert_eq!(req.headers_ref().get(header::CACHE_CONTROL).map(|v| v.as_bytes()), Some("no-cache".as_bytes()));
     /// ```
     #[inline]
-    pub fn headers(mut self, val: impl Into<HeaderMap>) -> Self {
+    pub fn headers(mut self, val: impl Into<HeaderMap<String>>) -> Self {
         self.headers = val.into();
         self
     }
@@ -293,8 +293,8 @@ impl Request {
     /// assert_eq!(Request::new().header_ref(header::ACCEPT_ENCODING).is_none(), true);
     /// ```
     #[inline]
-    pub fn header_ref(&self, key: impl AsHeaderName) -> Option<&HeaderValue> {
-        self.headers.get(key)
+    pub fn header_ref(&self, key: impl AsHeaderName) -> &str {
+        self.headers.get(key).map_or("", |v| v.as_str())
     }
 
     /// Get/Set a header
@@ -307,7 +307,7 @@ impl Request {
     /// assert_eq!(Request::new().header_mut(header::ACCEPT_ENCODING).is_none(), true);
     /// ```
     #[inline]
-    pub fn header_mut(&mut self, key: impl AsHeaderName) -> Option<&mut HeaderValue> {
+    pub fn header_mut(&mut self, key: impl AsHeaderName) -> Option<&mut String> {
         self.headers.get_mut(key)
     }
 
@@ -489,13 +489,12 @@ impl Request {
     /// ```
     #[inline]
     pub fn host(&self) -> &str {
-        if let Some(host) = self.header_ref(header::HOST) {
-            if let Ok(host) = std::str::from_utf8(host.as_bytes()) {
-                return match host.rfind(':') {
-                    None => host,
-                    Some(find) => &host[..find],
-                };
-            }
+        let host = self.header_ref(header::HOST);
+        if !host.is_empty() {
+            return match host.rfind(':') {
+                None => host,
+                Some(find) => &host[..find],
+            };
         }
 
         self.uri.host().unwrap_or("")
@@ -520,11 +519,10 @@ impl Request {
     /// ```
     #[inline]
     pub fn port(&self) -> u16 {
-        if let Some(host) = self.header_ref(header::HOST) {
-            if let Ok(host) = std::str::from_utf8(host.as_bytes()) {
-                if let Some(find) = host.rfind(':') {
-                    return host[find + 1..].parse().unwrap_or(0)
-                }
+        let host = self.header_ref(header::HOST);
+        if !host.is_empty() {
+            if let Some(find) = host.rfind(':') {
+                return host[find + 1..].parse().unwrap_or(0)
             }
         }
 
@@ -639,12 +637,28 @@ impl From<hyper::Request<hyper::body::Incoming>> for Request {
         use http_body_util::BodyExt;
 
         let (head, body) = from.into_parts();
+        let mut headers = HeaderMap::default();
+
+        for (key, val) in head.headers {
+            let key = match key {
+                Some(key) => key,
+                None => continue,
+            };
+
+            let val = match val.to_str() {
+                Ok(val) => val.to_string(),
+                Err(_) => continue,
+            };
+
+            headers.insert(key, val);
+        }
+
         Self {
             created: SystemTime::now(),
             method: head.method,
             uri: head.uri,
             version: head.version,
-            headers: head.headers,
+            headers,
             body: body.map_err(|err| err.into()).boxed().into(),
         }
     }
@@ -654,12 +668,28 @@ impl From<hyper::Request<Body>> for Request {
     #[inline]
     fn from(from: hyper::Request<Body>) -> Self {
         let (head, body) = from.into_parts();
+        let mut headers = HeaderMap::default();
+
+        for (key, val) in head.headers {
+            let key = match key {
+                Some(key) => key,
+                None => continue,
+            };
+
+            let val = match val.to_str() {
+                Ok(val) => val.to_string(),
+                Err(_) => continue,
+            };
+
+            headers.insert(key, val);
+        }
+
         Self {
             created: SystemTime::now(),
             method: head.method,
             uri: head.uri,
             version: head.version,
-            headers: head.headers,
+            headers,
             body,
         }
     }
@@ -668,12 +698,28 @@ impl From<hyper::Request<Body>> for Request {
 impl From<hyper::http::request::Parts> for Request {
     #[inline]
     fn from(head: hyper::http::request::Parts) -> Self {
+        let mut headers = HeaderMap::default();
+
+        for (key, val) in head.headers {
+            let key = match key {
+                Some(key) => key,
+                None => continue,
+            };
+
+            let val = match val.to_str() {
+                Ok(val) => val.to_string(),
+                Err(_) => continue,
+            };
+
+            headers.insert(key, val);
+        }
+
         Self {
             created: SystemTime::now(),
             method: head.method,
             uri: head.uri,
             version: head.version,
-            headers: head.headers,
+            headers,
             body: Default::default(),
         }
     }

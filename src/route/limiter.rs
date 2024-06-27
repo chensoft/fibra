@@ -340,7 +340,7 @@ impl Limiter {
     pub fn header(&mut self, key: impl IntoHeaderName, val: impl IntoHeaderValue) -> &mut Self {
         let key = key.into_header_name();
         let val = val.into_header_value();
-        self.push(move |ctx| ctx.header(&key) == Some(&val))
+        self.push(move |ctx| ctx.header(&key) == val)
     }
 
     /// Limit headers
@@ -361,6 +361,6 @@ impl Limiter {
     pub fn headers(&mut self, vec: Vec<(impl IntoHeaderName, impl IntoHeaderValue)>) -> &mut Self {
         let vec: Vec<_> = vec.into_iter().map(|(key, val)| (key.into_header_name(), val.into_header_value())).collect();
 
-        self.push(move |ctx| vec.iter().any(|(key, val)| ctx.header(key) == Some(val)))
+        self.push(move |ctx| vec.iter().any(|(key, val)| ctx.header(key) == val))
     }
 }

@@ -27,26 +27,26 @@ impl IntoHeaderName for &'static str {
 /// IntoHeaderValue
 pub trait IntoHeaderValue {
     /// Self -> HeaderValue
-    fn into_header_value(self) -> HeaderValue;
+    fn into_header_value(self) -> String;
 }
 
-impl IntoHeaderValue for HeaderValue {
+impl IntoHeaderValue for String {
     #[inline]
-    fn into_header_value(self) -> HeaderValue {
+    fn into_header_value(self) -> String {
         self
     }
 }
 
 impl IntoHeaderValue for Mime {
     #[inline]
-    fn into_header_value(self) -> HeaderValue {
-        HeaderValue::try_from(self.as_ref()).unwrap_or_else(|_| unreachable!())
+    fn into_header_value(self) -> String {
+        self.to_string()
     }
 }
 
 impl IntoHeaderValue for &'static str {
     #[inline]
-    fn into_header_value(self) -> HeaderValue {
-        HeaderValue::from_static(self)
+    fn into_header_value(self) -> String {
+        self.to_string()
     }
 }

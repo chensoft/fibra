@@ -11,7 +11,7 @@ pub struct Response {
     status: Status,
 
     /// HTTP Headers
-    headers: HeaderMap,
+    headers: HeaderMap<String>,
 
     /// Response Body
     body: Body
@@ -126,7 +126,7 @@ impl Response {
     /// assert_eq!(Response::new().headers_ref().len(), 0);
     /// ```
     #[inline]
-    pub fn headers_ref(&self) -> &HeaderMap {
+    pub fn headers_ref(&self) -> &HeaderMap<String> {
         &self.headers
     }
 
@@ -142,7 +142,7 @@ impl Response {
     /// assert_eq!(res.headers_mut()[header::CONTENT_TYPE], mime::APPLICATION_JSON.as_ref());
     /// ```
     #[inline]
-    pub fn headers_mut(&mut self) -> &mut HeaderMap {
+    pub fn headers_mut(&mut self) -> &mut HeaderMap<String> {
         &mut self.headers
     }
 
@@ -162,7 +162,7 @@ impl Response {
     /// assert_eq!(res.headers_mut()[header::CONTENT_TYPE], mime::APPLICATION_JSON.as_ref());
     /// ```
     #[inline]
-    pub fn headers(mut self, val: impl Into<HeaderMap>) -> Self {
+    pub fn headers(mut self, val: impl Into<HeaderMap<String>>) -> Self {
         self.headers = val.into();
         self
     }
@@ -180,8 +180,8 @@ impl Response {
     /// assert_eq!(res.header_ref(header::CONTENT_TYPE).map(|v| v.as_bytes()), Some(mime::APPLICATION_JSON.as_ref().as_bytes()));
     /// ```
     #[inline]
-    pub fn header_ref(&self, key: impl AsHeaderName) -> Option<&HeaderValue> {
-        self.headers.get(key)
+    pub fn header_ref(&self, key: impl AsHeaderName) -> &str {
+        self.headers.get(key).map_or("", |v| v.as_str())
     }
 
     /// Get/Set a response header's value
@@ -197,7 +197,7 @@ impl Response {
     /// assert_eq!(res.header_ref(header::CONTENT_TYPE).map(|v| v.as_bytes()), Some(mime::TEXT_PLAIN_UTF_8.as_ref().as_bytes()));
     /// ```
     #[inline]
-    pub fn header_mut(&mut self, key: impl AsHeaderName) -> Option<&mut HeaderValue> {
+    pub fn header_mut(&mut self, key: impl AsHeaderName) -> Option<&mut String> {
         self.headers.get_mut(key)
     }
 
@@ -785,7 +785,16 @@ impl From<Response> for hyper::Response<BoxBody> {
         let mut res = hyper::Response::new(value.body.into());
         *res.version_mut() = value.version;
         *res.status_mut() = value.status;
-        *res.headers_mut() = value.headers;
+
+        for (key, val) in value.headers {
+            let key = match key {
+                Some(key) => key,
+                None => continue,
+            };
+
+            res.headers_mut().insert(key, HeaderValue::try_from(val).unwrap_or_else(|_| unreachable!()));
+        }
+
         res
     }
 }
