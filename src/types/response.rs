@@ -481,6 +481,19 @@ impl<T: Into<Response>, E: Into<Response>> From<Result<T, E>> for Response {
 /// Conversion
 ///
 /// # Examples
+/// todo
+impl<T: Into<Response>> From<Option<T>> for Response {
+    fn from(value: Option<T>) -> Self {
+        match value {
+            Some(t) => t.into(),
+            None => Status::NOT_FOUND.into()
+        }
+    }
+}
+
+/// Conversion
+///
+/// # Examples
 ///
 /// ```
 /// use fibra::*;

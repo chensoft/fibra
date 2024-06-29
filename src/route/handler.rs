@@ -2,8 +2,10 @@
 use crate::route::*;
 use crate::types::*;
 
+/// HTTP Handler
 #[async_trait]
 pub trait Handler: Send + Sync + 'static {
+    /// todo
     async fn handle(&self, ctx: Context) -> impl Into<Response>;
 }
 

@@ -39,5 +39,11 @@ pub enum FibraError {
     AddrNotAvailable,
 }
 
+impl From<FibraError> for Response {
+    fn from(_: FibraError) -> Self {
+        Status::INTERNAL_SERVER_ERROR.into()
+    }
+}
+
 /// Custom Result
 pub type FibraResult<T> = Result<T, FibraError>;

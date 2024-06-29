@@ -118,7 +118,7 @@ impl<T: Service> Service for Vec<T> {
 #[async_trait]
 impl<T: Handler> Service for T {
     #[inline]
-    async fn invoke(&self, mut ctx: Context) -> FibraResult<Response> {
+    async fn invoke(&self, ctx: Context) -> FibraResult<Response> {
         Ok(self.handle(ctx).await.into())
     }
 }
