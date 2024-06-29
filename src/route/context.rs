@@ -23,8 +23,8 @@ pub struct Context {
     /// The query string of the Uri
     queries: OnceCell<IndexMap<String, String>>,
 
-    /// Internal routing stack, handler is the parent, vector is whether it's a vector, index is the index of children
-    routing: Vec<(*const dyn Handler, bool, usize)>, // (handler, index, vector)
+    /// Internal routing stack, service is the parent, vector is whether it's a vector, index is the index of children
+    routing: Vec<(*const dyn Service, bool, usize)>, // (service, index, vector)
 }
 
 unsafe impl Send for Context {}
@@ -631,18 +631,18 @@ impl Context {
         Ok(Response::new().status(code).header(header::LOCATION, to.into_uri().to_string()))
     }
 
-    /// Find the next handler and execute it
+    /// Find the next service and execute it
     pub async fn next(mut self) -> FibraResult<Response> {
         while let Some((obj, vec, idx)) = self.routing.last_mut() {
-            let cur: &dyn Handler = unsafe { &**obj };
+            let cur: &dyn Service = unsafe { &**obj };
 
-            // handler itself
+            // service itself
             if !*vec {
                 self.routing.pop();
                 return cur.handle(self).await;
             }
 
-            // child handler
+            // child service
             if let Some(cld) = cur.select(*idx) {
                 *idx += 1;
                 return cld.handle(self).await;
@@ -654,9 +654,9 @@ impl Context {
         Ok(Status::NOT_FOUND.into())
     }
 
-    /// Push the nested group of handlers into stack
+    /// Push the nested group of services into stack
     #[inline]
-    pub fn push(&mut self, obj: *const dyn Handler, vec: bool, idx: usize) {
+    pub fn push(&mut self, obj: *const dyn Service, vec: bool, idx: usize) {
         self.routing.push((obj, vec, idx));
     }
 }

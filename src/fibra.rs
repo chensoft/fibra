@@ -4,7 +4,7 @@ use crate::types::*;
 
 /// Fibra, the core struct in this crate, acts as the central processor, handling and directing
 /// all routing logic and operations. It processes incoming requests, matching them to predefined
-/// handlers. Fibra also handles middlewares and errors, making it essential for building flexible
+/// services. Fibra also handles middlewares and errors, making it essential for building flexible
 /// and robust web apps.
 #[derive(Default)]
 pub struct Fibra {
@@ -20,10 +20,10 @@ pub struct Fibra {
     /// if the Subrouter does not assign this field, the Parent Router will handle it.
     catcher: Option<Catcher>,
 
-    /// Mounted is used to store HTTP handlers. Any type that implements the Handler Trait can
-    /// become a handler. Middlewares that are predefined in the **addon** folder can also be
-    /// added as handlers.
-    mounted: Vec<BoxHandler>,
+    /// Mounted is used to store HTTP services. Any type that implements the Service Trait can
+    /// become a service. Middlewares that are predefined in the **addon** folder can also be
+    /// added as services.
+    mounted: Vec<BoxService>,
 
     /// Sockets is used to store all TCP listeners. We support listening on multiple addresses
     /// simultaneously. You can achieve this by calling the **bind** method multiple times.
@@ -39,48 +39,48 @@ impl Fibra {
 
     /// Register a route for GET method
     #[inline]
-    pub fn get(&mut self, path: impl Into<Bytes>, handler: impl Handler) -> FibraResult<&mut Routine> {
-        let routine = self.route(path, handler)?;
+    pub fn get(&mut self, path: impl Into<Bytes>, service: impl Service) -> FibraResult<&mut Routine> {
+        let routine = self.route(path, service)?;
         routine.limit().method(Method::GET);
         Ok(routine)
     }
 
     /// Register a route for POST method
     #[inline]
-    pub fn post(&mut self, path: impl Into<Bytes>, handler: impl Handler) -> FibraResult<&mut Routine> {
-        let routine = self.route(path, handler)?;
+    pub fn post(&mut self, path: impl Into<Bytes>, service: impl Service) -> FibraResult<&mut Routine> {
+        let routine = self.route(path, service)?;
         routine.limit().method(Method::POST);
         Ok(routine)
     }
 
     /// Register a route for PUT method
     #[inline]
-    pub fn put(&mut self, path: impl Into<Bytes>, handler: impl Handler) -> FibraResult<&mut Routine> {
-        let routine = self.route(path, handler)?;
+    pub fn put(&mut self, path: impl Into<Bytes>, service: impl Service) -> FibraResult<&mut Routine> {
+        let routine = self.route(path, service)?;
         routine.limit().method(Method::PUT);
         Ok(routine)
     }
 
     /// Register a route for DELETE method
     #[inline]
-    pub fn delete(&mut self, path: impl Into<Bytes>, handler: impl Handler) -> FibraResult<&mut Routine> {
-        let routine = self.route(path, handler)?;
+    pub fn delete(&mut self, path: impl Into<Bytes>, service: impl Service) -> FibraResult<&mut Routine> {
+        let routine = self.route(path, service)?;
         routine.limit().method(Method::DELETE);
         Ok(routine)
     }
 
     /// Register a route for PATCH method
     #[inline]
-    pub fn patch(&mut self, path: impl Into<Bytes>, handler: impl Handler) -> FibraResult<&mut Routine> {
-        let routine = self.route(path, handler)?;
+    pub fn patch(&mut self, path: impl Into<Bytes>, service: impl Service) -> FibraResult<&mut Routine> {
+        let routine = self.route(path, service)?;
         routine.limit().method(Method::PATCH);
         Ok(routine)
     }
 
     /// Register a route for all methods
     #[inline]
-    pub fn all(&mut self, path: impl Into<Bytes>, handler: impl Handler) -> FibraResult<&mut Routine> {
-        self.route(path, handler)
+    pub fn all(&mut self, path: impl Into<Bytes>, service: impl Service) -> FibraResult<&mut Routine> {
+        self.route(path, service)
     }
 
     /// Register a route
@@ -106,7 +106,7 @@ impl Fibra {
     ///     Ok(())
     /// }
     /// ```
-    pub fn route(&mut self, path: impl Into<Bytes>, handler: impl Handler) -> FibraResult<&mut Routine> {
+    pub fn route(&mut self, path: impl Into<Bytes>, service: impl Service) -> FibraResult<&mut Routine> {
         let mut path = path.into();
 
         if !self.initial.is_empty() {
@@ -119,7 +119,7 @@ impl Fibra {
             path = data.freeze();
         }
 
-        self.ensure::<Matcher>().insert(path, handler)
+        self.ensure::<Matcher>().insert(path, service)
     }
 
     /// Register a subrouter
@@ -163,7 +163,7 @@ impl Fibra {
         Ok(sub)
     }
 
-    /// Mount a handler
+    /// Mount a service
     ///
     /// # Examples
     ///
@@ -175,12 +175,12 @@ impl Fibra {
     /// app.mount(addon::ReqID::new());
     /// app.mount(addon::Logger::new());
     ///
-    /// assert_eq!(app.handlers().len(), 2);
+    /// assert_eq!(app.services().len(), 2);
     /// ```
     #[inline]
-    pub fn mount<T: Handler>(&mut self, handler: T) -> &mut T {
-        self.mounted.push(Box::new(handler));
-        self.mounted.last_mut().and_then(|h| h.as_handler_mut::<T>()).unwrap_or_else(|| unreachable!())
+    pub fn mount<T: Service>(&mut self, service: T) -> &mut T {
+        self.mounted.push(Box::new(service));
+        self.mounted.last_mut().and_then(|h| h.as_service_mut::<T>()).unwrap_or_else(|| unreachable!())
     }
 
     /// Add filters
@@ -271,23 +271,23 @@ impl Fibra {
     ///
     /// let mut app = Fibra::new();
     ///
-    /// app.ensure::<addon::Logger>(); // add a new handler
+    /// app.ensure::<addon::Logger>(); // add a new service
     /// app.ensure::<addon::Logger>(); // no effect because the last item is already a logger
     ///
-    /// assert_eq!(app.handlers().len(), 1);
+    /// assert_eq!(app.services().len(), 1);
     /// ```
     #[inline]
-    pub fn ensure<T: Handler + Default>(&mut self) -> &mut T {
-        if self.mounted.last().and_then(|h| h.as_handler::<T>()).is_none() {
+    pub fn ensure<T: Service + Default>(&mut self) -> &mut T {
+        if self.mounted.last().and_then(|h| h.as_service::<T>()).is_none() {
             return self.mount(T::default());
         }
 
-        self.mounted.last_mut().and_then(|h| h.as_handler_mut::<T>()).unwrap_or_else(|| unreachable!())
+        self.mounted.last_mut().and_then(|h| h.as_service_mut::<T>()).unwrap_or_else(|| unreachable!())
     }
 
-    /// Get the mounted handlers
+    /// Get the mounted services
     #[inline]
-    pub fn handlers(&self) -> &Vec<BoxHandler> {
+    pub fn services(&self) -> &Vec<BoxService> {
         &self.mounted
     }
 
@@ -323,7 +323,7 @@ impl Fibra {
         // root router must have a catcher
         self.catcher.get_or_insert(Catcher::new());
 
-        // create service handler to serve
+        // create service service to serve
         let sockets = std::mem::take(&mut self.sockets);
         let mut servers = vec![];
 
@@ -378,7 +378,7 @@ impl Fibra {
 }
 
 #[async_trait]
-impl Handler for Fibra {
+impl Service for Fibra {
     async fn handle(&self, ctx: Context) -> FibraResult<Response> {
         // match the beginning segment
         if !ctx.path().as_bytes().starts_with(self.initial.as_ref()) {

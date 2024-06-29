@@ -77,7 +77,7 @@ impl Default for Logger {
 }
 
 #[async_trait]
-impl Handler for Logger {
+impl Service for Logger {
     async fn handle(&self, ctx: Context) -> FibraResult<Response> {
         let begin = ctx.created().duration_since(UNIX_EPOCH)?;
         let reqid = ctx.header("x-request-id").to_string();
@@ -96,7 +96,7 @@ impl Handler for Logger {
 
         self.logger.flush(record);
 
-        // call handler
+        // call service
         let result = ctx.next().await;
         let finish = SystemTime::now().duration_since(UNIX_EPOCH)?;
         let offset = (finish.as_nanos() as f64 - begin.as_nanos() as f64) / 1_000_000_000.0;

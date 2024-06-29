@@ -13,13 +13,13 @@
 ///     post("/api/v3/user") => "user3",
 /// };
 ///
-/// assert_eq!(app.handlers().len(), 1); // only one Matcher here
+/// assert_eq!(app.services().len(), 1); // only one Matcher here
 /// ```
 #[macro_export]
 macro_rules! fibra {
-    ( $($method:ident($path:literal) => $handler:expr),* $(,)? ) => {{
+    ( $($method:ident($path:literal) => $service:expr),* $(,)? ) => {{
         let mut app = $crate::Fibra::new();
-        $( app.$method($path, $handler).expect(format!("path invalid {}", $path).as_str()); )*
+        $( app.$method($path, $service).expect(format!("path invalid {}", $path).as_str()); )*
         app
     }};
 }

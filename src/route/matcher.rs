@@ -2,7 +2,7 @@
 use crate::route::*;
 use crate::types::*;
 
-/// A route matcher determines which handler to invoke for an incoming HTTP request based on
+/// A route matcher determines which service to invoke for an incoming HTTP request based on
 /// the request's URL.
 #[derive(Default)]
 pub struct Matcher {
@@ -17,7 +17,7 @@ impl Matcher {
     }
 
     /// Inert a new route into the matcher
-    pub fn insert(&mut self, path: impl Into<Bytes>, handler: impl Handler) -> FibraResult<&mut Routine> {
+    pub fn insert(&mut self, path: impl Into<Bytes>, service: impl Service) -> FibraResult<&mut Routine> {
         let path = path.into();
 
         if !self.routes.contains_key(path.as_ref()) {
@@ -25,14 +25,14 @@ impl Matcher {
         }
 
         let list = self.routes.raw_mut(path.as_ref()).unwrap_or_else(|| unreachable!());
-        list.push(Routine::from(handler));
+        list.push(Routine::from(service));
 
         Ok(list.last_mut().unwrap_or_else(|| unreachable!()))
     }
 }
 
 #[async_trait]
-impl Handler for Matcher {
+impl Service for Matcher {
     async fn handle(&self, mut ctx: Context) -> FibraResult<Response> {
         if let (Some(routes), params) = self.routes.capture(ctx.path().as_bytes()) {
             if !params.is_empty() {

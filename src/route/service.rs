@@ -1,25 +1,25 @@
-//! HTTP Handler
+//! HTTP Service
 use crate::route::*;
 use crate::types::*;
 
-/// The HTTP Handler trait, handler must implement this to process http requests
+/// The HTTP Service trait, service must implement this to process http requests
 #[async_trait]
-pub trait Handler: AnyHandler + Send + Sync + 'static {
+pub trait Service: AnyService + Send + Sync + 'static {
     /// Impl this function to handle http requests, a context contains a connection object and
     /// a current request object, multiple requests may reside on one connection, and these
     /// requests will be handled one by one on different context objects
     async fn handle(&self, ctx: Context) -> FibraResult<Response>;
 
-    /// Internal method to get the child handler of its parent
+    /// Internal method to get the child service of its parent
     #[inline]
     #[allow(unused_variables)]
-    fn select(&self, idx: usize) -> Option<&dyn Handler> {
+    fn select(&self, idx: usize) -> Option<&dyn Service> {
         None
     }
 }
 
 /// Any support
-pub trait AnyHandler: Any {
+pub trait AnyService: Any {
     /// Treat object as any
     fn as_any(&self) -> &dyn Any;
 
@@ -27,7 +27,7 @@ pub trait AnyHandler: Any {
     fn as_any_mut(&mut self) -> &mut dyn Any;
 }
 
-impl<T: Any> AnyHandler for T {
+impl<T: Any> AnyService for T {
     #[inline]
     fn as_any(&self) -> &dyn Any {
         self
@@ -39,18 +39,18 @@ impl<T: Any> AnyHandler for T {
     }
 }
 
-/// Box Handler
-pub type BoxHandler = Box<dyn Handler>;
+/// Box Service
+pub type BoxService = Box<dyn Service>;
 
 #[async_trait]
-impl Handler for BoxHandler {
+impl Service for BoxService {
     #[inline]
     async fn handle<'a>(&'a self, ctx: Context) -> FibraResult<Response> {
         self.as_ref().handle(ctx).await
     }
 }
 
-/// As Handler
+/// As Service
 ///
 /// # Examples
 ///
@@ -58,50 +58,50 @@ impl Handler for BoxHandler {
 /// use fibra::*;
 /// use async_trait::*;
 ///
-/// struct HandlerA;
-/// struct HandlerB;
+/// struct ServiceA;
+/// struct ServiceB;
 ///
 /// #[async_trait]
-/// impl Handler for HandlerA { async fn handle(&self, _ctx: Context) -> FibraResult<Response> { unimplemented!() } }
+/// impl Service for ServiceA { async fn handle(&self, _ctx: Context) -> FibraResult<Response> { unimplemented!() } }
 /// #[async_trait]
-/// impl Handler for HandlerB { async fn handle(&self, _ctx: Context) -> FibraResult<Response> { unimplemented!() } }
+/// impl Service for ServiceB { async fn handle(&self, _ctx: Context) -> FibraResult<Response> { unimplemented!() } }
 ///
-/// let mut handler_a: BoxHandler = Box::new(HandlerA);
-/// let mut handler_b: BoxHandler = Box::new(HandlerB);
+/// let mut service_a: BoxService = Box::new(ServiceA);
+/// let mut service_b: BoxService = Box::new(ServiceB);
 ///
-/// assert_eq!(handler_a.as_handler::<HandlerA>().is_some(), true);
-/// assert_eq!(handler_a.as_handler::<HandlerB>().is_some(), false);
-/// assert_eq!(handler_b.as_handler::<HandlerA>().is_some(), false);
-/// assert_eq!(handler_b.as_handler::<HandlerB>().is_some(), true);
+/// assert_eq!(service_a.as_service::<ServiceA>().is_some(), true);
+/// assert_eq!(service_a.as_service::<ServiceB>().is_some(), false);
+/// assert_eq!(service_b.as_service::<ServiceA>().is_some(), false);
+/// assert_eq!(service_b.as_service::<ServiceB>().is_some(), true);
 ///
-/// assert_eq!(handler_a.as_handler_mut::<HandlerA>().is_some(), true);
-/// assert_eq!(handler_a.as_handler_mut::<HandlerB>().is_some(), false);
-/// assert_eq!(handler_b.as_handler_mut::<HandlerA>().is_some(), false);
-/// assert_eq!(handler_b.as_handler_mut::<HandlerB>().is_some(), true);
+/// assert_eq!(service_a.as_service_mut::<ServiceA>().is_some(), true);
+/// assert_eq!(service_a.as_service_mut::<ServiceB>().is_some(), false);
+/// assert_eq!(service_b.as_service_mut::<ServiceA>().is_some(), false);
+/// assert_eq!(service_b.as_service_mut::<ServiceB>().is_some(), true);
 /// ```
-pub trait AsHandler {
-    /// Convert handler if possible
-    fn as_handler<T: Handler>(&self) -> Option<&T>;
+pub trait AsService {
+    /// Convert service if possible
+    fn as_service<T: Service>(&self) -> Option<&T>;
 
-    /// Convert handler if possible
-    fn as_handler_mut<T: Handler>(&mut self) -> Option<&mut T>;
+    /// Convert service if possible
+    fn as_service_mut<T: Service>(&mut self) -> Option<&mut T>;
 }
 
-impl AsHandler for BoxHandler {
+impl AsService for BoxService {
     #[inline]
-    fn as_handler<T: Handler>(&self) -> Option<&T> {
+    fn as_service<T: Service>(&self) -> Option<&T> {
         self.as_ref().as_any().downcast_ref::<T>()
     }
 
     #[inline]
-    fn as_handler_mut<T: Handler>(&mut self) -> Option<&mut T> {
+    fn as_service_mut<T: Service>(&mut self) -> Option<&mut T> {
         self.as_mut().as_any_mut().downcast_mut::<T>()
     }
 }
 
-/// Impl Handler for vector
+/// Impl Service for vector
 #[async_trait]
-impl<T: Handler> Handler for Vec<T> {
+impl<T: Service> Service for Vec<T> {
     #[inline]
     async fn handle(&self, mut ctx: Context) -> FibraResult<Response> {
         ctx.push(self, true, 0);
@@ -109,12 +109,12 @@ impl<T: Handler> Handler for Vec<T> {
     }
 
     #[inline]
-    fn select(&self, idx: usize) -> Option<&dyn Handler> {
-        self.get(idx).map(|handler| handler as &dyn Handler)
+    fn select(&self, idx: usize) -> Option<&dyn Service> {
+        self.get(idx).map(|service| service as &dyn Service)
     }
 }
 
-/// Impl Handler for async function and closure
+/// Impl Service for async function and closure
 ///
 /// # Examples
 ///
@@ -143,7 +143,7 @@ impl<T: Handler> Handler for Vec<T> {
 /// }
 /// ```
 #[async_trait]
-impl<F, R> Handler for F
+impl<F, R> Service for F
     where
         F: Fn(Context) -> R + Send + Sync + 'static,
         R: Future<Output = FibraResult<Response>> + Send + 'static
@@ -154,7 +154,7 @@ impl<F, R> Handler for F
     }
 }
 
-/// Impl Handler for static value
+/// Impl Service for static value
 ///
 /// ```
 /// use fibra::*;
@@ -172,14 +172,14 @@ impl<F, R> Handler for F
 /// }
 /// ```
 #[async_trait]
-impl Handler for (Status, Mime, &'static str) {
+impl Service for (Status, Mime, &'static str) {
     #[inline]
     async fn handle(&self, _ctx: Context) -> FibraResult<Response> {
         Ok((self.0, self.1.clone(), self.2).into())
     }
 }
 
-/// Impl Handler for static value
+/// Impl Service for static value
 ///
 /// ```
 /// use fibra::*;
@@ -196,14 +196,14 @@ impl Handler for (Status, Mime, &'static str) {
 /// }
 /// ```
 #[async_trait]
-impl Handler for (Status, &'static str) {
+impl Service for (Status, &'static str) {
     #[inline]
     async fn handle(&self, _ctx: Context) -> FibraResult<Response> {
         Ok((*self).into())
     }
 }
 
-/// Impl Handler for static value
+/// Impl Service for static value
 ///
 /// ```
 /// use fibra::*;
@@ -221,14 +221,14 @@ impl Handler for (Status, &'static str) {
 /// }
 /// ```
 #[async_trait]
-impl Handler for (Mime, &'static str) {
+impl Service for (Mime, &'static str) {
     #[inline]
     async fn handle(&self, _ctx: Context) -> FibraResult<Response> {
         Ok((self.0.clone(), self.1).into())
     }
 }
 
-/// Impl Handler for static value
+/// Impl Service for static value
 ///
 /// ```
 /// use fibra::*;
@@ -244,14 +244,14 @@ impl Handler for (Mime, &'static str) {
 /// }
 /// ```
 #[async_trait]
-impl Handler for () {
+impl Service for () {
     #[inline]
     async fn handle(&self, _ctx: Context) -> FibraResult<Response> {
         Ok(().into())
     }
 }
 
-/// Impl Handler for static value
+/// Impl Service for static value
 ///
 /// ```
 /// use fibra::*;
@@ -267,14 +267,14 @@ impl Handler for () {
 /// }
 /// ```
 #[async_trait]
-impl Handler for Status {
+impl Service for Status {
     #[inline]
     async fn handle(&self, _ctx: Context) -> FibraResult<Response> {
         Ok((*self).into())
     }
 }
 
-/// Impl Handler for static value
+/// Impl Service for static value
 ///
 /// ```
 /// use fibra::*;
@@ -290,7 +290,7 @@ impl Handler for Status {
 /// }
 /// ```
 #[async_trait]
-impl Handler for &'static str {
+impl Service for &'static str {
     #[inline]
     async fn handle(&self, _ctx: Context) -> FibraResult<Response> {
         Ok((*self).into())

@@ -1,23 +1,23 @@
 //! Catch Errors
 use crate::types::*;
 
-/// Catch failure responses and errors then call the handler
+/// Catch failure responses and errors then call the service
 pub struct Catcher {
-    handler: Arc<dyn Fn(Response, Option<FibraError>) -> Response + Send + Sync + 'static>,
+    service: Arc<dyn Fn(Response, Option<FibraError>) -> Response + Send + Sync + 'static>,
 }
 
 impl Catcher {
     /// Create a new object
     #[inline]
     pub fn new() -> Self {
-        let handler = Arc::new(|res, _err| res);
-        Self { handler }
+        let service = Arc::new(|res, _err| res);
+        Self { service }
     }
 
-    /// Set custom handler
+    /// Set custom service
     #[inline]
-    pub fn handler<F>(&mut self, f: F) -> &mut Self where F: Fn(Response, Option<FibraError>) -> Response + Send + Sync + 'static {
-        self.handler = Arc::new(f);
+    pub fn service<F>(&mut self, f: F) -> &mut Self where F: Fn(Response, Option<FibraError>) -> Response + Send + Sync + 'static {
+        self.service = Arc::new(f);
         self
     }
 
@@ -39,17 +39,17 @@ impl Catcher {
     pub async fn protect<F>(&self, f: F) -> Response where F: Future<Output = FibraResult<Response>> {
         use futures::FutureExt;
 
-        let handler = self.handler.clone();
+        let service = self.service.clone();
 
         match AssertUnwindSafe(f).catch_unwind().await {
             Ok(ret) => match ret {
                 Ok(res) if res.status_ref().is_success() => res,
-                Ok(res) => handler(res, None),
-                Err(err) => handler(Status::INTERNAL_SERVER_ERROR.into(), Some(err)),
+                Ok(res) => service(res, None),
+                Err(err) => service(Status::INTERNAL_SERVER_ERROR.into(), Some(err)),
             }
             Err(err) => match err.downcast_ref::<&str>() {
-                Some(err) => handler(Status::INTERNAL_SERVER_ERROR.into(), Some(FibraError::PanicError(err.to_string().into()))),
-                None => handler(Status::INTERNAL_SERVER_ERROR.into(), Some(FibraError::PanicError("Unknown panic".into()))),
+                Some(err) => service(Status::INTERNAL_SERVER_ERROR.into(), Some(FibraError::PanicError(err.to_string().into()))),
+                None => service(Status::INTERNAL_SERVER_ERROR.into(), Some(FibraError::PanicError("Unknown panic".into()))),
             }
         }
     }
@@ -62,7 +62,7 @@ impl Default for Catcher {
     }
 }
 
-/// Construct from custom error handler
+/// Construct from custom error service
 ///
 /// # Examples
 ///
@@ -93,6 +93,6 @@ impl<F> From<F> for Catcher
 {
     #[inline]
     fn from(f: F) -> Self {
-        Self { handler: Arc::new(f) }
+        Self { service: Arc::new(f) }
     }
 }
