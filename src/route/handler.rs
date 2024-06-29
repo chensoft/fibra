@@ -48,125 +48,125 @@ where
     }
 }
 
-// /// impl Handler for static value
-// ///
-// /// ```
-// /// use fibra::*;
-// ///
-// /// #[tokio::main]
-// /// async fn main() -> FibraResult<()> {
-// ///     let ctx = Context::default();
-// ///     let mut res = (Status::OK, mime::APPLICATION_JSON, "{}").invoke(ctx).await?;
-// ///
-// ///     assert_eq!(res.status_ref(), &Status::OK);
-// ///     assert_eq!(res.header_ref(header::CONTENT_TYPE).map(|v| v.as_bytes()), Some(mime::APPLICATION_JSON.as_ref().as_bytes()));
-// ///     assert_eq!(res.body_all().await.unwrap_or_default(), "{}");
-// ///
-// ///     Ok(())
-// /// }
-// /// ```
-// #[async_trait]
-// impl Handler for (Status, Mime, &'static str) {
-//     #[inline]
-//     async fn handle(&self, _ctx: Context) -> FibraResult<Response> {
-//         Ok((self.0, self.1.clone(), self.2).into())
-//     }
-// }
-// 
-// /// impl Handler for static value
-// ///
-// /// ```
-// /// use fibra::*;
-// ///
-// /// #[tokio::main]
-// /// async fn main() -> FibraResult<()> {
-// ///     let ctx = Context::default();
-// ///     let mut res = (Status::OK, "Hello World!").invoke(ctx).await?;
-// ///
-// ///     assert_eq!(res.status_ref(), &Status::OK);
-// ///     assert_eq!(res.body_all().await.unwrap_or_default(), "Hello World!");
-// ///
-// ///     Ok(())
-// /// }
-// /// ```
-// #[async_trait]
-// impl Handler for (Status, &'static str) {
-//     #[inline]
-//     async fn handle(&self, _ctx: Context) -> FibraResult<Response> {
-//         Ok((*self).into())
-//     }
-// }
-// 
-// /// impl Handler for static value
-// ///
-// /// ```
-// /// use fibra::*;
-// ///
-// /// #[tokio::main]
-// /// async fn main() -> FibraResult<()> {
-// ///     let ctx = Context::default();
-// ///     let mut res = (mime::APPLICATION_JSON, "{}").invoke(ctx).await?;
-// ///
-// ///     assert_eq!(res.status_ref(), &Status::OK);
-// ///     assert_eq!(res.header_ref(header::CONTENT_TYPE).map(|v| v.as_bytes()), Some(mime::APPLICATION_JSON.as_ref().as_bytes()));
-// ///     assert_eq!(res.body_all().await.unwrap_or_default(), "{}");
-// ///
-// ///     Ok(())
-// /// }
-// /// ```
-// #[async_trait]
-// impl Handler for (Mime, &'static str) {
-//     #[inline]
-//     async fn handle(&self, _ctx: Context) -> FibraResult<Response> {
-//         Ok((self.0.clone(), self.1).into())
-//     }
-// }
-// 
-// /// impl Handler for static value
-// ///
-// /// ```
-// /// use fibra::*;
-// ///
-// /// #[tokio::main]
-// /// async fn main() -> FibraResult<()> {
-// ///     let ctx = Context::default();
-// ///     let mut res = ().invoke(ctx).await?;
-// ///
-// ///     assert_eq!(res.body_all().await.unwrap_or_default(), "");
-// ///
-// ///     Ok(())
-// /// }
-// /// ```
-// #[async_trait]
-// impl Handler for () {
-//     #[inline]
-//     async fn handle(&self, _ctx: Context) -> FibraResult<Response> {
-//         Ok(().into())
-//     }
-// }
-// 
-// /// impl Handler for static value
-// ///
-// /// ```
-// /// use fibra::*;
-// ///
-// /// #[tokio::main]
-// /// async fn main() -> FibraResult<()> {
-// ///     let ctx = Context::default();
-// ///     let res = Status::UNAUTHORIZED.invoke(ctx).await?;
-// ///
-// ///     assert_eq!(res.status_ref(), &Status::UNAUTHORIZED);
-// ///
-// ///     Ok(())
-// /// }
-// /// ```
-// #[async_trait]
-// impl Handler for Status {
-//     #[inline]
-//     async fn handle(&self, _ctx: Context) -> FibraResult<Response> {
-//         Ok((*self).into())
-//     }
-// }
+/// impl Handler for static value
+///
+/// ```
+/// use fibra::*;
+///
+/// #[tokio::main]
+/// async fn main() -> FibraResult<()> {
+///     let ctx = Context::default();
+///     let mut res = (Status::OK, mime::APPLICATION_JSON, "{}").invoke(ctx).await?;
+///
+///     assert_eq!(res.status_ref(), &Status::OK);
+///     assert_eq!(res.header_ref(header::CONTENT_TYPE).map(|v| v.as_bytes()), Some(mime::APPLICATION_JSON.as_ref().as_bytes()));
+///     assert_eq!(res.body_all().await.unwrap_or_default(), "{}");
+///
+///     Ok(())
+/// }
+/// ```
+#[async_trait]
+impl Handler for (Status, Mime, &'static str) {
+    #[inline]
+    async fn handle(&self, _ctx: Context) -> Response {
+        (self.0, self.1.clone(), self.2).into()
+    }
+}
+
+/// impl Handler for static value
+///
+/// ```
+/// use fibra::*;
+///
+/// #[tokio::main]
+/// async fn main() -> FibraResult<()> {
+///     let ctx = Context::default();
+///     let mut res = (Status::OK, "Hello World!").invoke(ctx).await?;
+///
+///     assert_eq!(res.status_ref(), &Status::OK);
+///     assert_eq!(res.body_all().await.unwrap_or_default(), "Hello World!");
+///
+///     Ok(())
+/// }
+/// ```
+#[async_trait]
+impl Handler for (Status, &'static str) {
+    #[inline]
+    async fn handle(&self, _ctx: Context) -> Response {
+        (*self).into()
+    }
+}
+
+/// impl Handler for static value
+///
+/// ```
+/// use fibra::*;
+///
+/// #[tokio::main]
+/// async fn main() -> FibraResult<()> {
+///     let ctx = Context::default();
+///     let mut res = (mime::APPLICATION_JSON, "{}").invoke(ctx).await?;
+///
+///     assert_eq!(res.status_ref(), &Status::OK);
+///     assert_eq!(res.header_ref(header::CONTENT_TYPE).map(|v| v.as_bytes()), Some(mime::APPLICATION_JSON.as_ref().as_bytes()));
+///     assert_eq!(res.body_all().await.unwrap_or_default(), "{}");
+///
+///     Ok(())
+/// }
+/// ```
+#[async_trait]
+impl Handler for (Mime, &'static str) {
+    #[inline]
+    async fn handle(&self, _ctx: Context) -> Response {
+        (self.0.clone(), self.1).into()
+    }
+}
+
+/// impl Handler for static value
+///
+/// ```
+/// use fibra::*;
+///
+/// #[tokio::main]
+/// async fn main() -> FibraResult<()> {
+///     let ctx = Context::default();
+///     let mut res = ().invoke(ctx).await?;
+///
+///     assert_eq!(res.body_all().await.unwrap_or_default(), "");
+///
+///     Ok(())
+/// }
+/// ```
+#[async_trait]
+impl Handler for () {
+    #[inline]
+    async fn handle(&self, _ctx: Context) -> Response {
+        ().into()
+    }
+}
+
+/// impl Handler for static value
+///
+/// ```
+/// use fibra::*;
+///
+/// #[tokio::main]
+/// async fn main() -> FibraResult<()> {
+///     let ctx = Context::default();
+///     let res = Status::UNAUTHORIZED.invoke(ctx).await?;
+///
+///     assert_eq!(res.status_ref(), &Status::UNAUTHORIZED);
+///
+///     Ok(())
+/// }
+/// ```
+#[async_trait]
+impl Handler for Status {
+    #[inline]
+    async fn handle(&self, _ctx: Context) -> Response {
+        (*self).into()
+    }
+}
 
 /// impl Handler for static value
 ///
@@ -186,7 +186,7 @@ where
 #[async_trait]
 impl Handler for &'static str {
     #[inline]
-    async fn handle(&self, _ctx: Context) -> &'static str {
-        self
+    async fn handle(&self, _ctx: Context) -> Response {
+        (*self).into()
     }
 }

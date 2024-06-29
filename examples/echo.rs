@@ -32,7 +32,7 @@ struct Echo {
     body: String,
 }
 
-async fn echo(mut ctx: Context) -> FibraResult<Response> {
+async fn echo(mut ctx: Context) -> Response {
     let mut data = Echo::default();
 
     // meta
@@ -59,5 +59,5 @@ async fn echo(mut ctx: Context) -> FibraResult<Response> {
     // body
     data.body = String::from_utf8_lossy(ctx.read_all().await.unwrap_or_default().as_ref()).to_string();
 
-    Ok((mime::APPLICATION_JSON, serde_json::to_string(&data).unwrap_or_default()).into())
+    (mime::APPLICATION_JSON, serde_json::to_string(&data).unwrap_or_default()).into()
 }

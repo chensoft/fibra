@@ -468,6 +468,19 @@ impl Response {
 /// Conversion
 ///
 /// # Examples
+/// todo
+impl<T: Into<Response>, E: Into<Response>> From<Result<T, E>> for Response {
+    fn from(value: Result<T, E>) -> Self {
+        match value {
+            Ok(t) => t.into(),
+            Err(e) => e.into()
+        }
+    }
+}
+
+/// Conversion
+///
+/// # Examples
 ///
 /// ```
 /// use fibra::*;

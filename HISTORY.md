@@ -2,6 +2,7 @@
 
 ### Changed
 
+- Handler allow any return type which can be converted to Response
 - Use String as header value
 
 ### Fixed

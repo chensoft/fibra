@@ -15,21 +15,21 @@ async fn main() -> FibraResult<()> {
     // $ http -v localip.cc:3000/user/abcde
     app.get("/user/:id", |ctx: Context| {
         let id = ctx.param("id").to_string();
-        async { Ok(id.into()) }
+        async { id }
     })?;
 
     // glob matching
     // $ http -v localip.cc:3000/about.html
     app.get("/*.html", |ctx: Context| {
         let name = ctx.param("*").to_string();
-        async { Ok((mime::TEXT_HTML_UTF_8, name).into()) }
+        async { (mime::TEXT_HTML_UTF_8, name) }
     })?;
 
     // regex matching
     // $ http -v localip.cc:3000/id/123-45-6789
     app.get(r"/id/{id:\d\d\d-\d\d-\d\d\d\d}", |ctx: Context| {
         let id = ctx.param("id").to_string();
-        async { Ok(id.into()) }
+        async { id }
     })?;
 
     // listen and serve
