@@ -78,7 +78,7 @@ impl Default for Logger {
 
 #[async_trait]
 impl Service for Logger {
-    async fn handle(&self, ctx: Context) -> FibraResult<Response> {
+    async fn invoke(&self, ctx: Context) -> FibraResult<Response> {
         let begin = ctx.created().duration_since(UNIX_EPOCH)?;
         let reqid = ctx.header("x-request-id").to_string();
 

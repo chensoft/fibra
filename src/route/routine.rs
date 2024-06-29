@@ -34,13 +34,13 @@ impl Routine {
 #[async_trait]
 impl Service for Routine {
     #[inline]
-    async fn handle(&self, ctx: Context) -> FibraResult<Response> {
+    async fn invoke(&self, ctx: Context) -> FibraResult<Response> {
         if let Some(limiter) = &self.limiter {
             if !limiter.test(&ctx) {
                 return ctx.next().await;
             }
         }
 
-        self.service.handle(ctx).await
+        self.service.invoke(ctx).await
     }
 }

@@ -639,13 +639,13 @@ impl Context {
             // service itself
             if !*vec {
                 self.routing.pop();
-                return cur.handle(self).await;
+                return cur.invoke(self).await;
             }
 
             // child service
             if let Some(cld) = cur.select(*idx) {
                 *idx += 1;
-                return cld.handle(self).await;
+                return cld.invoke(self).await;
             }
 
             self.routing.pop();

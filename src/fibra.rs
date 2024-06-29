@@ -39,48 +39,48 @@ impl Fibra {
 
     /// Register a route for GET method
     #[inline]
-    pub fn get(&mut self, path: impl Into<Bytes>, service: impl Service) -> FibraResult<&mut Routine> {
-        let routine = self.route(path, service)?;
+    pub fn get(&mut self, path: impl Into<Bytes>, handler: impl Handler) -> FibraResult<&mut Routine> {
+        let routine = self.route(path, handler)?;
         routine.limit().method(Method::GET);
         Ok(routine)
     }
 
     /// Register a route for POST method
     #[inline]
-    pub fn post(&mut self, path: impl Into<Bytes>, service: impl Service) -> FibraResult<&mut Routine> {
-        let routine = self.route(path, service)?;
+    pub fn post(&mut self, path: impl Into<Bytes>, handler: impl Handler) -> FibraResult<&mut Routine> {
+        let routine = self.route(path, handler)?;
         routine.limit().method(Method::POST);
         Ok(routine)
     }
 
     /// Register a route for PUT method
     #[inline]
-    pub fn put(&mut self, path: impl Into<Bytes>, service: impl Service) -> FibraResult<&mut Routine> {
-        let routine = self.route(path, service)?;
+    pub fn put(&mut self, path: impl Into<Bytes>, handler: impl Handler) -> FibraResult<&mut Routine> {
+        let routine = self.route(path, handler)?;
         routine.limit().method(Method::PUT);
         Ok(routine)
     }
 
     /// Register a route for DELETE method
     #[inline]
-    pub fn delete(&mut self, path: impl Into<Bytes>, service: impl Service) -> FibraResult<&mut Routine> {
-        let routine = self.route(path, service)?;
+    pub fn delete(&mut self, path: impl Into<Bytes>, handler: impl Handler) -> FibraResult<&mut Routine> {
+        let routine = self.route(path, handler)?;
         routine.limit().method(Method::DELETE);
         Ok(routine)
     }
 
     /// Register a route for PATCH method
     #[inline]
-    pub fn patch(&mut self, path: impl Into<Bytes>, service: impl Service) -> FibraResult<&mut Routine> {
-        let routine = self.route(path, service)?;
+    pub fn patch(&mut self, path: impl Into<Bytes>, handler: impl Handler) -> FibraResult<&mut Routine> {
+        let routine = self.route(path, handler)?;
         routine.limit().method(Method::PATCH);
         Ok(routine)
     }
 
     /// Register a route for all methods
     #[inline]
-    pub fn all(&mut self, path: impl Into<Bytes>, service: impl Service) -> FibraResult<&mut Routine> {
-        self.route(path, service)
+    pub fn all(&mut self, path: impl Into<Bytes>, handler: impl Handler) -> FibraResult<&mut Routine> {
+        self.route(path, handler)
     }
 
     /// Register a route
@@ -106,7 +106,7 @@ impl Fibra {
     ///     Ok(())
     /// }
     /// ```
-    pub fn route(&mut self, path: impl Into<Bytes>, service: impl Service) -> FibraResult<&mut Routine> {
+    pub fn route(&mut self, path: impl Into<Bytes>, handler: impl Handler) -> FibraResult<&mut Routine> {
         let mut path = path.into();
 
         if !self.initial.is_empty() {
@@ -119,7 +119,7 @@ impl Fibra {
             path = data.freeze();
         }
 
-        self.ensure::<Matcher>().insert(path, service)
+        self.ensure::<Matcher>().insert(path, handler)
     }
 
     /// Register a subrouter
@@ -379,7 +379,7 @@ impl Fibra {
 
 #[async_trait]
 impl Service for Fibra {
-    async fn handle(&self, ctx: Context) -> FibraResult<Response> {
+    async fn invoke(&self, ctx: Context) -> FibraResult<Response> {
         // match the beginning segment
         if !ctx.path().as_bytes().starts_with(self.initial.as_ref()) {
             return ctx.next().await;
@@ -394,11 +394,11 @@ impl Service for Fibra {
 
         // the root router and subrouters with a Catcher will handle errors here
         if let Some(catcher) = &self.catcher {
-            return Ok(catcher.protect(self.mounted.handle(ctx)).await);
+            return Ok(catcher.protect(self.mounted.invoke(ctx)).await);
         }
 
         // subrouters without a Catcher will handle requests here. If an error occurs, it will
         // propagate up to the nearest parent that has a Catcher to handle it.
-        self.mounted.handle(ctx).await
+        self.mounted.invoke(ctx).await
     }
 }

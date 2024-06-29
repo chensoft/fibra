@@ -49,7 +49,7 @@ impl Default for ReqID {
 
 #[async_trait]
 impl Service for ReqID {
-    async fn handle(&self, mut ctx: Context) -> FibraResult<Response> {
+    async fn invoke(&self, mut ctx: Context) -> FibraResult<Response> {
         let key = HeaderName::try_from(self.header.as_str())?;
         let val = ulid::Ulid::from_datetime(*ctx.created()).to_string();
 
