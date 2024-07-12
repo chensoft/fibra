@@ -1,9 +1,13 @@
 ## [Unreleased] - 2024-0x-xx
 
+### Added
+
+- Get request's hostname
+
 ### Changed
 
-- Handler allow any return type which can be converted to Response
 - Use String as header value
+- Handler allow any return type which can be converted to Response
 
 ### Fixed
 

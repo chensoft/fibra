@@ -331,13 +331,27 @@ impl Context {
     /// ```
     /// use fibra::*;
     ///
-    /// let ctx = Context::from(Request::new().uri("http://user:pass@git.localip.cc"));
-    ///
-    /// assert_eq!(ctx.host(), "git.localip.cc");
+    /// assert_eq!(Context::from(Request::new().uri("http://user:pass@git.localip.cc")).host(), "git.localip.cc");
+    /// assert_eq!(Context::from(Request::new().uri("http://user:pass@git.localip.cc:3000")).host(), "git.localip.cc:3000");
     /// ```
     #[inline]
     pub fn host(&self) -> &str {
         self.req.host()
+    }
+
+    /// Request's hostname
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use fibra::*;
+    ///
+    /// assert_eq!(Context::from(Request::new().uri("http://user:pass@git.localip.cc")).host(), "git.localip.cc");
+    /// assert_eq!(Context::from(Request::new().uri("http://user:pass@git.localip.cc:3000")).host(), "git.localip.cc");
+    /// ```
+    #[inline]
+    pub fn hostname(&self) -> &str {
+        self.req.hostname()
     }
 
     /// Request's port

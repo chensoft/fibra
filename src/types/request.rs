@@ -480,24 +480,47 @@ impl Request {
     /// assert_eq!(Request::new().host(), "");
     ///
     /// assert_eq!(Request::new().uri("http://localip.cc").host(), "localip.cc");
-    /// assert_eq!(Request::new().uri("http://localip.cc:3000").host(), "localip.cc");
+    /// assert_eq!(Request::new().uri("http://localip.cc:3000").host(), "localip.cc:3000");
     /// assert_eq!(Request::new().uri("http://www.localip.cc").host(), "www.localip.cc");
     ///
     /// assert_eq!(Request::new().header(header::HOST, "localip.cc").host(), "localip.cc");
-    /// assert_eq!(Request::new().header(header::HOST, "localip.cc:3000").host(), "localip.cc");
+    /// assert_eq!(Request::new().header(header::HOST, "localip.cc:3000").host(), "localip.cc:3000");
     /// assert_eq!(Request::new().header(header::HOST, "www.localip.cc").host(), "www.localip.cc");
     /// ```
     #[inline]
     pub fn host(&self) -> &str {
         let host = self.header_ref(header::HOST);
         if !host.is_empty() {
-            return match host.rfind(':') {
-                None => host,
-                Some(find) => &host[..find],
-            };
+            return host;
         }
 
         self.uri.host().unwrap_or("")
+    }
+
+    /// Get the hostname
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use fibra::*;
+    ///
+    /// assert_eq!(Request::new().hostname(), "");
+    ///
+    /// assert_eq!(Request::new().uri("http://localip.cc").hostname(), "localip.cc");
+    /// assert_eq!(Request::new().uri("http://localip.cc:3000").hostname(), "localip.cc");
+    /// assert_eq!(Request::new().uri("http://www.localip.cc").hostname(), "www.localip.cc");
+    ///
+    /// assert_eq!(Request::new().header(header::HOST, "localip.cc").hostname(), "localip.cc");
+    /// assert_eq!(Request::new().header(header::HOST, "localip.cc:3000").hostname(), "localip.cc");
+    /// assert_eq!(Request::new().header(header::HOST, "www.localip.cc").hostname(), "www.localip.cc");
+    /// ```
+    #[inline]
+    pub fn hostname(&self) -> &str {
+        let host = self.host();
+        return match host.rfind(':') {
+            None => host,
+            Some(find) => &host[..find],
+        };
     }
 
     /// Get the port
