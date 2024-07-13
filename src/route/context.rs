@@ -128,6 +128,12 @@ impl Context {
     pub fn remote(&self) -> &SocketAddr {
         self.conn.peeraddr_ref()
     }
+
+    /// todo The remote ip address
+    #[inline]
+    pub fn realip(&self) -> IpAddr {
+        self.remote().ip()
+    }
 }
 
 impl Context {

@@ -3,6 +3,7 @@
 ### Added
 
 - Get request's hostname
+- Get remote's real ip
 
 ### Changed
 

@@ -9,7 +9,7 @@ pub(crate) use std::fmt::Display;
 pub(crate) use std::fmt::Formatter;
 pub(crate) use std::cell::OnceCell;
 pub(crate) use std::future::Future;
-pub(crate) use std::net::SocketAddr;
+pub(crate) use std::net::{SocketAddr, IpAddr};
 pub(crate) use std::time::SystemTime;
 pub(crate) use std::time::UNIX_EPOCH;
 pub(crate) use std::panic::AssertUnwindSafe;
