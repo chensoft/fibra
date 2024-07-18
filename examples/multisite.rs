@@ -11,8 +11,8 @@ async fn main() -> FibraResult<()> {
     let alice = app.group("/")?;
     alice.limit().subdomain("alice");
 
-    alice.get("/", "This is Alice's website")?; // $ http -v alice.localip.cc:3000
-    alice.get("/users", alice_users)?;                  // $ http -v alice.localip.cc:3000/users
+    alice.get("/", "This is Alice's website")?; // $ http -v alice.myip.cc:3000
+    alice.get("/users", alice_users)?;                  // $ http -v alice.myip.cc:3000/users
 
     alice.catch(|res, _err| {
         res.body("Oops! No contents found on Alice's website.")
@@ -22,19 +22,19 @@ async fn main() -> FibraResult<()> {
     let bob = app.group("/")?;
     bob.limit().subdomain("bob");
 
-    bob.get("/", "This is Bob's website")?; // $ http -v bob.localip.cc:3000
-    bob.get("/users", bob_users)?;                  // $ http -v bob.localip.cc:3000/users
+    bob.get("/", "This is Bob's website")?; // $ http -v bob.myip.cc:3000
+    bob.get("/users", bob_users)?;                  // $ http -v bob.myip.cc:3000/users
 
     bob.catch(|res, _err| {
         res.body("Oops! No contents found on Bob's website.")
     });
 
     // other requests will fall into here
-    // $ http -v localip.cc:3000
-    app.get("/", "Try http://alice.localip.cc:3000")?;
+    // $ http -v localhost:3000
+    app.get("/", "Try http://alice.myip.cc:3000")?;
 
     // handle 404 NOT_FOUND and other errors
-    // $ http -v localip.cc:3000/invalid
+    // $ http -v localhost:3000/invalid
     app.catch(|res, _err| {
         res.body("Oops! Page not found.")
     });

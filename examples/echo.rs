@@ -9,7 +9,7 @@ async fn main() -> FibraResult<()> {
     app.mount(addon::ReqID::new());
     app.mount(addon::Logger::new());
 
-    // <- http -v localip.cc:3000 name=echo
+    // <- http -v localhost:3000 name=echo
     // -> {"name":"echo"}
     app.all("/*", echo)?;
 

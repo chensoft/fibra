@@ -125,9 +125,9 @@ impl Limiter {
     /// use fibra::*;
     ///
     /// let mut limiter = Limiter::new();
-    /// limiter.domain("localip.cc");
+    /// limiter.domain("example.com");
     ///
-    /// assert_eq!(limiter.test(&Context::from(Request::new().uri("http://www.localip.cc"))), true);
+    /// assert_eq!(limiter.test(&Context::from(Request::new().uri("http://www.example.com"))), true);
     /// assert_eq!(limiter.test(&Context::from(Request::new().uri("http://www.example.net"))), false);
     /// ```
     #[inline]
@@ -145,9 +145,9 @@ impl Limiter {
     /// use fibra::*;
     ///
     /// let mut limiter = Limiter::new();
-    /// limiter.domains(vec!["localip.cc", "example.net"]);
+    /// limiter.domains(vec!["example.com", "example.net"]);
     ///
-    /// assert_eq!(limiter.test(&Context::from(Request::new().uri("http://www.localip.cc"))), true);
+    /// assert_eq!(limiter.test(&Context::from(Request::new().uri("http://www.example.com"))), true);
     /// assert_eq!(limiter.test(&Context::from(Request::new().uri("http://www.example.net"))), true);
     /// assert_eq!(limiter.test(&Context::from(Request::new().uri("http://www.example.org"))), false);
     /// ```
@@ -168,8 +168,8 @@ impl Limiter {
     /// let mut limiter = Limiter::new();
     /// limiter.subdomain("api");
     ///
-    /// assert_eq!(limiter.test(&Context::from(Request::new().uri("http://api.localip.cc"))), true);
-    /// assert_eq!(limiter.test(&Context::from(Request::new().uri("http://www.localip.cc"))), false);
+    /// assert_eq!(limiter.test(&Context::from(Request::new().uri("http://api.example.com"))), true);
+    /// assert_eq!(limiter.test(&Context::from(Request::new().uri("http://www.example.com"))), false);
     /// ```
     #[inline]
     pub fn subdomain(&mut self, val: impl Into<Bytes>) -> &mut Self {
@@ -188,9 +188,9 @@ impl Limiter {
     /// let mut limiter = Limiter::new();
     /// limiter.subdomains(vec!["api", "app"]);
     ///
-    /// assert_eq!(limiter.test(&Context::from(Request::new().uri("http://api.localip.cc"))), true);
-    /// assert_eq!(limiter.test(&Context::from(Request::new().uri("http://app.localip.cc"))), true);
-    /// assert_eq!(limiter.test(&Context::from(Request::new().uri("http://www.localip.cc"))), false);
+    /// assert_eq!(limiter.test(&Context::from(Request::new().uri("http://api.example.com"))), true);
+    /// assert_eq!(limiter.test(&Context::from(Request::new().uri("http://app.example.com"))), true);
+    /// assert_eq!(limiter.test(&Context::from(Request::new().uri("http://www.example.com"))), false);
     /// ```
     #[inline]
     pub fn subdomains(&mut self, vec: Vec<impl Into<Bytes>>) -> &mut Self {
@@ -207,10 +207,10 @@ impl Limiter {
     /// use fibra::*;
     ///
     /// let mut limiter = Limiter::new();
-    /// limiter.host("api.localip.cc");
+    /// limiter.host("api.example.com");
     ///
-    /// assert_eq!(limiter.test(&Context::from(Request::new().uri("http://api.localip.cc"))), true);
-    /// assert_eq!(limiter.test(&Context::from(Request::new().uri("http://app.localip.cc"))), false);
+    /// assert_eq!(limiter.test(&Context::from(Request::new().uri("http://api.example.com"))), true);
+    /// assert_eq!(limiter.test(&Context::from(Request::new().uri("http://app.example.com"))), false);
     /// ```
     #[inline]
     pub fn host(&mut self, val: impl Into<Bytes>) -> &mut Self {
@@ -227,11 +227,11 @@ impl Limiter {
     /// use fibra::*;
     ///
     /// let mut limiter = Limiter::new();
-    /// limiter.hosts(vec!["api.localip.cc", "app.localip.cc"]);
+    /// limiter.hosts(vec!["api.example.com", "app.example.com"]);
     ///
-    /// assert_eq!(limiter.test(&Context::from(Request::new().uri("http://api.localip.cc"))), true);
-    /// assert_eq!(limiter.test(&Context::from(Request::new().uri("http://app.localip.cc"))), true);
-    /// assert_eq!(limiter.test(&Context::from(Request::new().uri("http://www.localip.cc"))), false);
+    /// assert_eq!(limiter.test(&Context::from(Request::new().uri("http://api.example.com"))), true);
+    /// assert_eq!(limiter.test(&Context::from(Request::new().uri("http://app.example.com"))), true);
+    /// assert_eq!(limiter.test(&Context::from(Request::new().uri("http://www.example.com"))), false);
     /// ```
     #[inline]
     pub fn hosts(&mut self, vec: Vec<impl Into<Bytes>>) -> &mut Self {
@@ -250,8 +250,8 @@ impl Limiter {
     /// let mut limiter = Limiter::new();
     /// limiter.path("/user/12345");
     ///
-    /// assert_eq!(limiter.test(&Context::from(Request::new().uri("http://api.localip.cc/user/12345"))), true);
-    /// assert_eq!(limiter.test(&Context::from(Request::new().uri("http://api.localip.cc/user/abcde"))), false);
+    /// assert_eq!(limiter.test(&Context::from(Request::new().uri("http://api.example.com/user/12345"))), true);
+    /// assert_eq!(limiter.test(&Context::from(Request::new().uri("http://api.example.com/user/abcde"))), false);
     /// ```
     #[inline]
     pub fn path(&mut self, val: impl Into<Bytes>) -> &mut Self {
@@ -270,9 +270,9 @@ impl Limiter {
     /// let mut limiter = Limiter::new();
     /// limiter.paths(vec!["/user/12345", "/user/abcde"]);
     ///
-    /// assert_eq!(limiter.test(&Context::from(Request::new().uri("http://api.localip.cc/user/12345"))), true);
-    /// assert_eq!(limiter.test(&Context::from(Request::new().uri("http://api.localip.cc/user/abcde"))), true);
-    /// assert_eq!(limiter.test(&Context::from(Request::new().uri("http://api.localip.cc/user/qwert"))), false);
+    /// assert_eq!(limiter.test(&Context::from(Request::new().uri("http://api.example.com/user/12345"))), true);
+    /// assert_eq!(limiter.test(&Context::from(Request::new().uri("http://api.example.com/user/abcde"))), true);
+    /// assert_eq!(limiter.test(&Context::from(Request::new().uri("http://api.example.com/user/qwert"))), false);
     /// ```
     #[inline]
     pub fn paths(&mut self, vec: Vec<impl Into<Bytes>>) -> &mut Self {
@@ -291,8 +291,8 @@ impl Limiter {
     /// let mut limiter = Limiter::new();
     /// limiter.query("id", "12345");
     ///
-    /// assert_eq!(limiter.test(&Context::from(Request::new().uri("http://api.localip.cc/?id=12345"))), true);
-    /// assert_eq!(limiter.test(&Context::from(Request::new().uri("http://api.localip.cc/?id=abcde"))), false);
+    /// assert_eq!(limiter.test(&Context::from(Request::new().uri("http://api.example.com/?id=12345"))), true);
+    /// assert_eq!(limiter.test(&Context::from(Request::new().uri("http://api.example.com/?id=abcde"))), false);
     /// ```
     #[inline]
     pub fn query(&mut self, key: impl Into<String>, val: impl Into<Bytes>) -> &mut Self {
@@ -312,9 +312,9 @@ impl Limiter {
     /// let mut limiter = Limiter::new();
     /// limiter.queries(vec![("id", "12345"), ("id", "abcde")]);
     ///
-    /// assert_eq!(limiter.test(&Context::from(Request::new().uri("http://api.localip.cc/?id=12345"))), true);
-    /// assert_eq!(limiter.test(&Context::from(Request::new().uri("http://api.localip.cc/?id=abcde"))), true);
-    /// assert_eq!(limiter.test(&Context::from(Request::new().uri("http://api.localip.cc/?id=qwert"))), false);
+    /// assert_eq!(limiter.test(&Context::from(Request::new().uri("http://api.example.com/?id=12345"))), true);
+    /// assert_eq!(limiter.test(&Context::from(Request::new().uri("http://api.example.com/?id=abcde"))), true);
+    /// assert_eq!(limiter.test(&Context::from(Request::new().uri("http://api.example.com/?id=qwert"))), false);
     /// ```
     #[inline]
     pub fn queries(&mut self, vec: Vec<(impl Into<String>, impl Into<Bytes>)>) -> &mut Self {

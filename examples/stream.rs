@@ -40,7 +40,7 @@ async fn main() -> FibraResult<()> {
     app.mount(addon::Logger::new());
 
     // read the sample by stream
-    // $ http -v localip.cc:3000
+    // $ http -v localhost:3000
     app.get("/", |_| async { Ok(Response::new().stream(FileStream::new()?)) })?;
 
     app.bind(3000)?;

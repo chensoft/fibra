@@ -8,14 +8,14 @@ async fn main() -> FibraResult<()> {
     app.mount(addon::Logger::new());
 
     // the request handler
-    // $ http -v localip.cc:3000/about
+    // $ http -v localhost:3000/about
     app.get("/about", about)?;
 
     // todo rewrite using middleware
 
     // rewrite request manually
-    // $ http -v localip.cc:3000/about.html
-    // $ http -v localip.cc:3000/about.html?name=Alice
+    // $ http -v localhost:3000/about.html
+    // $ http -v localhost:3000/about.html?name=Alice
     app.get("/about.html", |ctx: Context| {
         let query = match ctx.req().query().is_empty() {
             true => "".to_string(),
