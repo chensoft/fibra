@@ -20,7 +20,7 @@ impl Matcher {
     pub fn insert(&mut self, path: impl Into<Bytes>, service: impl Service) -> FibraResult<&mut Routine> {
         let path = path.into();
 
-        if !self.routes.contains_key(path.as_ref()) {
+        if self.routes.raw(path.as_ref()).is_none() {
             self.routes.insert(path.clone(), vec![])?;
         }
 
