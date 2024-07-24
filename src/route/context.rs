@@ -23,6 +23,9 @@ pub struct Context {
     /// The query string of the Uri
     queries: OnceCell<IndexMap<String, String>>,
 
+    /// The user-defined custom data
+    locals: IndexMap<String, String>,
+
     /// Internal routing stack, service is the parent, vector is whether it's a vector, index is the index of children
     routing: Vec<(*const dyn Service, bool, usize)>, // (service, index, vector)
 }
@@ -36,7 +39,7 @@ impl Context {
     pub fn new(app: Arc<Fibra>, conn: Arc<Connection>, req: Request) -> Self {
         let served = conn.count_add(1);
 
-        let mut myself = Self { app, conn, served, req, params: IndexMap::new(), queries: OnceCell::new(), routing: vec![] };
+        let mut myself = Self { app, conn, served, req, params: IndexMap::new(), queries: OnceCell::new(), locals: IndexMap::new(), routing: vec![] };
         myself.push(myself.app().as_ref(), false, 0);
         myself
     }
@@ -91,25 +94,6 @@ impl Context {
         self.served
     }
 
-    /// The endpoint on the local machine for the connection
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use fibra::*;
-    /// use std::net::SocketAddr;
-    ///
-    /// let con = Connection::from((SocketAddr::from(([127, 0, 0, 1], 3000)), SocketAddr::from(([8, 8, 8, 8], 80))));
-    /// let ctx = Context::from(con);
-    ///
-    /// assert_eq!(ctx.local().to_string(), "127.0.0.1:3000");
-    /// assert_eq!(ctx.remote().to_string(), "8.8.8.8:80");
-    /// ```
-    #[inline]
-    pub fn local(&self) -> &SocketAddr {
-        self.conn.sockaddr_ref()
-    }
-
     /// The remote address that the connection comes from
     ///
     /// # Examples
@@ -125,14 +109,9 @@ impl Context {
     /// assert_eq!(ctx.remote().to_string(), "8.8.8.8:80");
     /// ```
     #[inline]
-    pub fn remote(&self) -> &SocketAddr {
-        self.conn.peeraddr_ref()
-    }
-
-    /// todo The remote ip address
-    #[inline]
     pub fn realip(&self) -> IpAddr {
-        self.remote().ip()
+        // todo x-forward-for and etc...
+        self.conn.peeraddr_ref().ip()
     }
 }
 
@@ -427,6 +406,24 @@ impl Context {
         self.queries.get_or_init(|| {
             form_urlencoded::parse(self.req.query().as_bytes()).into_owned().collect()
         })
+    }
+
+    /// todo Local data ref
+    #[inline]
+    pub fn locals(&mut self, key: impl Into<String>, val: impl Into<String>) {
+        self.locals.insert(key.into(), val.into());
+    }
+
+    /// todo Local data ref
+    #[inline]
+    pub fn locals_ref(&self) -> &IndexMap<String, String> {
+        &self.locals
+    }
+
+    /// todo Local data mut
+    #[inline]
+    pub fn locals_mut(&mut self) -> &mut IndexMap<String, String> {
+        &mut self.locals
     }
 
     /// Request's whole uri

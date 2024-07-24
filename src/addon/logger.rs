@@ -92,7 +92,7 @@ impl Service for Logger {
         record.append("path", &ctx.path());
         record.append("query", &ctx.req().query());
         record.append("host", &ctx.host());
-        record.append("ip", &ctx.remote().ip().to_string());
+        record.append("ip", &ctx.realip().to_string());
 
         self.logger.flush(record);
 
