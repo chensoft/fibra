@@ -109,9 +109,14 @@ impl Context {
     /// assert_eq!(ctx.remote().to_string(), "8.8.8.8:80");
     /// ```
     #[inline]
-    pub fn realip(&self) -> IpAddr {
+    pub fn realip(&self) -> String {
         // todo x-forward-for and etc...
-        self.conn.peeraddr_ref().ip()
+        self.header("x-forward-for")
+            .split(',')
+            .next()
+            .filter(|ip| !ip.is_empty())
+            .map(|ip| ip.trim().to_string())
+            .unwrap_or_else(|| self.conn.peeraddr_ref().ip().to_string())
     }
 }
 
