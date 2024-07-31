@@ -813,11 +813,7 @@ impl From<Response> for hyper::Response<BoxBody> {
         *res.status_mut() = value.status;
 
         for (key, val) in value.headers {
-            let key = match key {
-                Some(key) => key,
-                None => continue,
-            };
-
+            let Some(key) = key else { continue; };
             res.headers_mut().insert(key, HeaderValue::try_from(val).unwrap_or_else(|_| unreachable!()));
         }
 

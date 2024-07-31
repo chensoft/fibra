@@ -437,10 +437,7 @@ impl Request {
     /// ```
     #[inline]
     pub fn domain(&self) -> &str {
-        match psl::domain(self.host().as_bytes()) {
-            Some(d) => unsafe { std::str::from_utf8_unchecked(d.as_bytes()) },
-            None => "",
-        }
+        psl::domain(self.host().as_bytes()).map_or("", |d| unsafe { std::str::from_utf8_unchecked(d.as_bytes()) })
     }
 
     /// Get the subdomain from the host
@@ -459,10 +456,7 @@ impl Request {
     #[inline]
     pub fn subdomain(&self) -> &str {
         let host = self.host();
-        let domain = match psl::domain(host.as_bytes()) {
-            Some(d) => d,
-            None => return "",
-        };
+        let Some(domain) = psl::domain(host.as_bytes()) else { return ""; };
 
         match host.len() > domain.as_bytes().len() {
             true => &host[..host.len() - domain.as_bytes().len() - 1],
@@ -517,10 +511,7 @@ impl Request {
     #[inline]
     pub fn hostname(&self) -> &str {
         let host = self.host();
-        return match host.rfind(':') {
-            None => host,
-            Some(find) => &host[..find],
-        };
+        host.rfind(':').map_or(host, |find| &host[..find])
     }
 
     /// Get the port
@@ -663,11 +654,7 @@ impl From<hyper::Request<hyper::body::Incoming>> for Request {
         let mut headers = HeaderMap::default();
 
         for (key, val) in head.headers {
-            let key = match key {
-                Some(key) => key,
-                None => continue,
-            };
-
+            let Some(key) = key else { continue; };
             let val = match val.to_str() {
                 Ok(val) => val.to_string(),
                 Err(_) => continue,
@@ -694,11 +681,7 @@ impl From<hyper::Request<Body>> for Request {
         let mut headers = HeaderMap::default();
 
         for (key, val) in head.headers {
-            let key = match key {
-                Some(key) => key,
-                None => continue,
-            };
-
+            let Some(key) = key else { continue; };
             let val = match val.to_str() {
                 Ok(val) => val.to_string(),
                 Err(_) => continue,
@@ -724,11 +707,7 @@ impl From<hyper::http::request::Parts> for Request {
         let mut headers = HeaderMap::default();
 
         for (key, val) in head.headers {
-            let key = match key {
-                Some(key) => key,
-                None => continue,
-            };
-
+            let Some(key) = key else { continue; };
             let val = match val.to_str() {
                 Ok(val) => val.to_string(),
                 Err(_) => continue,

@@ -100,10 +100,7 @@ impl Service for Logger {
         let result = ctx.next().await;
         let finish = SystemTime::now().duration_since(UNIX_EPOCH)?;
         let offset = (finish.as_nanos() as f64 - begin.as_nanos() as f64) / 1_000_000_000.0;
-        let status = match &result {
-            Ok(res) => res.status_ref().as_u16(),
-            _ => 0,
-        };
+        let status = result.as_ref().map_or(0, |v| v.status_ref().as_u16());
 
         // response log
         let mut record = self.logger.spawn(0, logkit::Source::default()).unwrap_or_else(|| unreachable!());

@@ -81,6 +81,7 @@
 
 ### Features
 
+- discard a connection, do not process
 - file-based routing use build.rs scan and gen include file inside user's mod file
 - addon hook Fibra allow build routes
 - Response: add file fn, auto detect file mime, chunk transfer, stream wrap attachment header

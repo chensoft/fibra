@@ -323,20 +323,14 @@ impl Fibra {
         // root router must have a catcher
         self.catcher.get_or_insert(Catcher::new());
 
-        // create service service to serve
+        // create service to serve
         let sockets = std::mem::take(&mut self.sockets);
         let mut servers = vec![];
 
         let app = Arc::new(self);
         let svc = |app: Arc<Fibra>, io: TokioIo<TcpStream>| {
-            let server = match io.inner().local_addr() {
-                Ok(obj) => obj,
-                Err(_) => return,
-            };
-            let client = match io.inner().peer_addr() {
-                Ok(obj) => obj,
-                Err(_) => return,
-            };
+            let Ok(server) = io.inner().local_addr() else { return; };
+            let Ok(client) = io.inner().peer_addr() else { return; };
 
             let con = Arc::new(Connection::from((server, client)));
 
@@ -358,11 +352,7 @@ impl Fibra {
 
                 async move {
                     loop {
-                        let (con, _) = match tcp.accept().await {
-                            Ok(obj) => obj,
-                            Err(_) => continue,
-                        };
-
+                        let Ok((con, _)) = tcp.accept().await else { continue; };
                         svc(app.clone(), TokioIo::new(con));
                     }
                 }

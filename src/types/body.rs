@@ -20,15 +20,8 @@ impl Body {
     /// Read all bytes
     #[inline]
     pub async fn read_all(&mut self) -> Option<Bytes> {
-        let first = match self.read_frame().await {
-            Some(obj) => obj,
-            None => return None,
-        };
-
-        let second = match self.read_frame().await {
-            Some(obj) => obj,
-            None => return Some(first),
-        };
+        let Some(first) = self.read_frame().await else { return None; };
+        let Some(second) = self.read_frame().await else { return Some(first); };
 
         let mut whole = BytesMut::new();
 
