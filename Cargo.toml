@@ -1,6 +1,6 @@
 [package]
 name = "fibra"
-version = "0.2.0"
+version = "0.3.0-alpha.1"
 authors = ["Jian Chen <admin@chensoft.com>"]
 edition = "2021"
 description = "Fast and Powerful HTTP router written in Rust"
@@ -14,14 +14,14 @@ keywords = ["fibra", "http", "router", "web", "server"]
 psl = "2.1"
 mime = "0.3"
 bytes = "1.6"
-tokio = { version = "1.39", features = ["full"] }
+tokio = { version = "1.40", features = ["full"] }
 hyper = { version = "1.4", features = ["full"] }
 hyper-util = { version = "0.1", features = ["full"] }
 logkit = "0.3"
 encoder = "0.2"
 socket2 = "0.5"
 futures = "0.3"
-indexmap = { version = "2.2", features = ["serde"] }
+indexmap = { version = "2.5", features = ["serde"] }
 radixmap = "0.2"
 thiserror = "1.0"
 async-trait = "0.1"
