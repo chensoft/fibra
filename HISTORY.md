@@ -106,3 +106,4 @@
 - test: curl --http2 --parallel -v http://localip.cc:3000/first http://localip.cc:3000/second
 - test: curl --http2-prior-knowledge --parallel -v http://localip.cc:3000/first http://localip.cc:3000/second
 - graceful shutdown
+- builder macro Bon 2.1
