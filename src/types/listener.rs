@@ -69,6 +69,7 @@ impl TryIntoListener for SocketAddr {
         };
 
         let socket = Socket::new(domain, Type::STREAM, Some(Protocol::TCP))?;
+        socket.set_nonblocking(true)?;
         socket.set_reuse_address(true)?;
         socket.bind(&self.into())?;
         socket.listen(128)?;

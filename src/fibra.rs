@@ -346,7 +346,10 @@ impl Fibra {
         };
 
         for socket in sockets {
-            let tcp = AsyncTcpListener::from_std(socket.into())?;
+            let tcp: StdTcpListener = socket.into();
+            tcp.set_nonblocking(true)?;
+
+            let tcp = AsyncTcpListener::from_std(tcp)?;
             let srv = {
                 let app = app.clone();
 
